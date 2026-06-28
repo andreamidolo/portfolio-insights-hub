@@ -35,6 +35,7 @@ Implementato in `engine/src/aa_engine/risk`:
 | 4 — Individual Risk | `marginal_risk`, `risk_contribution`, `leave_one_out`, `worst_realizations` | ✅ |
 | VaR backtesting | Kupiec POF, Christoffersen Independence/CC, traffic light Basilea | ✅ |
 | API REST | FastAPI (`aa_engine.api`) — contratto `docs/05_api_contract.md` | ✅ |
+| Backtest backbone | `aa_engine.backtest` — walk-forward + Combinatorial Purged CV + performance | ✅ |
 | 3 — Factorial Risk | `risk.factor` | 🔜 fase succ. |
 | 5 — Stress Testing | `risk.stress` (stub documentato) | 🔜 dopo |
 
@@ -55,6 +56,7 @@ pip install -e ".[dev]"
 
 pytest -q                          # test (risk engine + backtesting + API)
 python -m aa_engine.risk.demo      # stampa il pannello di rischio completo
+python -m aa_engine.backtest.demo  # walk-forward + CPCV su dati campione
 ```
 
 ### API REST (FastAPI)

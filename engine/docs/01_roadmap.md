@@ -34,15 +34,18 @@ individual risk, validati su un portafoglio campione, con test verdi e CI passan
 
 ---
 
-## Fase 2.5 — Backtest backbone
+## Fase 2.5 — Backtest backbone ✅
 
 > Serve subito dopo il risk engine, perché ottimizzazione e segnali vanno
 > validati out-of-sample.
 
-- [ ] `aa_engine.backtest` — Walk-Forward semplice
-- [ ] Combinatorial Purged Cross-Validation (López de Prado)
-- [ ] Metriche di performance (CAGR, Sharpe, Sortino, Max DD, Calmar) — riusare il risk engine
-- [ ] Report di backtest minimale
+- [x] `aa_engine.backtest` — Walk-Forward semplice (`WalkForwardSplitter`, rolling/expanding)
+- [x] Combinatorial Purged Cross-Validation (López de Prado) — purge + embargo
+- [x] Metriche di performance (CAGR, Sharpe, Sortino, Max DD, Calmar) — riusano il risk engine
+- [x] Report di backtest minimale (`format_report` / `render` + `python -m aa_engine.backtest.demo`)
+
+> Strategia = callable `train_returns -> pesi`: stessa firma dei futuri
+> ottimizzatori (Stadio 2), così sono drop-in nei runner di backtest.
 
 ---
 
