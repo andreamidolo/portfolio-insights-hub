@@ -84,13 +84,22 @@ individual risk, validati su un portafoglio campione, con test verdi e CI passan
 
 ---
 
-## Fase 4 — Integrazione, Reporting, Dati live
+## Fase 4 — Integrazione, Reporting, Dati live 🚧
 
-- [ ] Pipeline end-to-end: dati → segnali → selection → ottimizzazione → risk
-- [ ] **API REST** (FastAPI) in `engine/src/aa_engine/api/` secondo `docs/05_api_contract.md` — endpoint a cui aggancia il front-end React (stessa repo `portfolio-insights-hub`, vedi `docs/06_repo_structure.md`)
-- [ ] `aa_engine.reporting` — report mensile/settimanale (md/PDF) + Excel allocation
+**Versione dimostrativa ("il bottone") ✅**
+- [x] Pipeline end-to-end `aa_engine.pipeline.run_allocation`: regime → segnali → selection → ottimizzazione → risk (flusso UNICO)
+- [x] **Bottone doppio**: CLI (`python -m aa_engine.pipeline.run`) + API (`POST /api/v1/allocation/run`) — stesso `run_allocation`, niente logica duplicata
+- [x] **API REST** (FastAPI) secondo `docs/05_api_contract.md` — endpoint per il front-end
+- [x] Report dimostrativo (md/HTML) con le 6 sezioni stile AlgoEagle
+
+**Produzione (dopo) — "benzina vera"**
+- [ ] `aa_engine.reporting` — report ricco (PDF/grafici) + Excel allocation
 - [ ] **Collegare i dati live**: `BloombergProvider`, `MorningstarProvider`
 - [ ] Confronto sistematico vs track record AlgoEagle
+
+> Esito Fase 4 (demo): il flusso gira da un solo trigger, CLI e API danno lo
+> stesso risultato, i profili sono coerentemente più/meno rischiosi. Vedi
+> `docs/validation/phase4_results.md`.
 
 ---
 

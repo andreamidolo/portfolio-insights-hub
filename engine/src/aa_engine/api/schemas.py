@@ -123,3 +123,42 @@ class ErrorBody(BaseModel):
 
 class ErrorResponse(BaseModel):
     error: ErrorBody
+
+
+# --------------------------------------------------------------------------- #
+# /allocation/run  (Fase 4 — il "bottone")
+# --------------------------------------------------------------------------- #
+class AllocationRunRequest(BaseModel):
+    profile: Profile = "balanced"
+    currency: Currency = "EUR"
+    as_of: str | None = None
+
+
+class SignalCell(BaseModel):
+    direction: int          # +1 / 0 / -1
+    probability: float
+
+
+class SignalRow(BaseModel):
+    ticker: str
+    asset_class: str
+    trend: SignalCell
+    oscillator: SignalCell
+    alpha_crash: SignalCell
+    summary: SignalCell
+
+
+class AllocationResponse(BaseModel):
+    profile: Profile
+    currency: Currency
+    as_of: str
+    n_models_active: int
+    regimes: dict[str, RegimeLabel]
+    signals: list[SignalRow]
+    selected: list[str]
+    discarded: list[str]
+    selected_models: list[str]
+    final_weights: dict[str, float]
+    asset_class_weights: dict[str, float]
+    risk: dict[str, float]
+    excluded_models: dict[str, str] = {}

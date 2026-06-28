@@ -18,6 +18,8 @@ from aa_engine.risk.definitions import BY_CODE
 
 from . import sample
 from .schemas import (
+    AllocationResponse,
+    AllocationRunRequest,
     ContributionsResponse,
     HealthResponse,
     PortfolioResponse,
@@ -106,6 +108,15 @@ def create_app() -> FastAPI:
                 },
             )
         return ContributionsResponse(**sample.get_contributions(profile, currency, measure))
+
+    @app.post(f"{API_PREFIX}/allocation/run", response_model=AllocationResponse, tags=["pipeline"])
+    def allocation_run(req: AllocationRunRequest) -> AllocationResponse:
+        # Il "bottone": chiama LO STESSO flusso della CLI (nessuna logica duplicata).
+        # NB: gira ~38 modelli → può richiedere decine di secondi.
+        from aa_engine.pipeline.run import run_allocation
+
+        res = run_allocation(req.profile, req.currency, req.as_of)
+        return AllocationResponse(**res.to_payload())
 
     return app
 
