@@ -35,6 +35,7 @@ Implementato in `engine/src/aa_engine/risk`:
 | 4 — Individual Risk | `marginal_risk`, `risk_contribution`, `leave_one_out`, `worst_realizations` | ✅ |
 | VaR backtesting | Kupiec POF, Christoffersen Independence/CC, traffic light Basilea | ✅ |
 | API REST | FastAPI (`aa_engine.api`) — contratto `docs/05_api_contract.md` | ✅ |
+| Pipeline end-to-end | `aa_engine.pipeline.run_allocation` — "il bottone" (CLI + `POST /allocation/run`) + report | ✅ |
 | Backtest backbone | `aa_engine.backtest` — walk-forward + Combinatorial Purged CV + performance | ✅ |
 | 2 — Optimization | `aa_engine.optimization` — `OptModel` + **~38 modelli** (4 famiglie) + ensemble robusto | ✅ |
 | 1 — Signals | `aa_engine.signals` — Trend/Oscillator + SUMMARY→BL views + SVM (validato) + AlphaCrash | ✅ |
@@ -60,6 +61,7 @@ pytest -q                          # test (risk engine + backtesting + API)
 python -m aa_engine.risk.demo          # pannello di rischio completo
 python -m aa_engine.backtest.demo      # walk-forward + CPCV su dati campione
 python -m aa_engine.optimization.demo  # pipeline Fase 3 + 3 check di sanità
+python -m aa_engine.pipeline.run --profile balanced --currency EUR  # "il bottone": flusso completo + report
 ```
 
 ### API REST (FastAPI)

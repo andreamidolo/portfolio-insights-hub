@@ -33,3 +33,7 @@ outputs/
 .idea/
 .vscode/
 *.swp
+
+# Report generati dalla pipeline (Fase 4)
+report_*.md
+report_*.html
