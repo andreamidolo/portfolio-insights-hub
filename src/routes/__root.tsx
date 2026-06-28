@@ -84,6 +84,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Internal quantitative asset allocation dashboard." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "LFG — Allocation Engine" },
+      { name: "twitter:description", content: "Internal quantitative asset allocation dashboard." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c73de346-3171-4d5b-9e6c-21a1395432c0/id-preview-cc4ee9c1--904cde44-9488-47e5-8601-bd5defc0c4ed.lovable.app-1782674105768.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c73de346-3171-4d5b-9e6c-21a1395432c0/id-preview-cc4ee9c1--904cde44-9488-47e5-8601-bd5defc0c4ed.lovable.app-1782674105768.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
