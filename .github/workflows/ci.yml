@@ -1,0 +1,44 @@
+name: CI (engine)
+
+# Il motore Python vive in engine/. La CI gira solo quando cambia il motore o
+# questa workflow, così le modifiche al front-end (root) non la attivano.
+on:
+  push:
+    branches: [main, "feat/**", "research/**", "claude/**"]
+    paths:
+      - "engine/**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "engine/**"
+      - ".github/workflows/ci.yml"
+
+defaults:
+  run:
+    working-directory: engine
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint (ruff)
+        run: ruff check src tests
+
+      - name: Tests
+        run: pytest -q
