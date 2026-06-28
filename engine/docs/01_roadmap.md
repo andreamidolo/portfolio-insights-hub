@@ -99,8 +99,14 @@ individual risk, validati su un portafoglio campione, con test verdi e CI passan
 - [x] 2 endpoint read-only aggiunti: `GET /signals`, `GET /optimization/models` ("finestre di lettura")
 - [x] Regola d'oro: dato reale o segnaposto dichiarato — mock Lovable rimossi. Vedi `docs/validation/frontend_dashboard_results.md`
 
+**Front-end iterazione 2 — Upload dati + analisi mandati reali ✅**
+- [x] Sezione Dati/Import funzionante: upload prezzi (`/data/upload`, `/data/universe`) + upload mandato (`/portfolio/upload`)
+- [x] Analisi del mandato reale: radiografia rischio (`/portfolio/analyze`), segnali, ri-ottimizzazione ATTUALE vs PROPOSTA (`/portfolio/reoptimize`)
+- [x] Casi limite onesti: prezzi mancanti dichiarati, pesi ≠100% segnalati, CSV malformato → 400 leggibile
+- [x] Stato "dati utente vs backbone campione" persistente nella dashboard. Vedi `docs/validation/frontend_upload_results.md`
+
 **Produzione (dopo) — "benzina vera"**
-- [ ] Dati/Import (upload CSV) + Backtest (equity line) — prossime iterazioni front-end
+- [ ] Backtest (equity line walk-forward) — prossima iterazione front-end
 - [ ] `aa_engine.reporting` — report ricco (PDF/grafici) + Excel allocation
 - [ ] **Collegare i dati live**: `BloombergProvider`, `MorningstarProvider`
 - [ ] Confronto sistematico vs track record AlgoEagle

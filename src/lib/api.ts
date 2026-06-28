@@ -161,6 +161,86 @@ export interface OptimizationModelsResponse {
   baseline_score: number | null;
 }
 
+// ---- data upload + portfolio analysis (iteration 2) ----------------------
+
+export type DataSource = "user" | "sample";
+
+export interface InstrumentInfo {
+  ticker: string;
+  asset_class: string;
+  n_observations: number;
+  known: boolean;
+}
+
+export interface UniverseResponse {
+  source: DataSource;
+  filename: string | null;
+  n_instruments: number;
+  n_observations: number;
+  date_start: string;
+  date_end: string;
+  instruments: InstrumentInfo[];
+  warnings: string[];
+}
+
+export interface MandateHolding {
+  ticker: string;
+  isin: string;
+  weight: number;
+  asset_class: string;
+}
+
+export interface MandateResponse {
+  holdings: MandateHolding[];
+  weight_sum: number;
+  missing_prices: string[];
+  warnings: string[];
+}
+
+export interface HoldingInput {
+  ticker: string;
+  weight: number;
+  isin?: string;
+}
+
+export interface PortfolioAnalyzeResponse {
+  source: DataSource;
+  as_of: string;
+  n_holdings: number;
+  covered_weight: number;
+  missing_prices: string[];
+  summary: RiskPanelResponse["summary"];
+  metrics: RiskMetric[];
+  contributions: { name: string; weight: number; risk_contribution: number }[];
+  regimes: Record<string, Regime>;
+  signals: SignalRow[];
+}
+
+export interface ReoptimizeRow {
+  ticker: string;
+  asset_class: string;
+  current: number;
+  proposed: number;
+  delta: number;
+}
+
+export interface PortfolioReoptimizeResponse {
+  source: DataSource;
+  profile: Profile;
+  currency: Currency;
+  as_of: string;
+  covered_weight: number;
+  missing_prices: string[];
+  n_models_active: number;
+  selected_models: string[];
+  scorer: string;
+  regimes: Record<string, Regime>;
+  comparison: ReoptimizeRow[];
+  risk_current: Record<string, number>;
+  risk_proposed: Record<string, number>;
+  risk_delta: Record<string, number>;
+}
+
 // ---- transport -----------------------------------------------------------
 
 export class ApiError extends Error {
@@ -237,4 +317,30 @@ export const api = {
     request<OptimizationModelsResponse>(
       `/optimization/models?profile=${profile}&currency=${currency}${asOf ? `&as_of=${asOf}` : ""}`,
     ),
+
+  uploadPrices: (csv: string, filename?: string) =>
+    request<UniverseResponse>("/data/upload", {
+      method: "POST",
+      body: JSON.stringify({ csv, filename: filename ?? null }),
+    }),
+
+  universe: () => request<UniverseResponse>("/data/universe"),
+
+  uploadMandate: (csv: string, filename?: string) =>
+    request<MandateResponse>("/portfolio/upload", {
+      method: "POST",
+      body: JSON.stringify({ csv, filename: filename ?? null }),
+    }),
+
+  analyzePortfolio: (holdings: HoldingInput[], opts: { alpha?: number; mar?: number } = {}) =>
+    request<PortfolioAnalyzeResponse>("/portfolio/analyze", {
+      method: "POST",
+      body: JSON.stringify({ holdings, alpha: opts.alpha ?? 0.05, mar: opts.mar ?? 0 }),
+    }),
+
+  reoptimizePortfolio: (holdings: HoldingInput[], profile: Profile, currency: Currency) =>
+    request<PortfolioReoptimizeResponse>("/portfolio/reoptimize", {
+      method: "POST",
+      body: JSON.stringify({ holdings, profile, currency }),
+    }),
 };

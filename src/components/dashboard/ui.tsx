@@ -6,9 +6,10 @@
 
 import type { ReactNode } from "react";
 
+import type { RiskFamily, RiskMetric } from "@/lib/api";
 import type { AsyncState } from "@/lib/use-async";
 
-import { fmtPct, type SectionStatus } from "./format";
+import { fmtNum, fmtPct, type SectionStatus } from "./format";
 
 // ---- status badge --------------------------------------------------------
 
@@ -186,6 +187,74 @@ export function WeightBar({
         {fmtPct(value)}
       </div>
     </div>
+  );
+}
+
+// Risk-panel metrics grouped into the 3 families (shared by Risk + mandate analysis).
+const RISK_FAMILY_TITLE: Record<RiskFamily, string> = {
+  return_based: "Return-based",
+  tail: "Tail risk",
+  drawdown_based: "Drawdown-based",
+};
+const DIMENSIONLESS = new Set(["SKEW", "KT"]);
+
+export function MetricsTable({ metrics }: { metrics: RiskMetric[] }) {
+  const families: RiskFamily[] = ["return_based", "tail", "drawdown_based"];
+  return (
+    <Card className="overflow-hidden">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="border-b border-border bg-secondary/60 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <th className="w-[55%] px-4 py-2">Metrica</th>
+            <th className="px-4 py-2 text-right">Valore</th>
+            <th className="px-4 py-2 text-right">Return / Risk</th>
+          </tr>
+        </thead>
+        <tbody>
+          {families.map((fam) => {
+            const rows = metrics.filter((m) => m.family === fam);
+            if (rows.length === 0) return null;
+            return <FamilyRows key={fam} title={RISK_FAMILY_TITLE[fam]} rows={rows} />;
+          })}
+        </tbody>
+      </table>
+    </Card>
+  );
+}
+
+function FamilyRows({ title, rows }: { title: string; rows: RiskMetric[] }) {
+  return (
+    <>
+      <tr className="bg-secondary/30">
+        <td
+          colSpan={3}
+          className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary"
+        >
+          {title}
+        </td>
+      </tr>
+      {rows.map((m, i) => (
+        <tr
+          key={m.code}
+          className={"border-t border-border " + (i % 2 === 1 ? "bg-background/40" : "")}
+        >
+          <td className="px-4 py-1.5 text-sm text-foreground">
+            {m.name}
+            {m.approx && (
+              <span className="ml-1 text-muted-foreground" title="Valore approssimato">
+                ≈
+              </span>
+            )}
+          </td>
+          <td className="px-4 py-1.5 text-right font-mono text-sm tabular-nums text-foreground">
+            {DIMENSIONLESS.has(m.code) ? fmtNum(m.value) : fmtPct(m.value)}
+          </td>
+          <td className="px-4 py-1.5 text-right font-mono text-sm tabular-nums text-muted-foreground">
+            {fmtNum(m.ret_over_risk)}
+          </td>
+        </tr>
+      ))}
+    </>
   );
 }
 

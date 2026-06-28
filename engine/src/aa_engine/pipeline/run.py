@@ -117,6 +117,41 @@ def _risk_summary(returns: pd.DataFrame, weights: pd.Series) -> dict[str, float]
     }
 
 
+def compute_signal_outputs(
+    returns: pd.DataFrame, acmap: dict[str, str], regimes: dict[str, Regime]
+) -> tuple[dict[str, pd.DataFrame], pd.DataFrame]:
+    """Segnali tecnici + SUMMARY (modulato dal regime) su un set di rendimenti.
+
+    Riusabile su QUALSIASI universo (backbone campione o mandato caricato
+    dall'utente): la logica dei segnali è la stessa.
+    """
+    prices = 100.0 * (1.0 + returns).cumprod()
+    sig_outputs = {name: cls().compute(returns, prices) for name, cls in _SIGNALS.items()}
+    regime_per_ticker = pd.Series(
+        {t: int(regimes.get(acmap.get(t, "Unknown"), Regime.BULL)) for t in returns.columns}
+    )
+    summary = summary_signal(sig_outputs, regime=regime_per_ticker)
+    return sig_outputs, summary
+
+
+def build_signals_table(
+    sig_outputs: dict[str, pd.DataFrame], summary: pd.DataFrame, acmap: dict[str, str]
+) -> list[dict]:
+    """Tabella segnali stile AlgoEagle (una riga per strumento)."""
+    return [
+        {
+            "ticker": t,
+            "asset_class": acmap.get(t, "Unknown"),
+            **{name: {"direction": int(out.loc[t, "direction"]),
+                      "probability": round(float(out.loc[t, "probability"]), 3)}
+               for name, out in sig_outputs.items()},
+            "summary": {"direction": int(summary.loc[t, "direction"]),
+                        "probability": round(float(summary.loc[t, "probability"]), 3)},
+        }
+        for t in summary.index
+    ]
+
+
 @dataclass
 class _Context:
     """Lo stato condiviso "a monte" dell'ottimizzazione: regime, segnali, selezione.
@@ -166,7 +201,6 @@ def _build_context(
     as_of_str = returns_all.index[-1].date().isoformat()
     universe = universe or list(returns_all.columns)
     returns_all = returns_all[universe]
-    prices = 100.0 * (1.0 + returns_all).cumprod()
     acmap = {t: ASSET_CLASS_MAP.get(t, "Other") for t in universe}
 
     # 1. REGIME (proxy) per asset class
@@ -175,34 +209,19 @@ def _build_context(
 
     # 2. SEGNALI tecnici → SUMMARY (modulato dal regime) → views BL
     risk_by_sec = _risk_by_security(returns_all)
-    sig_outputs = {name: cls().compute(returns_all, prices) for name, cls in _SIGNALS.items()}
-    regime_per_ticker = pd.Series({t: int(regimes[acmap[t]]) for t in universe})
-    summary = summary_signal(sig_outputs, regime=regime_per_ticker)
+    sig_outputs, summary = compute_signal_outputs(returns_all, acmap, regimes)
     views = summary_to_bl_views(summary)
 
     # 3. SELECTION (filtra l'universo per regime)
     selected = select_securities(universe, acmap, regime_provider, risk_by_sec)
     discarded = [t for t in universe if t not in selected]
 
-    signals_table = [
-        {
-            "ticker": t,
-            "asset_class": acmap[t],
-            **{name: {"direction": int(out.loc[t, "direction"]),
-                      "probability": round(float(out.loc[t, "probability"]), 3)}
-               for name, out in sig_outputs.items()},
-            "summary": {"direction": int(summary.loc[t, "direction"]),
-                        "probability": round(float(summary.loc[t, "probability"]), 3)},
-        }
-        for t in universe
-    ]
-
     return _Context(
         profile=profile, currency=currency, as_of=as_of_str,
         universe=universe, returns=returns_all, acmap=acmap,
         regimes=regimes, regime_provider=regime_provider,
         views=views, selected=selected, discarded=discarded,
-        signals_table=signals_table,
+        signals_table=build_signals_table(sig_outputs, summary, acmap),
     )
 
 

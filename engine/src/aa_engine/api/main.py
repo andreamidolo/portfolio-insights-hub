@@ -21,13 +21,20 @@ from .schemas import (
     AllocationResponse,
     AllocationRunRequest,
     ContributionsResponse,
+    CsvUploadRequest,
     HealthResponse,
+    MandateResponse,
     OptimizationModelsResponse,
+    PortfolioAnalyzeRequest,
+    PortfolioAnalyzeResponse,
+    PortfolioReoptimizeRequest,
+    PortfolioReoptimizeResponse,
     PortfolioResponse,
     RegimesResponse,
     RiskPanelRequest,
     RiskPanelResponse,
     SignalsResponse,
+    UniverseResponse,
 )
 
 try:  # versione del pacchetto installato
@@ -145,6 +152,79 @@ def create_app() -> FastAPI:
         return OptimizationModelsResponse(
             **compute_optimization_models(profile, currency, as_of)
         )
+
+    # ----------------------------------------------------------------------- #
+    # Upload dati + analisi mandato (iterazione 2)
+    # ----------------------------------------------------------------------- #
+    def _bad_upload(exc: Exception) -> JSONResponse:
+        return JSONResponse(
+            status_code=400,
+            content={"error": {"code": "invalid_upload", "message": str(exc)}},
+        )
+
+    @app.post(f"{API_PREFIX}/data/upload", response_model=UniverseResponse, tags=["data"])
+    def data_upload(req: CsvUploadRequest) -> JSONResponse | UniverseResponse:
+        from . import store
+
+        try:
+            returns, _summary = store.parse_prices(req.csv)
+        except store.UploadError as exc:
+            return _bad_upload(exc)
+        store.STORE.set_market(returns, req.filename)
+        return UniverseResponse(**store.universe_summary())
+
+    @app.get(f"{API_PREFIX}/data/universe", response_model=UniverseResponse, tags=["data"])
+    def data_universe() -> UniverseResponse:
+        from . import store
+
+        return UniverseResponse(**store.universe_summary())
+
+    @app.post(f"{API_PREFIX}/portfolio/upload", response_model=MandateResponse, tags=["portfolio"])
+    def portfolio_upload(req: CsvUploadRequest) -> JSONResponse | MandateResponse:
+        from . import store
+
+        try:
+            mandate = store.parse_mandate(req.csv)
+        except store.UploadError as exc:
+            return _bad_upload(exc)
+        return MandateResponse(
+            holdings=mandate.holdings, weight_sum=mandate.weight_sum,
+            missing_prices=mandate.missing_prices, warnings=mandate.warnings,
+        )
+
+    @app.post(
+        f"{API_PREFIX}/portfolio/analyze",
+        response_model=PortfolioAnalyzeResponse,
+        tags=["portfolio"],
+    )
+    def portfolio_analyze(req: PortfolioAnalyzeRequest) -> JSONResponse | PortfolioAnalyzeResponse:
+        from . import portfolio, store
+
+        try:
+            res = portfolio.analyze(
+                [h.model_dump() for h in req.holdings], alpha=req.alpha, mar=req.mar
+            )
+        except store.UploadError as exc:
+            return _bad_upload(exc)
+        return PortfolioAnalyzeResponse(**res)
+
+    @app.post(
+        f"{API_PREFIX}/portfolio/reoptimize",
+        response_model=PortfolioReoptimizeResponse,
+        tags=["portfolio"],
+    )
+    def portfolio_reoptimize(
+        req: PortfolioReoptimizeRequest,
+    ) -> JSONResponse | PortfolioReoptimizeResponse:
+        from . import portfolio, store
+
+        try:
+            res = portfolio.reoptimize(
+                [h.model_dump() for h in req.holdings], req.profile, req.currency
+            )
+        except store.UploadError as exc:
+            return _bad_upload(exc)
+        return PortfolioReoptimizeResponse(**res)
 
     return app
 
