@@ -11,7 +11,7 @@
 
 export const API_BASE_URL: string =
   (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ??
-  "http://localhost:8000/api/v1";
+  "https://aa-engine-api.onrender.com/api/v1";
 
 // ---- Shared contract enums ----------------------------------------------
 
