@@ -1,0 +1,27 @@
+# Render Blueprint — fa girare il MOTORE (FastAPI) su un host Python con URL HTTPS
+# stabile, così la dashboard su Lovable può chiamarlo. Lovable ospita SOLO il
+# front-end (React); il motore Python non gira su Lovable e va messo qui.
+#
+# Uso: su https://render.com → New → Blueprint → connetti questa repo GitHub.
+# Render legge questo file, builda e avvia il servizio. Poi imposta in Lovable
+# VITE_API_BASE_URL = https://<nome-servizio>.onrender.com/api/v1 e ribuilda.
+#
+# Dopo il deploy, imposta nel pannello Render la variabile AA_API_CORS_ORIGINS
+# con l'URL della tua preview Lovable (vedi README → "Connettere Lovable al motore").
+services:
+  - type: web
+    name: aa-engine-api
+    runtime: python
+    rootDir: engine
+    plan: free                     # gratis per provare; per /allocation/run (41 modelli) meglio "starter"
+    buildCommand: pip install -e ".[api]"
+    startCommand: uvicorn aa_engine.api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      # Origini autorizzate per il browser (CORS). Imposta il valore nel pannello
+      # Render con l'URL della preview Lovable, es:
+      #   https://904cde44-9488-47e5-8601-bd5defc0c4ed.lovable.app
+      - key: AA_API_CORS_ORIGINS
+        sync: false
