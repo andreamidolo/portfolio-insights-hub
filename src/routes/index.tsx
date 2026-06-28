@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { API_BASE_URL, type Currency, type Profile } from "@/lib/api";
+import { API_BASE_URL, type Currency, type DataSource, type Profile } from "@/lib/api";
 
-import { BacktestSection, DataImportSection } from "@/components/dashboard/PlaceholderSections";
+import { DataImportSection } from "@/components/dashboard/DataImportSection";
+import { BacktestSection } from "@/components/dashboard/PlaceholderSections";
 import { OptimizationSection } from "@/components/dashboard/OptimizationSection";
 import { RiskSection } from "@/components/dashboard/RiskSection";
 import { RunReportSection } from "@/components/dashboard/RunReportSection";
@@ -49,10 +50,12 @@ function DashboardPage() {
   const [section, setSection] = useState<SectionId>("run");
   const [profile, setProfile] = useState<Profile>("balanced");
   const [currency, setCurrency] = useState<Currency>("EUR");
+  // Data source persists across the dashboard: "user" once prices are uploaded.
+  const [dataSource, setDataSource] = useState<DataSource>("sample");
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <TopBar />
+      <TopBar dataSource={dataSource} />
       <ControlBar
         profile={profile}
         currency={currency}
@@ -65,7 +68,13 @@ function DashboardPage() {
       <div className="mx-auto flex max-w-[1500px] gap-6 px-6 py-6">
         <Sidebar active={section} onSelect={setSection} />
         <main className="min-w-0 flex-1">
-          {section === "data" && <DataImportSection />}
+          {section === "data" && (
+            <DataImportSection
+              profile={profile}
+              currency={currency}
+              onSourceChange={setDataSource}
+            />
+          )}
           {section === "signals" && <SignalsSection />}
           {section === "optimization" && (
             <OptimizationSection profile={profile} currency={currency} />
@@ -79,7 +88,8 @@ function DashboardPage() {
   );
 }
 
-function TopBar() {
+function TopBar({ dataSource }: { dataSource: DataSource }) {
+  const user = dataSource === "user";
   return (
     <div className="border-b border-border bg-primary text-primary-foreground">
       <div className="mx-auto flex max-w-[1500px] items-center justify-between px-6 py-2.5">
@@ -88,8 +98,16 @@ function TopBar() {
           <span className="text-sm font-semibold tracking-wide">ALLOCATION ENGINE</span>
           <span className="text-xs text-primary-foreground/60">dashboard</span>
         </div>
-        <div className="hidden text-xs text-primary-foreground/70 sm:block">
-          API: <span className="font-mono">{API_BASE_URL}</span>
+        <div className="flex items-center gap-4">
+          <span
+            className="rounded-sm bg-primary-foreground/10 px-2 py-0.5 text-[10px] font-semibold tracking-wide"
+            title="Sorgente dati attiva in tutta la dashboard"
+          >
+            {user ? "DATI UTENTE" : "BACKBONE CAMPIONE"}
+          </span>
+          <span className="hidden text-xs text-primary-foreground/70 sm:block">
+            API: <span className="font-mono">{API_BASE_URL}</span>
+          </span>
         </div>
       </div>
     </div>

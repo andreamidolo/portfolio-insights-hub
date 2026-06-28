@@ -256,13 +256,15 @@ def enforce_caps(w: pd.Series, constraints: PortfolioConstraints | None) -> pd.S
                 viol = True
                 s[members] = s[members] * (cap / cw)
                 s[others] = s[others] + (cw - cap) * _shares(s[others])
-        # floor per asset class: porta la classe al minimo prendendo dalle altre
+        # floor per asset class: porta la classe al minimo prendendo dalle altre.
+        # Se la classe non ha strumenti nell'universo (es. un mandato senza Equity)
+        # il floor è insoddisfacibile → si ignora (niente da riempire).
         for cls, floor in floors.items():
             members = [t for t in s.index if acmap.get(t) == cls]
             others = [t for t in s.index if acmap.get(t) != cls]
             cw = float(s[members].sum())
             ow = float(s[others].sum())
-            if cw < floor - tol and others and ow > 0:
+            if members and cw < floor - tol and others and ow > 0:
                 viol = True
                 deficit = floor - cw
                 if cw > 0:

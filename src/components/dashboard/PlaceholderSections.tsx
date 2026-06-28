@@ -1,30 +1,8 @@
-// Declared placeholders — Dati/Import (input) and Backtest (Stage 3). The
-// structure is ready; the endpoints arrive in a later iteration. No fake data:
-// these sections say plainly "in arrivo" instead of inventing numbers.
+// Declared placeholder — Backtest (Stage 3). The structure is ready; the endpoint
+// arrives in a later iteration. No fake data: it says plainly "in arrivo" instead
+// of inventing numbers. (Dati/Import is now functional — see DataImportSection.)
 
 import { PlaceholderNotice, SectionHeader } from "./ui";
-
-export function DataImportSection() {
-  return (
-    <section>
-      <SectionHeader
-        step="Ingresso"
-        title="Dati / Import"
-        subtitle="Caricamento dell'universo (prezzi giornalieri, indici di volatilità) e vista delle serie storiche. La porta d'ingresso per i dati veri (Bloomberg/Morningstar)."
-        status="soon"
-      />
-      <PlaceholderNotice
-        endpoint="POST /api/v1/data/upload · GET /api/v1/data/universe"
-        bullets={[
-          "Upload CSV (drag & drop o file picker) di prezzi e indici di volatilità.",
-          "Tabella dell'universo: ticker, asset class, n. osservazioni, range date.",
-          "Anteprima grafica di una serie storica selezionata.",
-          "Stato: dati di prova (backbone campione) vs dati caricati dall'utente.",
-        ]}
-      />
-    </section>
-  );
-}
 
 export function BacktestSection() {
   return (

@@ -75,9 +75,11 @@ uvicorn aa_engine.api.main:app --reload --port 8000
 Endpoint (prefisso `/api/v1`, vedi `engine/docs/05_api_contract.md`):
 `GET /health`, `GET /regimes`, `GET /portfolio`, `POST /risk/panel`,
 `GET /risk/contributions`, `POST /allocation/run` ("il bottone"),
-`GET /signals` (Stadio 1) e `GET /optimization/models` (Stadio 2 — i 41 modelli).
-I dati provengono da un backbone campione deterministico (`aa_engine.api.sample`)
-— stessa forma, domani, con dati live.
+`GET /signals` (Stadio 1), `GET /optimization/models` (Stadio 2 — i 41 modelli),
+`POST /data/upload` + `GET /data/universe` (upload prezzi), `POST /portfolio/upload`,
+`POST /portfolio/analyze` e `POST /portfolio/reoptimize` (analisi di un mandato
+reale). I dati provengono da un backbone campione deterministico
+(`aa_engine.api.sample`), oppure dai prezzi **caricati dall'utente** via CSV.
 
 ### Front-end (React/Vite) — dashboard a 6 sezioni
 ```bash
@@ -90,12 +92,17 @@ Esegui/Report. Un unico *data service* tipizzato (`src/lib/api.ts`) parla con
 l'API; la base URL è configurabile con `VITE_API_BASE_URL`
 (default `http://localhost:8000/api/v1`).
 
+**Dati/Import** è funzionante: si caricano i **prezzi storici** (CSV) e un
+**mandato** (composizione), e si ottengono tre analisi sul portafoglio reale —
+radiografia del rischio, segnali, e la ri-ottimizzazione **ATTUALE vs PROPOSTA**.
+Lo stato "dati utente vs backbone campione" è mostrato in tutta la dashboard.
+
 > **Regola d'oro:** o è un dato VERO dall'API, o è un segnaposto DICHIARATO
 > ("in arrivo"). Nessun mock travestito da dato reale. Le sezioni collegate
-> (Segnali, Ottimizzazione, Rischio, Esegui/Report) mostrano dati del motore con
-> badge `LIVE`; Dati/Import e Backtest sono segnaposto dichiarati finché i loro
-> endpoint non esistono. Se il motore non è raggiungibile, la sezione lo dice
-> chiaramente invece di mostrare numeri finti.
+> (Dati/Import, Segnali, Ottimizzazione, Rischio, Esegui/Report) mostrano dati del
+> motore con badge `LIVE`; Backtest è un segnaposto dichiarato finché il suo
+> endpoint non esiste. Strumenti senza prezzi, pesi ≠100%, CSV malformati →
+> messaggi chiari, mai numeri finti.
 
 ---
 

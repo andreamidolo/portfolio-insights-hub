@@ -243,14 +243,61 @@ Note: `family` ∈ {`classics`, `bayesian`, `ai`, `online`, `robust`, `baseline`
 
 ---
 
+### 2.9 `POST /api/v1/data/upload`  (iterazione 2 — i dati veri)
+Carica un CSV di **prezzi storici** (il "carburante"). Body JSON (niente
+multipart): `{ "filename": "prezzi.csv", "csv": "<contenuto del file>" }`. Prima
+colonna = data, le altre = strumenti (prezzi). Lo store è **in memoria** (si
+azzera al riavvio). Validazione tollerante ma onesta: i problemi diventano
+`warnings`, non numeri inventati. Ritorna lo stesso schema di `GET /data/universe`.
+Errori → HTTP 400 `{ "error": { "code": "invalid_upload", "message": ... } }`.
+
+### 2.10 `GET /api/v1/data/universe`
+L'universo attivo (utente se caricato, altrimenti backbone campione).
+```json
+{
+  "source": "user", "filename": "prezzi.csv",
+  "n_instruments": 4, "n_observations": 299,
+  "date_start": "2025-05-06", "date_end": "2026-06-26",
+  "instruments": [
+    { "ticker": "AAA", "asset_class": "Unknown", "n_observations": 299, "known": false }
+  ],
+  "warnings": []
+}
+```
+
+### 2.11 `POST /api/v1/portfolio/upload`
+Carica un CSV di **composizione** mandato. Body `{ "csv": "ticker,peso\n..." }`.
+Riconosce colonne `ticker`/`isin` + `peso`/`weight`; i pesi in % (somma ~100)
+sono riportati a frazione (con nota). Valida la somma (~1.0) e segnala gli
+strumenti privi di prezzi nell'universo attivo.
+```json
+{
+  "holdings": [ { "ticker": "AAA", "isin": "", "weight": 0.4, "asset_class": "Unknown" } ],
+  "weight_sum": 1.0, "missing_prices": ["ZZZ"], "warnings": ["…"]
+}
+```
+
+### 2.12 `POST /api/v1/portfolio/analyze`
+Radiografia del rischio del mandato **così com'è** (pesi dell'utente, non
+ottimizzati). Body `{ "holdings": [{ "ticker", "weight" }], "alpha": 0.05, "mar": 0 }`.
+Ritorna `summary`, le 21 `metrics`, le `contributions`, i `regimes` e i `signals`
+sugli strumenti del mandato, più `covered_weight` e `missing_prices` (gli
+strumenti senza prezzi sono ESCLUSI e dichiarati, mai inventati).
+
+### 2.13 `POST /api/v1/portfolio/reoptimize`
+ATTUALE vs PROPOSTA. Body `{ "holdings", "profile", "currency" }`. Esegue
+l'ensemble sull'universo del mandato e ritorna `comparison` (pesi attuale/
+proposto/Δ per strumento), `risk_current`/`risk_proposed`/`risk_delta`
+(StdDev/CVaR/MaxDD/…), i 4 `selected_models`. ⚠️ gira i 41 modelli → lento.
+
+---
+
 ## 3. Endpoint futuri (placeholder — non implementare ora)
 
 Definiti qui solo per dare alla UI la mappa delle pagine successive.
 
 - `GET /api/v1/backtest` → equity line walk-forward (ensemble vs 1/N) + metriche
   storiche (CAGR, Sharpe, Sortino, MaxDD, Calmar). (iterazione successiva)
-- `POST /api/v1/data/upload` + `GET /api/v1/data/universe` → upload CSV prezzi e
-  vista dell'universo caricato. (iterazione successiva)
 
 ---
 

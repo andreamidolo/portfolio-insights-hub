@@ -206,3 +206,99 @@ class OptimizationModelsResponse(BaseModel):
     asset_class_weights: dict[str, float]
     baseline_equal_weight: dict[str, float]   # 1/N sugli strumenti selezionati
     baseline_score: float | None = None
+
+
+# --------------------------------------------------------------------------- #
+# Upload dati + analisi mandato (iterazione 2 — docs/13)
+# --------------------------------------------------------------------------- #
+class CsvUploadRequest(BaseModel):
+    filename: str | None = None
+    csv: str                          # contenuto testuale del CSV
+
+
+class InstrumentInfo(BaseModel):
+    ticker: str
+    asset_class: str
+    n_observations: int
+    known: bool                       # ticker presente nella mappa campione?
+
+
+class UniverseResponse(BaseModel):
+    source: Literal["user", "sample"]
+    filename: str | None = None
+    n_instruments: int
+    n_observations: int
+    date_start: str
+    date_end: str
+    instruments: list[InstrumentInfo]
+    warnings: list[str] = []
+
+
+class HoldingInput(BaseModel):
+    ticker: str
+    weight: float
+    isin: str | None = None
+
+
+class MandateHolding(BaseModel):
+    ticker: str
+    isin: str = ""
+    weight: float
+    asset_class: str
+
+
+class MandateResponse(BaseModel):
+    holdings: list[MandateHolding]
+    weight_sum: float
+    missing_prices: list[str] = []
+    warnings: list[str] = []
+
+
+class PortfolioAnalyzeRequest(BaseModel):
+    holdings: list[HoldingInput]
+    alpha: float = Field(0.05, gt=0, lt=1)
+    mar: float = 0.0
+
+
+class PortfolioAnalyzeResponse(BaseModel):
+    source: Literal["user", "sample"]
+    as_of: str
+    n_holdings: int
+    covered_weight: float             # frazione di peso effettivamente analizzata
+    missing_prices: list[str] = []
+    summary: RiskSummary
+    metrics: list[RiskMetricItem]
+    contributions: list[ContributionItem]
+    regimes: dict[str, RegimeLabel]
+    signals: list[SignalRow]
+
+
+class PortfolioReoptimizeRequest(BaseModel):
+    holdings: list[HoldingInput]
+    profile: Profile = "balanced"
+    currency: Currency = "EUR"
+
+
+class ReoptimizeRow(BaseModel):
+    ticker: str
+    asset_class: str
+    current: float
+    proposed: float
+    delta: float
+
+
+class PortfolioReoptimizeResponse(BaseModel):
+    source: Literal["user", "sample"]
+    profile: Profile
+    currency: Currency
+    as_of: str
+    covered_weight: float
+    missing_prices: list[str] = []
+    n_models_active: int
+    selected_models: list[str]
+    scorer: str
+    regimes: dict[str, RegimeLabel]
+    comparison: list[ReoptimizeRow]
+    risk_current: dict[str, float]
+    risk_proposed: dict[str, float]
+    risk_delta: dict[str, float]
