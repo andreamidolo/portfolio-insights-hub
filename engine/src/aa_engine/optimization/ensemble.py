@@ -10,8 +10,9 @@ stesso periodo su cui i pesi sono stimati. Per questo la Fase 2.5 viene PRIMA.
 
 from __future__ import annotations
 
+import logging
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
@@ -20,6 +21,18 @@ from aa_engine.backtest import WalkForwardSplitter, walk_forward_backtest
 from aa_engine.backtest.results import BacktestResult
 
 from .base import OptModel, PortfolioConstraints, enforce_caps, equal_weights
+
+logger = logging.getLogger(__name__)
+
+
+def _valid_weights(w: pd.Series, *, long_only: bool) -> None:
+    """Solleva ValueError se i pesi non sono validi (per l'esclusione robusta)."""
+    if w is None or len(w) == 0 or not np.isfinite(w.to_numpy()).all():
+        raise ValueError("pesi non finiti/vuoti")
+    if abs(float(w.sum()) - 1.0) > 1e-3:
+        raise ValueError(f"somma pesi {float(w.sum()):.3f} ≠ 1")
+    if long_only and (w < -1e-6).any():
+        raise ValueError("pesi negativi con long-only")
 
 
 # --------------------------------------------------------------------------- #
@@ -65,6 +78,19 @@ class EnsembleResult:
     final_weights: pd.Series
     scorer: str
     n_best: int
+    excluded: dict[str, str] = field(default_factory=dict)   # modello → motivo esclusione
+
+    @property
+    def n_active(self) -> int:
+        return len(self.weights_by_model)
+
+    def summary(self) -> dict:
+        return {
+            "n_active": self.n_active,
+            "n_excluded": len(self.excluded),
+            "selected": list(self.selected),
+            "scorer": self.scorer,
+        }
 
     def scores_frame(self) -> pd.DataFrame:
         df = pd.DataFrame(
@@ -104,16 +130,23 @@ class OptimizationEnsemble:
         scorer = scorer or CalmarScorer()
         splitter = splitter or self._default_splitter(len(returns))
 
+        long_only = constraints is None or constraints.long_only
         weights_by_model: dict[str, pd.Series] = {}
         scores: dict[str, float] = {}
+        excluded: dict[str, str] = {}
 
         for model in self.models:
-            # 1. allocazione finale: fit sull'intera storia (regime-filtrata)
+            # 1. allocazione finale: fit sull'intera storia (regime-filtrata).
+            #    Modello che non converge / pesi invalidi → ESCLUSO (non blocca).
             try:
                 w = model.fit_weights(
                     returns, regime_mask=regime_mask, views=views, constraints=constraints
                 )
-            except Exception:  # pragma: no cover - robustezza a solver instabili
+                _valid_weights(w, long_only=long_only)
+            except Exception as exc:
+                reason = str(exc)[:120] or type(exc).__name__
+                excluded[model.name] = reason
+                logger.warning("Ensemble: modello escluso '%s' (%s)", model.name, reason)
                 continue
             weights_by_model[model.name] = w
 
@@ -145,4 +178,5 @@ class OptimizationEnsemble:
             final_weights=final,
             scorer=scorer.name,
             n_best=self.n_best,
+            excluded=excluded,
         )

@@ -36,7 +36,7 @@ Implementato in `engine/src/aa_engine/risk`:
 | VaR backtesting | Kupiec POF, Christoffersen Independence/CC, traffic light Basilea | ✅ |
 | API REST | FastAPI (`aa_engine.api`) — contratto `docs/05_api_contract.md` | ✅ |
 | Backtest backbone | `aa_engine.backtest` — walk-forward + Combinatorial Purged CV + performance | ✅ |
-| 2 — Optimization | `aa_engine.optimization` — `OptModel` + 9 modelli + ensemble (4 migliori) | ✅ |
+| 2 — Optimization | `aa_engine.optimization` — `OptModel` + **~38 modelli** (4 famiglie) + ensemble robusto | ✅ |
 | 1 — Signals | `aa_engine.signals` — Trend/Oscillator + SUMMARY→BL views + SVM (validato) + AlphaCrash | ✅ |
 | 3 — Factorial Risk | `risk.factor` | 🔜 fase succ. |
 | 5 — Stress Testing | `risk.stress` (stub documentato) | 🔜 dopo |

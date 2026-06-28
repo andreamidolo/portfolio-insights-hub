@@ -17,7 +17,7 @@ API pubblica stabile: importare da qui.
 """
 
 from .base import OptModel, PortfolioConstraints
-from .bayesian import BlackLitterman
+from .bayesian import BayesStein, BlackLitterman, MeucciEntropyPooling
 from .classic import (
     EqualWeight,
     MaxSharpe,
@@ -27,6 +27,7 @@ from .classic import (
     RiskParity,
 )
 from .clustering import HERC, HRP, NCO
+from .deep import DeepLearningOpt, DeepRLOpt
 from .ensemble import (
     CalmarScorer,
     EnsembleResult,
@@ -34,23 +35,84 @@ from .ensemble import (
     Scorer,
     SharpeScorer,
 )
+from .online import (
+    CORN,
+    RMR,
+    Anticor,
+    ExponentialGradient,
+    FollowTheLeader,
+    FollowTheRegularizedLeader,
+    OLMAR,
+    PAMR,
+)
+from .risk_measures import (
+    Kelly,
+    MaxRatioCVaR,
+    MaxSortino,
+    MinADD,
+    MinEDaR,
+    MinEVaR,
+    MinFLPM,
+    MinGMD,
+    MinMAD,
+    MinMDD,
+    MinSemiDev,
+    MinSLPM,
+    MinUlcer,
+    MinWR,
+)
+from .robust import Goldilocks, MichaudResampling, RobustEllipsoidal, TalmudBlend
+from .timing import ParametricPolicy, RewardToRiskTiming, VolatilityTiming
 
-#: I 9 modelli curati + baseline (l'insieme di default dell'ensemble).
-DEFAULT_MODELS: tuple[type[OptModel], ...] = (
+# --------------------------------------------------------------------------- #
+# Il "vero" ensemble: ~40 modelli su 4 famiglie + baseline (no Deep: rinviati).
+# Aggiungere un modello = aggiungere la sua classe a questa tupla.
+# --------------------------------------------------------------------------- #
+_CLASSICS = (
     MinVolatility, MaxSharpe, RiskParity, MinCVaR, MinCDaR,
-    BlackLitterman, HRP, HERC, NCO, EqualWeight,
+    MinMAD, MinSemiDev, MinFLPM, MinSLPM, MinEVaR, MinWR, MinGMD,
+    MinMDD, MinADD, MinEDaR, MinUlcer, MaxSortino, MaxRatioCVaR, Kelly,
+    VolatilityTiming, RewardToRiskTiming, ParametricPolicy,
+)
+_BAYESIAN = (BlackLitterman, BayesStein, MeucciEntropyPooling)
+_AI = (HRP, HERC, NCO)
+_ONLINE = (
+    ExponentialGradient, FollowTheLeader, FollowTheRegularizedLeader,
+    PAMR, OLMAR, RMR, Anticor, CORN,
+)
+_ROBUST = (MichaudResampling, TalmudBlend, Goldilocks, RobustEllipsoidal)
+_BASELINE = (EqualWeight,)
+
+#: Insieme attivo dell'ensemble (~38 modelli + baseline). I Deep restano stub.
+DEFAULT_MODELS: tuple[type[OptModel], ...] = (
+    _CLASSICS + _BAYESIAN + _AI + _ONLINE + _ROBUST + _BASELINE
 )
 
 
 def default_ensemble(n_best: int = 4) -> OptimizationEnsemble:
-    """Ensemble con i 9 modelli curati + baseline 1/N."""
+    """Ensemble "vero": ~38 modelli curati (4 famiglie) + baseline 1/N."""
     return OptimizationEnsemble([m() for m in DEFAULT_MODELS], n_best=n_best)
 
 
 __all__ = [
     "OptModel", "PortfolioConstraints",
+    # classics
     "EqualWeight", "MinVolatility", "MaxSharpe", "RiskParity", "MinCVaR", "MinCDaR",
-    "BlackLitterman", "HRP", "HERC", "NCO",
+    "MinMAD", "MinSemiDev", "MinFLPM", "MinSLPM", "MinEVaR", "MinWR", "MinGMD",
+    "MinMDD", "MinADD", "MinEDaR", "MinUlcer", "MaxSortino", "MaxRatioCVaR", "Kelly",
+    "VolatilityTiming", "RewardToRiskTiming", "ParametricPolicy",
+    # bayesian
+    "BlackLitterman", "BayesStein", "MeucciEntropyPooling",
+    # ai (clustering)
+    "HRP", "HERC", "NCO",
+    # online
+    "ExponentialGradient", "FollowTheLeader", "FollowTheRegularizedLeader",
+    "PAMR", "OLMAR", "RMR", "Anticor", "CORN",
+    # robust
+    "MichaudResampling", "TalmudBlend", "Goldilocks", "RobustEllipsoidal",
+    # deep (stub, non attivi)
+    "DeepLearningOpt", "DeepRLOpt",
+    # ensemble
     "OptimizationEnsemble", "EnsembleResult", "Scorer", "SharpeScorer", "CalmarScorer",
     "DEFAULT_MODELS", "default_ensemble",
 ]

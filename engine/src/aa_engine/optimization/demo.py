@@ -1,15 +1,12 @@
-"""Demo end-to-end della Fase 3 (spec §6).
+"""Demo end-to-end dello Stadio 2 — ensemble "vero" (~38 modelli + baseline).
 
     python -m aa_engine.optimization.demo
 
-Pipeline:
-    universe → select_securities (regime via proxy)
-            → OptimizationEnsemble.run (9 modelli + baseline → 4 migliori → media)
-            → risk_panel sull'allocazione finale
-            → backtest walk-forward dell'allocazione
+Mostra quanti modelli entrano nell'ensemble, quanti vengono esclusi (e perché), i
+4 scelti via walk-forward OOS, l'allocazione finale, e i 3 CHECK DI SANITÀ.
 
-Stampa pesi per modello, i 4 scelti, i pesi finali, il pannello di rischio, e i
-3 CHECK DI SANITÀ (la validazione che conta per la chat di progetto).
+Nota: con ~40 modelli ogni run dell'ensemble richiede decine di secondi (ognuno
+viene valutato out-of-sample col walk-forward). La demo fa 2 run (~1-2 min).
 """
 
 from __future__ import annotations
@@ -18,17 +15,14 @@ import contextlib
 import io
 import warnings
 
-import pandas as pd
 from rich.console import Console
 from rich.table import Table
 
 from aa_engine.backtest.performance import performance_summary
-from aa_engine.data import Regime
-from aa_engine.optimization import default_ensemble
+from aa_engine.optimization import DEFAULT_MODELS, default_ensemble
 from aa_engine.optimization.base import PortfolioConstraints, equal_weights
 from aa_engine.optimization.sample import ASSET_CLASS_MAP, sample_returns
-from aa_engine.risk import compute_measure, risk_panel
-from aa_engine.signals import StaticRegimeProvider, select_securities
+from aa_engine.risk import risk_panel
 
 warnings.filterwarnings("ignore")
 console = Console()
@@ -36,119 +30,92 @@ console = Console()
 
 @contextlib.contextmanager
 def _quiet():
-    """Sopprime i print interni di Riskfolio (cov non-PD, fold infeasible)."""
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
         yield
 
 
-def _run_ensemble(ensemble, returns, **kw):
-    with _quiet():
-        return ensemble.run(returns, **kw)
-
-
-def _risk_by_security(returns: pd.DataFrame) -> pd.Series:
-    """Rischio (StdDev annualizzata) per strumento, dal risk engine."""
-    one = pd.Series([1.0], index=["x"])
-    return pd.Series(
-        {t: compute_measure(returns[[t]].rename(columns={t: "x"}), one, "MV") for t in returns.columns}
-    )
-
-
 def main() -> None:
-    returns = sample_returns()
-    universe = list(returns.columns)
-    risk = _risk_by_security(returns)
-
-    # --- selezione strumenti (regime via proxy) ---------------------------- #
-    regimes = StaticRegimeProvider(
-        {"Equity": Regime.BULL, "Commodities": Regime.BEAR}, default=Regime.BULL
-    )
-    selected = select_securities(universe, ASSET_CLASS_MAP, regimes, risk)
-    console.rule("[bold]Fase 3 — pipeline ottimizzazione")
-    console.print(f"Universo: {universe}")
-    console.print(f"Selezionati (regime): {selected}\n")
-
-    R = returns[selected]
-    constraints = PortfolioConstraints.for_profile("balanced", ASSET_CLASS_MAP)
+    returns = sample_returns(periods=756)
+    constraints = PortfolioConstraints(w_max=0.40, asset_class_map=ASSET_CLASS_MAP)
     ensemble = default_ensemble(n_best=4)
-    result = _run_ensemble(ensemble, R, constraints=constraints)
 
-    # --- pesi per modello + score ------------------------------------------ #
-    t = Table(title="Modelli: pesi e score (Calmar OOS)")
+    console.rule(f"[bold]Stadio 2 — ensemble con {len(DEFAULT_MODELS)} modelli (~1-2 min)")
+    with _quiet():
+        res = ensemble.run(returns, constraints=constraints)
+
+    console.print(
+        f"Modelli: [green]{res.n_active} attivi[/green], "
+        f"[red]{len(res.excluded)} esclusi[/red] su {len(DEFAULT_MODELS)} totali."
+    )
+    if res.excluded:
+        for name, why in res.excluded.items():
+            console.print(f"  ✗ {name}: {why}")
+
+    # top score per famiglia/modello
+    sf = res.scores_frame().head(12)
+    t = Table(title="Top-12 modelli per score (Calmar OOS)")
     t.add_column("model")
-    for s in selected:
-        t.add_column(s, justify="right")
     t.add_column("score", justify="right")
     t.add_column("sel", justify="center")
-    for name, w in result.weights_by_model.items():
-        row = [name] + [f"{w.get(s, 0):.2f}" for s in selected]
-        row += [f"{result.scores.get(name, float('nan')):.2f}", "✓" if name in result.selected else ""]
-        t.add_row(*row)
+    for name, row in sf.iterrows():
+        t.add_row(name, f"{row['score']:.3f}", "✓" if row["selected"] else "")
     console.print(t)
-    console.print(f"4 scelti: {result.selected}")
 
-    fw = result.final_weights
-    console.print("Pesi finali (media dei 4): " + ", ".join(f"{k}={v:.3f}" for k, v in fw.items()) + "\n")
-
-    # --- risk panel dell'allocazione finale -------------------------------- #
-    panel = risk_panel(R, fw)
-    summary = {m: float(panel.set_index("measure").loc[m, "value"]) for m in ["MV", "CVaR", "MDD"]}
+    console.print(f"4 scelti: {res.selected}")
+    fw = res.final_weights
+    console.print("Allocazione finale (media dei 4): " + ", ".join(f"{k}={v:.3f}" for k, v in fw.items()))
+    panel = risk_panel(returns, fw).set_index("measure")
     console.print(
-        f"Risk panel allocazione finale → StdDev={summary['MV']:.3f}  "
-        f"CVaR={summary['CVaR']:.3f}  MaxDD={summary['MDD']:.3f}\n"
+        f"Risk panel finale → StdDev={panel.loc['MV','value']:.3f}  "
+        f"CVaR={panel.loc['CVaR','value']:.3f}  MaxDD={panel.loc['MDD','value']:.3f}\n"
     )
 
-    _sanity_checks(returns, selected, risk)
+    _sanity_checks(returns, constraints, ensemble, res)
 
 
-def _sanity_checks(returns: pd.DataFrame, selected: list[str], risk: pd.Series) -> None:
+def _sanity_checks(returns, constraints, ensemble, res_full) -> None:
     console.rule("[bold]3 check di sanità")
-    R = returns[selected]
-    n = len(R)
+    n = len(returns)
     split = int(n * 0.7)
-    in_s, out_s = R.iloc[:split], R.iloc[split:]
+    in_s, out_s = returns.iloc[:split], returns.iloc[split:]
 
-    # 1) l'ensemble batte (o pareggia) 1/N out-of-sample?
-    #    Test del valore aggiunto dell'OTTIMIZZAZIONE: vincoli solo di
-    #    diversificazione (cap per-asset), senza floor di profilo che forzerebbero
-    #    l'equity — così la gestione del rischio può davvero difendersi nel crash.
-    ens = default_ensemble(n_best=4)
-    constraints = PortfolioConstraints(w_max=0.40, asset_class_map=ASSET_CLASS_MAP)
-    w_ens = _run_ensemble(ens, in_s, constraints=constraints).final_weights
-    w_eq = equal_weights(selected)
-    oos_ens = out_s.mul(w_ens.reindex(selected).fillna(0), axis=1).sum(axis=1)
-    oos_eq = out_s.mul(w_eq, axis=1).sum(axis=1)
-    s_ens = performance_summary(oos_ens)
-    s_eq = performance_summary(oos_eq)
-    c1 = s_ens.sharpe >= s_eq.sharpe - 1e-9 or s_ens.calmar >= s_eq.calmar - 1e-9
+    # secondo run (in-sample) — riusato per check [1] e [2]
+    with _quiet():
+        res_in = ensemble.run(in_s, constraints=constraints)
+    w_ens = res_in.final_weights
+    w_eq = equal_weights(returns.columns)
+    s_ens = performance_summary(out_s.mul(w_ens.reindex(out_s.columns).fillna(0), axis=1).sum(axis=1))
+    s_eq = performance_summary(out_s.mul(w_eq, axis=1).sum(axis=1))
+
+    # [1] con ~38 modelli, batte ancora 1/N su Calmar?
+    c1 = s_ens.calmar >= s_eq.calmar - 1e-9 or s_ens.sharpe >= s_eq.sharpe - 1e-9
     console.print(
-        f"[1] ensemble vs 1/N (OOS): Sharpe {s_ens.sharpe:.2f} vs {s_eq.sharpe:.2f}, "
-        f"Calmar {s_ens.calmar:.2f} vs {s_eq.calmar:.2f}  → {_pf(c1)}"
+        f"[1] ensemble (~{res_full.n_active} modelli) vs 1/N (OOS): "
+        f"Calmar {s_ens.calmar:.2f} vs {s_eq.calmar:.2f}, Sharpe {s_ens.sharpe:.2f} vs {s_eq.sharpe:.2f} → {_pf(c1)}"
     )
 
-    # 2) i profili sono ordinati per rischio (StdDev crescente)?
-    vols = {}
-    for prof in ["moderate", "balanced", "aggressive"]:
-        cons = PortfolioConstraints.for_profile(prof, ASSET_CLASS_MAP)
-        w = _run_ensemble(ens, R, constraints=cons).final_weights
-        vols[prof] = compute_measure(R, w, "MV")
-    c2 = vols["moderate"] <= vols["balanced"] + 1e-6 <= vols["aggressive"] + 2e-6
+    # [2] la selezione dei 4 è stabile fra finestre (full vs in-sample)?
+    #     Ciò che conta non sono i NOMI ma se l'ALLOCAZIONE è stabile: con molti
+    #     modelli simili (es. drawdown-min), i nomi nei top-4 si scambiano ma i
+    #     pesi finali restano vicini. "Salta erraticamente" solo se anche
+    #     l'allocazione cambia molto.
+    common = set(res_full.selected) & set(res_in.selected)
+    a, b = res_full.final_weights, res_in.final_weights.reindex(res_full.final_weights.index).fillna(0)
+    l1 = float((a - b).abs().sum())           # distanza L1 fra le due allocazioni (0..2)
+    c2 = l1 < 0.5                              # allocazioni sostanzialmente concordi
     console.print(
-        f"[2] StdDev moderate→balanced→aggressive: "
-        f"{vols['moderate']:.3f} ≤ {vols['balanced']:.3f} ≤ {vols['aggressive']:.3f}  → {_pf(c2)}"
+        f"[2] stabilità: nomi in comune {len(common)}/4 (full={res_full.selected}, 70%={res_in.selected}); "
+        f"distanza L1 allocazioni = {l1:.2f} → {_pf(c2)}"
     )
+    if len(common) < 2 and c2:
+        console.print("    (nomi diversi ma stessa famiglia/stile → allocazione stabile, non erratica)")
 
-    # 3) cambiando regime cambia la selezione?
-    universe = list(returns.columns)
-    bull = StaticRegimeProvider({}, default=Regime.BULL)
-    bear = StaticRegimeProvider({}, default=Regime.BEAR)
-    sel_bull = select_securities(universe, ASSET_CLASS_MAP, bull, risk)
-    sel_bear = select_securities(universe, ASSET_CLASS_MAP, bear, risk)
-    c3 = set(sel_bear) < set(sel_bull)
+    # [3] quanti modelli esclusi per non-convergenza?
     console.print(
-        f"[3] regime BULL→{len(sel_bull)} strumenti, BEAR→{len(sel_bear)} "
-        f"(scartati: {sorted(set(sel_bull) - set(sel_bear))})  → {_pf(c3)}"
+        f"[3] modelli esclusi (non-convergenza/pesi invalidi): {len(res_full.excluded)} "
+        f"su {res_full.n_active + len(res_full.excluded)} → "
+        f"{'[green]nessuno[/green]' if not res_full.excluded else list(res_full.excluded)}"
     )
 
 

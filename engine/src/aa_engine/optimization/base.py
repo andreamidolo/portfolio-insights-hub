@@ -209,6 +209,14 @@ def make_portfolio(returns: pd.DataFrame, constraints: PortfolioConstraints | No
     return port
 
 
+def _shares(s: pd.Series) -> pd.Series:
+    """Quote di redistribuzione proporzionali al peso; equal-split se tutti 0."""
+    total = float(s.sum())
+    if total > 0:
+        return s / total
+    return pd.Series(1.0 / len(s), index=s.index) if len(s) else s
+
+
 def enforce_caps(w: pd.Series, constraints: PortfolioConstraints | None) -> pd.Series:
     """Impone per-asset bound e cap di asset class su pesi già calcolati.
 
@@ -233,8 +241,12 @@ def enforce_caps(w: pd.Series, constraints: PortfolioConstraints | None) -> pd.S
             viol = True
             excess = float((s[over] - w_max).sum())
             s[over] = w_max
-            under = ~over
-            s[under] = s[under] + excess * s[under] / s[under].sum()
+            # ridistribuisci in base alla CAPIENZA (w_max − peso): riempie anche
+            # gli strumenti a peso 0, garantendo la fattibilità (serve n·w_max ≥ 1)
+            head = (w_max - s).clip(lower=0.0)
+            head[over] = 0.0
+            if float(head.sum()) > 0:
+                s = s + excess * head / head.sum()
         # cap per asset class: scala la classe e ridistribuisci alle altre
         for cls, cap in caps.items():
             members = [t for t in s.index if acmap.get(t) == cls]
@@ -243,7 +255,7 @@ def enforce_caps(w: pd.Series, constraints: PortfolioConstraints | None) -> pd.S
             if cw > cap + tol and others:
                 viol = True
                 s[members] = s[members] * (cap / cw)
-                s[others] = s[others] + (cw - cap) * s[others] / s[others].sum()
+                s[others] = s[others] + (cw - cap) * _shares(s[others])
         # floor per asset class: porta la classe al minimo prendendo dalle altre
         for cls, floor in floors.items():
             members = [t for t in s.index if acmap.get(t) == cls]

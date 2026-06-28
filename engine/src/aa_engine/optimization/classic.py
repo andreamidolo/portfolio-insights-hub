@@ -29,10 +29,15 @@ class EqualWeight(OptModel):
 
 
 class _RiskfolioClassic(OptModel):
-    """Base per i modelli ``rf.Portfolio.optimization`` (model='Classic')."""
+    """Base per i modelli ``rf.Portfolio.optimization`` (model='Classic').
+
+    Sottoclassi: basta impostare ``rm`` (misura di rischio), ``obj`` (obiettivo) e
+    opzionalmente ``kelly``. Aggiungere un modello = una classe in più.
+    """
 
     rm: str = "MV"
     obj: str = "MinRisk"  # 'MinRisk' | 'Sharpe' | 'MaxRet' | 'Utility'
+    kelly: str | None = None  # None | 'approx' | 'exact' (criterio di Kelly)
 
     def fit_weights(
         self, returns, *, regime_mask=None, views=None,
@@ -40,7 +45,9 @@ class _RiskfolioClassic(OptModel):
     ) -> pd.Series:
         r = apply_regime(returns, regime_mask)
         port = make_portfolio(r, constraints)
-        w = port.optimization(model="Classic", rm=self.rm, obj=self.obj, rf=0, l=0, hist=True)
+        w = port.optimization(
+            model="Classic", rm=self.rm, obj=self.obj, kelly=self.kelly, rf=0, l=0, hist=True
+        )
         return weights_from_rf(w, r.columns, constraints)
 
 

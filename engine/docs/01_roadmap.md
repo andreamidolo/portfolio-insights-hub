@@ -51,13 +51,20 @@ individual risk, validati su un portafoglio campione, con test verdi e CI passan
 
 ## Fase 3 — Optimization + Signals 🚧
 
-**Optimization (Stadio 2)** — impalcatura completa, riempita con 9 modelli + baseline
+**Optimization (Stadio 2)** — ✅ ensemble "vero": **~38 modelli** (4 famiglie) + baseline
 - [x] Interfaccia `OptModel` + orchestratore multi-modello (`OptimizationEnsemble`)
-- [x] Set 1 (Classics: MinVol, MaxSharpe, RiskParity, MinCVaR, MinCDaR) e Set 5 (HRP/HERC/NCO) via Riskfolio-Lib
-- [x] Set 2 (Bayesiano: Black-Litterman, con `views` = ponte verso i segnali)
-- [ ] Set 3 (Online PO) e Set 4 (Robust) — dopo, quando l'impalcatura è provata
+- [x] Set 1 (Classics) — 5 base + risk-measure objectives (MinMAD/MSV/EVaR/WR/MDD/ADD/EDaR/UCI/GMD…) + timing (Kelly, Vol/Reward, Parametric)
+- [x] Set 2 (Bayesiano: Black-Litterman + `views`, Bayes-Stein, Entropy-Pooling)
+- [x] Set 3 (Online PO: EG, FTL, FTRL, PAMR, OLMAR, RMR, Anticor, CORN) — impl. base
+- [x] Set 4 (Robust: Michaud resampling, Talmud, Goldilocks, Ellipsoidal)
+- [x] Set 5 AI (HRP/HERC/NCO) ✅ — Deep (DL/DRL): **stub** rinviati a Bloomberg
+- [x] Ensemble robusto ai fallimenti (modelli invalidi esclusi + loggati)
 - [x] Meccanismo "N modelli → walk-forward OOS → media dei 4 migliori" (`n_best`, `Scorer` pluggable)
 - [x] `PortfolioConstraints` (profili come *range* di equity: cap + floor)
+
+> Esito espansione: 41 modelli attivi, 0 esclusi; l'ensemble **batte ancora 1/N**
+> (Calmar 0.79 vs −0.34) e la selezione è **stabile** (allocazione L1 0.21). Vedi
+> `docs/validation/models_expansion_results.md`.
 
 **Signals (Stadio 1, parte non-opzioni)** — impalcatura completa a strati
 - [x] Regole di **security selection** (slide 36-38 AlgoEagle) — deterministiche
