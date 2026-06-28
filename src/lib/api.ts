@@ -370,33 +370,45 @@ export const api = {
   regimes: (asOf?: string) => request<RegimesResponse>(`/regimes${asOf ? `?as_of=${asOf}` : ""}`),
 
   riskPanel: (profile: Profile, currency: Currency, opts: RiskPanelOptions = {}) =>
-    request<RiskPanelResponse>("/risk/panel", {
-      method: "POST",
-      body: JSON.stringify({
-        profile,
-        currency,
-        alpha: opts.alpha ?? 0.05,
-        mar: opts.mar ?? 0,
-        regime_conditional: opts.regimeConditional ?? true,
-      }),
-    }),
+    request<RiskPanelResponse>(
+      "/risk/panel",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          profile,
+          currency,
+          alpha: opts.alpha ?? 0.05,
+          mar: opts.mar ?? 0,
+          regime_conditional: opts.regimeConditional ?? true,
+        }),
+      },
+      HEAVY_OPTS,
+    ),
 
   contributions: (profile: Profile, currency: Currency, measure = "MV") =>
     request<ContributionsResponse>(
       `/risk/contributions?profile=${profile}&currency=${currency}&measure=${measure}`,
+      undefined,
+      HEAVY_OPTS,
     ),
 
   runAllocation: (profile: Profile, currency: Currency, asOf?: string | null) =>
-    request<AllocationResponse>("/allocation/run", {
-      method: "POST",
-      body: JSON.stringify({ profile, currency, as_of: asOf ?? null }),
-    }),
+    request<AllocationResponse>(
+      "/allocation/run",
+      {
+        method: "POST",
+        body: JSON.stringify({ profile, currency, as_of: asOf ?? null }),
+      },
+      HEAVY_OPTS,
+    ),
 
   signals: (asOf?: string) => request<SignalsResponse>(`/signals${asOf ? `?as_of=${asOf}` : ""}`),
 
   optimizationModels: (profile: Profile, currency: Currency, asOf?: string | null) =>
     request<OptimizationModelsResponse>(
       `/optimization/models?profile=${profile}&currency=${currency}${asOf ? `&as_of=${asOf}` : ""}`,
+      undefined,
+      HEAVY_OPTS,
     ),
 
   uploadPrices: (csv: string, filename?: string) =>
@@ -414,14 +426,22 @@ export const api = {
     }),
 
   analyzePortfolio: (holdings: HoldingInput[], opts: { alpha?: number; mar?: number } = {}) =>
-    request<PortfolioAnalyzeResponse>("/portfolio/analyze", {
-      method: "POST",
-      body: JSON.stringify({ holdings, alpha: opts.alpha ?? 0.05, mar: opts.mar ?? 0 }),
-    }),
+    request<PortfolioAnalyzeResponse>(
+      "/portfolio/analyze",
+      {
+        method: "POST",
+        body: JSON.stringify({ holdings, alpha: opts.alpha ?? 0.05, mar: opts.mar ?? 0 }),
+      },
+      HEAVY_OPTS,
+    ),
 
   reoptimizePortfolio: (holdings: HoldingInput[], profile: Profile, currency: Currency) =>
-    request<PortfolioReoptimizeResponse>("/portfolio/reoptimize", {
-      method: "POST",
-      body: JSON.stringify({ holdings, profile, currency }),
-    }),
+    request<PortfolioReoptimizeResponse>(
+      "/portfolio/reoptimize",
+      {
+        method: "POST",
+        body: JSON.stringify({ holdings, profile, currency }),
+      },
+      HEAVY_OPTS,
+    ),
 };
