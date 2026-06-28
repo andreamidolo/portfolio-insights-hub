@@ -118,6 +118,61 @@ Lo stato "dati utente vs backbone campione" è mostrato in tutta la dashboard.
 
 ---
 
+## Connettere il front-end (Lovable) al motore
+
+**Chi fa cosa — i tre attori:**
+
+| Attore | Ruolo |
+|--------|-------|
+| **GitHub** (questa repo) | il *codice* di entrambe le metà (front-end + motore). Non esegue nulla. |
+| **Lovable** | builda e mostra il **front-end** (React). Legge il codice da GitHub. **Non esegue il motore Python.** |
+| **Host del motore** (Render/Railway/Fly…) | esegue il **motore Python** (FastAPI) e gli dà un **URL HTTPS** raggiungibile. |
+
+> Lovable **non può** far girare `engine/` (è Python; Lovable esegue front-end +
+> Supabase/Deno, non Python). Per questo il motore va acceso su un host Python
+> dedicato. La connessione è solo: *URL del motore → impostato nel front-end*.
+
+### Passi (deploy stabile con Render — consigliato)
+
+1. **Accendi il motore su Render** (ha un URL HTTPS fisso):
+   - vai su https://render.com → **New → Blueprint** → connetti questa repo GitHub;
+   - Render legge `render.yaml` e crea il servizio `aa-engine-api` (build e avvio già configurati);
+   - quando è "Live" avrai un URL tipo `https://aa-engine-api.onrender.com`;
+   - verifica: apri `https://aa-engine-api.onrender.com/api/v1/health` → `{"status":"ok"}`.
+2. **Autorizza l'origine Lovable (CORS)** — nel pannello Render, variabile
+   `AA_API_CORS_ORIGINS` = l'URL della tua preview Lovable, es.
+   `https://904cde44-9488-47e5-8601-bd5defc0c4ed.lovable.app` (più eventuale
+   dominio custom). Salva → il servizio si riavvia.
+3. **Dì al front-end dov'è il motore** — in **Lovable**, imposta la variabile
+   d'ambiente **`VITE_API_BASE_URL`** = `https://aa-engine-api.onrender.com/api/v1`,
+   poi **ribuilda/ripubblica** (è una variabile Vite: vale al momento del build).
+4. Riapri la dashboard: i badge passano da `OFFLINE` a `LIVE`. Premi **Esegui**.
+
+**Cosa chiedere a Lovable** (in pratica, l'unica cosa): "imposta la variabile
+d'ambiente `VITE_API_BASE_URL` su `https://<url-del-motore>/api/v1` e ripubblica".
+Lovable non deve creare connettori né database per questo: deve solo sapere
+l'indirizzo del motore.
+
+### Alternativa veloce per provare (senza deploy)
+
+Motore in locale + tunnel HTTPS (l'URL `http://localhost` da una pagina `https://`
+Lovable è bloccato dal browser, serve un tunnel `https`):
+```bash
+cd engine && pip install -e ".[api]"
+AA_API_CORS_ORIGINS="https://<tua-preview>.lovable.app" uvicorn aa_engine.api.main:app --port 8000
+# in un altro terminale:
+cloudflared tunnel --url http://localhost:8000     # → https://xxxx.trycloudflare.com
+```
+Poi in Lovable `VITE_API_BASE_URL = https://xxxx.trycloudflare.com/api/v1` e ribuilda.
+(Il tunnel è temporaneo: l'URL cambia a ogni riavvio.)
+
+> Nota sul piano free di Render: il servizio "dorme" dopo inattività (primo
+> caricamento ~30 s) e ha poca RAM. `/health`, `/profiles`, `/signals`, `/risk`
+> vanno bene; `/allocation/run` e `/optimization/models` girano 41 modelli e sono
+> pesanti — per quelli conviene il piano **Starter**.
+
+---
+
 ## Documentazione (in `engine/docs/`, leggere in quest'ordine)
 
 1. `00_analisi_sistema.md` — analisi del sistema di riferimento (AlgoEagle)
