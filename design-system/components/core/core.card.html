@@ -1,0 +1,54 @@
+<!-- @dsCard group="Components" viewport="700x300" name="Core — Button, Eyebrow, Tag" -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;background:var(--lfa-white);padding:24px;font-family:var(--font-sans)}
+  .grid{display:flex;flex-direction:column;gap:22px}
+  .row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--lfa-grey);width:74px;flex:none}
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="../../_ds_bundle.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { Button, Eyebrow, Tag } = window.LFADesignSystem_f7f6ac;
+    function Demo(){
+      return (
+        <div className="grid">
+          <div className="row">
+            <span className="lbl">Buttons</span>
+            <Button variant="outline" iconRight="→">Get Started</Button>
+            <Button variant="primary">Contact LFA</Button>
+            <Button variant="navy">Our Approach</Button>
+            <Button variant="link" iconRight="→">Learn more</Button>
+            <Button variant="outline" disabled>Disabled</Button>
+          </div>
+          <div className="row">
+            <span className="lbl">Sizes</span>
+            <Button variant="primary" size="sm">Small</Button>
+            <Button variant="primary" size="md">Medium</Button>
+            <Button variant="primary" size="lg">Large</Button>
+          </div>
+          <div className="row">
+            <span className="lbl">Eyebrows</span>
+            <Eyebrow>What We Do</Eyebrow>
+            <Eyebrow tone="navy">SEC Registered</Eyebrow>
+            <Eyebrow tone="muted">Resources</Eyebrow>
+          </div>
+          <div className="row">
+            <span className="lbl">Tags</span>
+            <Tag>USD</Tag><Tag>EUR</Tag><Tag>CHF</Tag>
+            <Tag tone="navy">Global</Tag>
+            <Tag tone="rose">High</Tag>
+            <Tag tone="outline">Discretionary</Tag>
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+  </script>
+</body></html>

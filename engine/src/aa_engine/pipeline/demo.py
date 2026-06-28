@@ -71,18 +71,20 @@ def _sanity_checks(res_full) -> None:
         f"classi=strumenti {coherent} → {_pf(c2)}"
     )
 
-    # [3] cambiando profilo, rischio crescente (ensemble ridotto per velocità)
+    # [3] cambiando profilo (4 linee), rischio crescente (ensemble ridotto)
     vols = {}
-    for prof in ["moderate", "balanced", "aggressive"]:
+    order = ["conservative", "moderate", "balanced", "aggressive"]
+    for prof in order:
         r = run_allocation(prof, "EUR", ensemble=_small_ensemble())
         ret = sample_returns()[r.selected]
         import pandas as pd
         w = pd.Series(r.final_weights).reindex(ret.columns).fillna(0.0)
         vols[prof] = compute_measure(ret, w, "MV")
-    c3 = vols["moderate"] <= vols["balanced"] + 1e-6 <= vols["aggressive"] + 2e-6
+    c3 = all(vols[a] <= vols[b] + 2e-6 for a, b in zip(order, order[1:]))
     console.print(
-        f"[3] rischio per profilo: StdDev {vols['moderate']:.3f} ≤ {vols['balanced']:.3f} "
-        f"≤ {vols['aggressive']:.3f} → {_pf(c3)}"
+        "[3] rischio per profilo: StdDev "
+        + " ≤ ".join(f"{vols[p]:.3f}" for p in order)
+        + f" → {_pf(c3)}"
     )
 
     # [4] CLI e API producono lo STESSO risultato (stesso flusso)

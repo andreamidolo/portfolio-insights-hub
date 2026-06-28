@@ -1,0 +1,39 @@
+{
+  "id": "lfa",
+  "name": "LFA",
+  "fonts": {
+    "display": "'Cormorant Garamond', 'Hoefler Text', Georgia, 'Times New Roman', serif",
+    "body": "'Mulish', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+    "mono": "'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace"
+  },
+  "palette": {
+    "ink": "#23366E",
+    "background": "#FFFFFF",
+    "grid": "#E0E4EB",
+    "axis": "#8C95B2",
+    "categorical": [
+      "#23366E",
+      "#C24A5E",
+      "#3E7C72",
+      "#B0852F",
+      "#6B5B95",
+      "#5A6678",
+      "#9C2D3A",
+      "#3C6E8F"
+    ],
+    "sequential": [
+      "#EDF2F9",
+      "#5E77AE",
+      "#23366E"
+    ],
+    "positive": "#3E7C72",
+    "negative": "#C24A5E"
+  },
+  "axis": {
+    "lineWidth": 1,
+    "labelSize": 12,
+    "tickColor": "#8C95B2"
+  },
+  "logo": null,
+  "exportPadding": 44
+}

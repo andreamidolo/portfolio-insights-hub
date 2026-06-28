@@ -292,6 +292,29 @@ proposto/Δ per strumento), `risk_current`/`risk_proposed`/`risk_delta`
 
 ---
 
+### 2.14 `GET /api/v1/profiles`  (profili configurabili — docs/14)
+I **4 profili** di rischio come DATI (config `config/risk_profiles.json`): bande
+min-max per le 5 asset class, benchmark, valute. La UI legge da qui i selettori e
+l'editor delle bande.
+```json
+{
+  "placeholder": true,
+  "asset_classes": ["equity", "fixed_income", "commodities", "cash", "alternatives"],
+  "currencies": ["EUR", "USD", "CHF"],
+  "profiles": [
+    { "id": "balanced", "label": "Balanced", "benchmark": "bm_balanced",
+      "bands": { "equity": {"min": 0.30, "max": 0.60}, "fixed_income": {"min": 0.20, "max": 0.50}, "...": {} } }
+  ],
+  "benchmarks": [ { "id": "bm_balanced", "label": "...", "composition": { "equity": 0.45, "...": 0 } } ]
+}
+```
+Note: `placeholder: true` ⇒ valori d'esempio, da sostituire con quelli LFG.
+`POST /allocation/run` ora include anche un blocco `benchmark` (pesi + rischio del
+benchmark del profilo) per il confronto allocazione-vs-benchmark, e accetta
+profilo ∈ {conservative, moderate, balanced, aggressive} e valuta ∈ {EUR, USD, CHF}.
+
+---
+
 ## 3. Endpoint futuri (placeholder — non implementare ora)
 
 Definiti qui solo per dare alla UI la mappa delle pagine successive.

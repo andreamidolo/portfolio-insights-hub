@@ -14,8 +14,9 @@ import {
 } from "@/lib/api";
 import { useAsync } from "@/lib/use-async";
 
+import { AllocationDonut } from "./charts";
 import { fmtNum, fmtPct, statusOf } from "./format";
-import { AsyncView, Card, SectionHeader, WeightBar } from "./ui";
+import { AsyncView, Card, Eyebrow, SectionHeader, WeightBar } from "./ui";
 
 const FAMILY_LABEL: Record<ModelFamily, string> = {
   classics: "Classics",
@@ -64,34 +65,27 @@ function OptimizationBody({ data }: { data: OptimizationModelsResponse }) {
       {/* final allocation + how it is built */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="p-4">
-          <div className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Allocazione finale (media dei {data.n_best} scelti)
-          </div>
-          <div className="space-y-2">
-            {Object.entries(data.final_weights)
-              .sort((a, b) => b[1] - a[1])
-              .map(([t, w]) => (
-                <WeightBar key={t} label={t} value={w} />
-              ))}
-          </div>
+          <Eyebrow className="mb-3">Allocazione finale (media dei {data.n_best} scelti)</Eyebrow>
+          <AllocationDonut
+            data={Object.entries(data.asset_class_weights).map(([name, value]) => ({
+              name,
+              value,
+            }))}
+          />
           <div className="mt-4 border-t border-border pt-3">
-            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Per asset class
-            </div>
+            <Eyebrow className="mb-2">Per strumento</Eyebrow>
             <div className="space-y-2">
-              {Object.entries(data.asset_class_weights)
+              {Object.entries(data.final_weights)
                 .sort((a, b) => b[1] - a[1])
-                .map(([ac, w]) => (
-                  <WeightBar key={ac} label={ac} value={w} tone="accent" />
+                .map(([t, w]) => (
+                  <WeightBar key={t} label={t} value={w} />
                 ))}
             </div>
           </div>
         </Card>
 
         <Card className="p-4">
-          <div className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            I {data.n_best} modelli scelti
-          </div>
+          <Eyebrow className="mb-3">I {data.n_best} modelli scelti</Eyebrow>
           <p className="mb-3 text-xs text-muted-foreground">
             Selezione per score <span className="font-mono">{data.scorer}</span> walk-forward
             (out-of-sample). Su {data.n_models_active} modelli attivi
@@ -138,18 +132,33 @@ function OptimizationBody({ data }: { data: OptimizationModelsResponse }) {
   );
 }
 
+type SortKey = "name" | "family" | "score";
+
 function ModelsTable({ models, tickers }: { models: OptModelRow[]; tickers: string[] }) {
   const [onlySelected, setOnlySelected] = useState(false);
-  const rows = useMemo(
-    () => (onlySelected ? models.filter((m) => m.selected) : models),
-    [models, onlySelected],
-  );
+  const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "score", dir: -1 });
+
+  function toggle(key: SortKey) {
+    setSort((s) =>
+      s.key === key ? { key, dir: (s.dir * -1) as 1 | -1 } : { key, dir: key === "score" ? -1 : 1 },
+    );
+  }
+
+  const rows = useMemo(() => {
+    const base = onlySelected ? models.filter((m) => m.selected) : models.slice();
+    base.sort((a, b) => {
+      if (sort.key === "score") return ((a.score ?? -Infinity) - (b.score ?? -Infinity)) * sort.dir;
+      return String(a[sort.key]).localeCompare(String(b[sort.key])) * sort.dir;
+    });
+    return base;
+  }, [models, onlySelected, sort]);
+
+  const arrow = (key: SortKey) => (sort.key === key ? (sort.dir === 1 ? " ↑" : " ↓") : "");
+
   return (
     <Card className="overflow-hidden">
       <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          {models.length} modelli — pesi proposti & score
-        </div>
+        <Eyebrow>{models.length} modelli — pesi proposti & score</Eyebrow>
         <label className="flex items-center gap-2 text-xs text-muted-foreground">
           <input
             type="checkbox"
@@ -157,16 +166,20 @@ function ModelsTable({ models, tickers }: { models: OptModelRow[]; tickers: stri
             onChange={(e) => setOnlySelected(e.target.checked)}
             className="h-3.5 w-3.5 accent-[var(--primary)]"
           />
-          solo i 4 scelti
+          solo i {Math.min(4, models.filter((m) => m.selected).length)} scelti
         </label>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="border-b border-border bg-secondary/60 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <th className="px-3 py-2">Modello</th>
-              <th className="px-3 py-2">Famiglia</th>
-              <th className="px-3 py-2 text-right">Score</th>
+              <SortTh label={`Modello${arrow("name")}`} onClick={() => toggle("name")} />
+              <SortTh label={`Famiglia${arrow("family")}`} onClick={() => toggle("family")} />
+              <SortTh
+                label={`Score${arrow("score")}`}
+                onClick={() => toggle("score")}
+                align="right"
+              />
               {tickers.map((t) => (
                 <th key={t} className="px-3 py-2 text-right font-mono">
                   {t}
@@ -180,17 +193,26 @@ function ModelsTable({ models, tickers }: { models: OptModelRow[]; tickers: stri
                 key={m.name}
                 className={
                   "border-t border-border " +
-                  (m.selected ? "bg-success/5" : i % 2 === 1 ? "bg-background/40" : "")
+                  (m.selected
+                    ? "bg-primary/5 ring-1 ring-inset ring-primary/15"
+                    : i % 2 === 1
+                      ? "bg-secondary/30"
+                      : "")
                 }
               >
                 <td className="px-3 py-1.5 text-sm font-medium text-foreground">
-                  {m.selected && <span className="mr-1 text-success">★</span>}
+                  {m.selected && <span className="mr-1 text-primary">★</span>}
                   {m.name}
                 </td>
                 <td className="px-3 py-1.5 text-xs text-muted-foreground">
                   {FAMILY_LABEL[m.family]}
                 </td>
-                <td className="px-3 py-1.5 text-right font-mono text-sm tabular-nums text-foreground">
+                <td
+                  className={
+                    "px-3 py-1.5 text-right font-mono text-sm tabular-nums " +
+                    (m.selected ? "font-semibold text-primary" : "text-foreground")
+                  }
+                >
                   {fmtNum(m.score)}
                 </td>
                 {tickers.map((t) => {
@@ -213,5 +235,27 @@ function ModelsTable({ models, tickers }: { models: OptModelRow[]; tickers: stri
         </table>
       </div>
     </Card>
+  );
+}
+
+function SortTh({
+  label,
+  onClick,
+  align = "left",
+}: {
+  label: string;
+  onClick: () => void;
+  align?: "left" | "right";
+}) {
+  return (
+    <th className={"px-3 py-2 " + (align === "right" ? "text-right" : "text-left")}>
+      <button
+        type="button"
+        onClick={onClick}
+        className="uppercase tracking-wide hover:text-primary"
+      >
+        {label}
+      </button>
+    </th>
   );
 }

@@ -1,0 +1,28 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Neutrals & text" subtitle="Cool greys, paper, hairlines, text roles" -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body{margin:0;font-family:var(--font-sans);background:var(--lfa-white);padding:18px}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .sw{flex:1 1 0;min-width:96px}
+  .chip{height:62px;border-radius:var(--radius-sm);border:1px solid var(--lfa-line);box-shadow:var(--shadow-xs)}
+  .name{font-size:11.5px;font-weight:700;color:var(--lfa-navy);margin-top:7px}
+  .hex{font-size:11px;color:var(--lfa-grey)}
+  .txt{margin-top:14px;display:flex;gap:22px;align-items:baseline}
+  .txt span{font-size:15px}
+</style></head>
+<body>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:var(--lfa-white)"></div><div class="name">White</div><div class="hex">#FFFFFF</div></div>
+    <div class="sw"><div class="chip" style="background:var(--lfa-paper)"></div><div class="name">Paper</div><div class="hex">#F7F8FA</div></div>
+    <div class="sw"><div class="chip" style="background:var(--lfa-mist)"></div><div class="name">Mist</div><div class="hex">#EEF1F5</div></div>
+    <div class="sw"><div class="chip" style="background:var(--lfa-line)"></div><div class="name">Line</div><div class="hex">#E0E4EB</div></div>
+    <div class="sw"><div class="chip" style="background:var(--lfa-grey)"></div><div class="name">Grey</div><div class="hex">#6B7280</div></div>
+    <div class="sw"><div class="chip" style="background:var(--lfa-ink)"></div><div class="name">Ink</div><div class="hex">#2A2E3A</div></div>
+  </div>
+  <div class="txt">
+    <span style="color:var(--text-strong);font-weight:700">Aa Strong / Navy</span>
+    <span style="color:var(--text-body)">Aa Body / Navy-500</span>
+    <span style="color:var(--text-muted)">Aa Muted / Grey</span>
+  </div>
+</body></html>

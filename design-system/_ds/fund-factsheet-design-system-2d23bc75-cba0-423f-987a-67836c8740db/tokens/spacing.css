@@ -1,0 +1,51 @@
+/* ============================================================
+   SPACING, RADII, SHADOWS, LAYOUT
+   Factsheets are flat print artifacts (no shadow, square corners,
+   hairline rules). Shadows & radii are reserved for the builder UI.
+   ============================================================ */
+
+:root {
+  /* ---- Spacing scale (4px base) ---- */
+  --sp-0: 0; /* @kind spacing */
+  --sp-1: 2px;
+  --sp-2: 4px;
+  --sp-3: 6px;
+  --sp-4: 8px;
+  --sp-5: 12px;
+  --sp-6: 16px;
+  --sp-7: 20px;
+  --sp-8: 24px;
+  --sp-9: 32px;
+  --sp-10: 40px;
+  --sp-12: 56px;
+
+  /* ---- Radii ---- */
+  --r-0: 0;          /* @kind radius */          /* print tables, section bars — square */
+  --r-sm: 3px;
+  --r-md: 6px;       /* app buttons, inputs */
+  --r-lg: 10px;      /* app cards, dialogs */
+  --r-pill: 999px;   /* badges, chips */
+
+  /* ---- Borders ---- */
+  --bw-hair: 0.75px;  /* table inner rules */
+  --bw: 1px;
+  --bw-accent: 2px;   /* section underline (VG), KPI accent */
+  --bw-heavy: 3px;
+
+  /* ---- Shadows (builder UI only — documents stay flat) ---- */
+  --shadow-sheet: 0 1px 3px rgba(20,25,31,.08), 0 8px 30px rgba(20,25,31,.10);
+  --shadow-card:  0 1px 2px rgba(20,25,31,.06), 0 2px 8px rgba(20,25,31,.05);
+  --shadow-pop:   0 6px 24px rgba(20,25,31,.14);
+  --shadow-none:  none;
+
+  /* ---- Document geometry ---- */
+  --a4-w: 210mm; /* @kind spacing */
+  --a4-h: 297mm; /* @kind spacing */
+  --col-gap: 6mm;       /* gap between the two factsheet columns */
+  --block-gap: 4mm;     /* vertical rhythm between blocks */
+
+  /* ---- Motion (builder UI; documents never animate) ---- */
+  --ease: cubic-bezier(.2,.6,.2,1); /* @kind other */
+  --dur-fast: 120ms; /* @kind other */
+  --dur: 200ms; /* @kind other */
+}

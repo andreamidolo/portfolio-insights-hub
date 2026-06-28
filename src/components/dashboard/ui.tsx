@@ -76,6 +76,40 @@ export function Card({ children, className = "" }: { children: ReactNode; classN
   return <div className={"rounded-md border border-border bg-card " + className}>{children}</div>;
 }
 
+// Editorial "eyebrow" label — uppercase, wide tracking (the brand signature).
+export function Eyebrow({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={"ds-eyebrow text-muted-foreground " + className}>{children}</div>;
+}
+
+// Big-numeral statistic card for key metrics (design system StatCard).
+export function StatCard({
+  label,
+  value,
+  sub,
+  tone = "neutral",
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  tone?: "neutral" | "pos" | "neg" | "brand";
+}) {
+  const color =
+    tone === "pos"
+      ? "text-success"
+      : tone === "neg"
+        ? "text-destructive"
+        : tone === "brand"
+          ? "text-primary"
+          : "text-foreground";
+  return (
+    <Card className="p-4">
+      <Eyebrow>{label}</Eyebrow>
+      <div className={"ds-numeral mt-1.5 text-3xl " + color}>{value}</div>
+      {sub && <div className="mt-1 text-xs text-muted-foreground">{sub}</div>}
+    </Card>
+  );
+}
+
 // ---- async state wrappers ------------------------------------------------
 
 export function LoadingBlock({ label = "Loading from engine…" }: { label?: string }) {

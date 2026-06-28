@@ -9,8 +9,17 @@ import { useState } from "react";
 import { api, type AllocationResponse, type Currency, type Profile } from "@/lib/api";
 import { useAsync } from "@/lib/use-async";
 
+import { AllocationDonut } from "./charts";
 import { fmtNum, fmtPct } from "./format";
-import { Card, ErrorBlock, LoadingBlock, RegimeChips, SectionHeader, WeightBar } from "./ui";
+import {
+  Card,
+  ErrorBlock,
+  Eyebrow,
+  LoadingBlock,
+  RegimeChips,
+  SectionHeader,
+  WeightBar,
+} from "./ui";
 
 export function RunReportSection({ profile, currency }: { profile: Profile; currency: Currency }) {
   const [asOf, setAsOf] = useState<string>("");
@@ -111,9 +120,20 @@ function Report({ data }: { data: AllocationResponse }) {
       {/* allocation */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="p-4">
-          <div className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Allocazione per strumento
+          <Eyebrow className="mb-3">Allocazione per asset class</Eyebrow>
+          <AllocationDonut
+            data={Object.entries(data.asset_class_weights).map(([name, value]) => ({
+              name,
+              value,
+            }))}
+          />
+          <div className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">
+            Selezionati: {data.selected.join(", ") || "—"}
+            {data.discarded.length > 0 && <> · Scartati: {data.discarded.join(", ")}</>}
           </div>
+        </Card>
+        <Card className="p-4">
+          <Eyebrow className="mb-3">Allocazione per strumento</Eyebrow>
           <div className="space-y-2">
             {Object.entries(data.final_weights)
               .sort((a, b) => b[1] - a[1])
@@ -122,23 +142,9 @@ function Report({ data }: { data: AllocationResponse }) {
               ))}
           </div>
         </Card>
-        <Card className="p-4">
-          <div className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Allocazione per asset class
-          </div>
-          <div className="space-y-2">
-            {Object.entries(data.asset_class_weights)
-              .sort((a, b) => b[1] - a[1])
-              .map(([ac, w]) => (
-                <WeightBar key={ac} label={ac} value={w} tone="accent" />
-              ))}
-          </div>
-          <div className="mt-4 border-t border-border pt-3 text-xs text-muted-foreground">
-            Selezionati: {data.selected.join(", ") || "—"}
-            {data.discarded.length > 0 && <> · Scartati: {data.discarded.join(", ")}</>}
-          </div>
-        </Card>
       </div>
+
+      {data.benchmark && <BenchmarkCompare risk={data.risk} bm={data.benchmark} />}
 
       {/* signals recap */}
       <Card className="overflow-hidden">
@@ -164,6 +170,62 @@ function Report({ data }: { data: AllocationResponse }) {
         </table>
       </Card>
     </div>
+  );
+}
+
+function BenchmarkCompare({
+  risk,
+  bm,
+}: {
+  risk: Record<string, number>;
+  bm: NonNullable<AllocationResponse["benchmark"]>;
+}) {
+  const rows: { k: string; label: string; ratio?: boolean }[] = [
+    { k: "std_dev", label: "Volatilità (StdDev)" },
+    { k: "cvar_95", label: "CVaR 95%" },
+    { k: "max_drawdown", label: "Max Drawdown" },
+    { k: "calmar", label: "Calmar", ratio: true },
+    { k: "sharpe", label: "Sharpe", ratio: true },
+  ];
+  return (
+    <Card className="overflow-hidden">
+      <div className="flex items-center justify-between border-b border-border px-4 py-2">
+        <Eyebrow>Confronto col benchmark — {bm.label}</Eyebrow>
+        {bm.placeholder && (
+          <span className="text-[10px] text-accent">placeholder — valori da sostituire (LFG)</span>
+        )}
+      </div>
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="border-b border-border bg-secondary/60 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <th className="px-4 py-2">Metrica</th>
+            <th className="px-4 py-2 text-right">Allocazione</th>
+            <th className="px-4 py-2 text-right">Benchmark</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => {
+            const a = risk[r.k];
+            const b = bm.risk[r.k];
+            const fmt = (x: number) => (r.ratio ? fmtNum(x) : fmtPct(x));
+            return (
+              <tr
+                key={r.k}
+                className={"border-t border-border " + (i % 2 === 1 ? "bg-secondary/30" : "")}
+              >
+                <td className="px-4 py-1.5 text-sm text-foreground">{r.label}</td>
+                <td className="px-4 py-1.5 text-right font-mono text-sm tabular-nums text-foreground">
+                  {fmt(a)}
+                </td>
+                <td className="px-4 py-1.5 text-right font-mono text-sm tabular-nums text-muted-foreground">
+                  {b == null ? "—" : fmt(b)}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </Card>
   );
 }
 

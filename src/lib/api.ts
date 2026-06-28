@@ -15,8 +15,8 @@ export const API_BASE_URL: string =
 
 // ---- Shared contract enums ----------------------------------------------
 
-export type Profile = "moderate" | "balanced" | "aggressive";
-export type Currency = "EUR" | "USD";
+export type Profile = "conservative" | "moderate" | "balanced" | "aggressive";
+export type Currency = "EUR" | "USD" | "CHF";
 export type Regime = "bull" | "bear";
 export type RiskFamily = "return_based" | "tail" | "drawdown_based";
 
@@ -95,6 +95,15 @@ export interface SignalRow {
 
 // ---- /allocation/run -----------------------------------------------------
 
+export interface BenchmarkBlock {
+  id: string;
+  label: string;
+  placeholder: boolean;
+  weights: Record<string, number>;
+  asset_class_weights: Record<string, number>;
+  risk: Record<string, number>;
+}
+
 export interface AllocationResponse {
   profile: Profile;
   currency: Currency;
@@ -109,6 +118,29 @@ export interface AllocationResponse {
   asset_class_weights: Record<string, number>;
   risk: Record<string, number>;
   excluded_models: Record<string, string>;
+  benchmark: BenchmarkBlock | null;
+}
+
+// ---- /profiles (configurable risk profiles) ------------------------------
+
+export interface ProfileBand {
+  min: number;
+  max: number;
+}
+
+export interface ProfileItem {
+  id: Profile;
+  label: string;
+  benchmark: string;
+  bands: Record<string, ProfileBand>;
+}
+
+export interface ProfilesConfigResponse {
+  placeholder: boolean;
+  asset_classes: string[];
+  currencies: Currency[];
+  profiles: ProfileItem[];
+  benchmarks: { id: string; label: string; composition: Record<string, number> }[];
 }
 
 // ---- /signals ------------------------------------------------------------
@@ -285,6 +317,8 @@ export const api = {
   baseUrl: API_BASE_URL,
 
   health: () => request<HealthResponse>("/health"),
+
+  profiles: () => request<ProfilesConfigResponse>("/profiles"),
 
   regimes: (asOf?: string) => request<RegimesResponse>(`/regimes${asOf ? `?as_of=${asOf}` : ""}`),
 

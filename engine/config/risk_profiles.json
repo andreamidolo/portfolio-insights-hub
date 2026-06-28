@@ -1,0 +1,75 @@
+{
+  "_comment": "PLACEHOLDER — valori di esempio ragionevoli, DA SOSTITUIRE con le griglie reali di LFG (via import o editor front-end). Profili = DATI, non codice: modificare questi numeri cambia l'allocazione senza toccare il motore.",
+  "_placeholder": true,
+  "version": 1,
+  "asset_classes": ["equity", "fixed_income", "commodities", "cash", "alternatives"],
+  "currencies": ["EUR", "USD", "CHF"],
+  "profiles": [
+    {
+      "id": "conservative",
+      "label": "Conservative",
+      "bands": {
+        "equity":       {"min": 0.00, "max": 0.20},
+        "fixed_income": {"min": 0.40, "max": 0.80},
+        "commodities":  {"min": 0.00, "max": 0.10},
+        "cash":         {"min": 0.05, "max": 0.40},
+        "alternatives": {"min": 0.00, "max": 0.15}
+      },
+      "benchmark": "bm_conservative"
+    },
+    {
+      "id": "moderate",
+      "label": "Moderate",
+      "bands": {
+        "equity":       {"min": 0.15, "max": 0.40},
+        "fixed_income": {"min": 0.35, "max": 0.65},
+        "commodities":  {"min": 0.00, "max": 0.15},
+        "cash":         {"min": 0.05, "max": 0.30},
+        "alternatives": {"min": 0.00, "max": 0.15}
+      },
+      "benchmark": "bm_moderate"
+    },
+    {
+      "id": "balanced",
+      "label": "Balanced",
+      "bands": {
+        "equity":       {"min": 0.30, "max": 0.60},
+        "fixed_income": {"min": 0.20, "max": 0.50},
+        "commodities":  {"min": 0.00, "max": 0.15},
+        "cash":         {"min": 0.00, "max": 0.20},
+        "alternatives": {"min": 0.00, "max": 0.20}
+      },
+      "benchmark": "bm_balanced"
+    },
+    {
+      "id": "aggressive",
+      "label": "Aggressive",
+      "bands": {
+        "equity":       {"min": 0.50, "max": 0.90},
+        "fixed_income": {"min": 0.00, "max": 0.30},
+        "commodities":  {"min": 0.00, "max": 0.20},
+        "cash":         {"min": 0.00, "max": 0.15},
+        "alternatives": {"min": 0.00, "max": 0.25}
+      },
+      "benchmark": "bm_aggressive"
+    }
+  ],
+  "benchmarks": {
+    "bm_conservative": {
+      "label": "Conservative benchmark (placeholder)",
+      "composition": {"equity": 0.15, "fixed_income": 0.60, "commodities": 0.05, "cash": 0.15, "alternatives": 0.05}
+    },
+    "bm_moderate": {
+      "label": "Moderate benchmark (placeholder)",
+      "composition": {"equity": 0.30, "fixed_income": 0.50, "commodities": 0.07, "cash": 0.08, "alternatives": 0.05}
+    },
+    "bm_balanced": {
+      "label": "Balanced benchmark (placeholder)",
+      "composition": {"equity": 0.45, "fixed_income": 0.35, "commodities": 0.08, "cash": 0.07, "alternatives": 0.05}
+    },
+    "bm_aggressive": {
+      "label": "Aggressive benchmark (placeholder)",
+      "composition": {"equity": 0.70, "fixed_income": 0.15, "commodities": 0.08, "cash": 0.02, "alternatives": 0.05}
+    }
+  }
+}

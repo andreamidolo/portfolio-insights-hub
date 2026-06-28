@@ -1,0 +1,58 @@
+/* ============================================================
+   LFA — SPACING, RADII, SHADOW, LAYOUT TOKENS
+   Generous, editorial whitespace; restrained radii; soft shadows.
+   ============================================================ */
+:root {
+  /* ---- Spacing scale (4px base) ------------------------- */
+  --space-0:   0;
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-16:  64px;
+  --space-20:  80px;
+  --space-24:  96px;
+  --space-32:  128px;
+
+  /* Vertical rhythm for editorial sections */
+  --section-y:        var(--space-24);
+  --section-y-tight:  var(--space-16);
+
+  /* ---- Radii (subtle; LFA is restrained, not bubbly) ---- */
+  --radius-xs:  3px;
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  16px;
+  --radius-pill: 999px;
+
+  /* ---- Borders ------------------------------------------ */
+  --border-hair:   1px solid var(--lfa-line);
+  --border-card:   1px solid var(--lfa-line);
+  --border-strong-w: 1.5px solid var(--lfa-line-strong);
+
+  /* ---- Shadows (soft, cool-navy tinted, never heavy) ---- */
+  --shadow-xs:  0 1px 2px rgba(26, 42, 85, 0.06);
+  --shadow-sm:  0 2px 8px rgba(26, 42, 85, 0.07);
+  --shadow-md:  0 8px 24px rgba(26, 42, 85, 0.10);
+  --shadow-lg:  0 18px 48px rgba(26, 42, 85, 0.14);
+  --shadow-focus: 0 0 0 3px var(--focus-ring);
+
+  /* ---- Layout ------------------------------------------- */
+  --container:       1200px;
+  --container-wide:  1440px;
+  --container-text:  720px;   /* readable prose measure */
+  --gutter:          24px;
+  --nav-h:           76px;
+
+  /* ---- Motion ------------------------------------------- */
+  --ease-out:   cubic-bezier(0.22, 0.61, 0.36, 1);   /* @kind other */
+  --ease-soft:  cubic-bezier(0.4, 0, 0.2, 1);        /* @kind other */
+  --dur-fast:   140ms;   /* @kind other */
+  --dur-base:   240ms;   /* @kind other */
+  --dur-slow:   420ms;   /* @kind other */
+}

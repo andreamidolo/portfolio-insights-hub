@@ -43,8 +43,8 @@ const NAV: NavItem[] = [
   { id: "run", label: "Esegui / Report", step: "Output", live: true },
 ];
 
-const PROFILES: Profile[] = ["moderate", "balanced", "aggressive"];
-const CURRENCIES: Currency[] = ["EUR", "USD"];
+const PROFILES: Profile[] = ["conservative", "moderate", "balanced", "aggressive"];
+const CURRENCIES: Currency[] = ["EUR", "USD", "CHF"];
 
 function DashboardPage() {
   const [section, setSection] = useState<SectionId>("run");
@@ -129,10 +129,8 @@ function ControlBar({
     <div className="border-b border-border bg-card">
       <div className="mx-auto flex max-w-[1500px] flex-wrap items-end justify-between gap-6 px-6 py-4">
         <div>
-          <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Sala macchine
-          </div>
-          <h1 className="mt-0.5 text-lg font-semibold tracking-tight text-foreground">
+          <div className="ds-eyebrow text-muted-foreground">Sala macchine</div>
+          <h1 className="mt-0.5 text-2xl font-light tracking-tight text-foreground">
             Ispeziona il motore, stadio per stadio
           </h1>
         </div>

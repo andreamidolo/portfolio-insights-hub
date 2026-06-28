@@ -1,0 +1,36 @@
+<!-- @dsCard group="Components" viewport="700x320" name="Cards — Feature & Stat" -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;background:var(--lfa-paper);padding:26px;font-family:var(--font-sans)}
+  .stats{display:flex;gap:40px;margin-bottom:30px;flex-wrap:wrap}
+  .feats{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+  .ico{width:28px;height:28px;stroke:currentColor;stroke-width:1.6;fill:none}
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="../../_ds_bundle.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { FeatureCard, StatCard } = window.LFADesignSystem_f7f6ac;
+    const Shield = () => (<svg className="ico" viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3z"/></svg>);
+    const Globe = () => (<svg className="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/></svg>);
+    function Demo(){
+      return (<div>
+        <div className="stats">
+          <StatCard value="2.5" suffix="bn" label="USD assets under management" />
+          <StatCard value="700" label="Clients served" tone="rose" />
+          <StatCard value="2009" label="Founded in Lugano" />
+        </div>
+        <div className="feats">
+          <FeatureCard icon={<Shield/>} title="SEC Registered">Authorized to provide advisory services to U.S. clients.</FeatureCard>
+          <FeatureCard icon={<Globe/>} title="International Asset Management">Global markets, managed from Switzerland and invested directly overseas.</FeatureCard>
+        </div>
+      </div>);
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+  </script>
+</body></html>

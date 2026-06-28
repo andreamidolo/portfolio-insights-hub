@@ -73,6 +73,19 @@ def render_markdown(res: AllocationResult) -> str:
           f"| Calmar | {r['calmar']:.2f} |",
           f"| Sharpe | {r['sharpe']:.2f} |", ""]
 
+    # 5b. Confronto col benchmark del profilo (oltre che vs 1/N)
+    bm = res.benchmark or {}
+    if bm.get("risk"):
+        br = bm["risk"]
+        tag = " _(placeholder — valori da sostituire con quelli LFG)_" if bm.get("placeholder") else ""
+        L += [f"## Confronto col benchmark — {bm.get('label', bm.get('id', ''))}{tag}", "",
+              "| Metrica | Allocazione | Benchmark |", "|---|---|---|",
+              f"| Volatilità (StdDev) | {_pct(r['std_dev'])} | {_pct(br['std_dev'])} |",
+              f"| CVaR 95% | {_pct(r['cvar_95'])} | {_pct(br['cvar_95'])} |",
+              f"| Max Drawdown | {_pct(r['max_drawdown'])} | {_pct(br['max_drawdown'])} |",
+              f"| Calmar | {r['calmar']:.2f} | {br['calmar']:.2f} |",
+              f"| Sharpe | {r['sharpe']:.2f} | {br['sharpe']:.2f} |", ""]
+
     # 6. Dietro le quinte
     L += ["## Dietro le quinte", "",
           f"**Modelli scelti dall'ensemble** (4 migliori via walk-forward OOS): "

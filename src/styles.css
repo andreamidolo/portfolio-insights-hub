@@ -5,17 +5,17 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design system definition.
+ * LFG Holding design system — brand "lfg-zest" (Wealth & Fund Management).
  *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
+ * Multi-brand by construction: raw brand tokens (--lfgz-*) feed the semantic
+ * aliases (--primary, --surface-card, --text-body, …), and the UI is authored
+ * ONLY against the semantic aliases — never a raw brand colour. Swapping the
+ * brand layer (via data-brand) would re-skin everything without touching code.
  *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ * Palette: burgundy spine (#83021A), warm sand/taupe accents, neutrals on
+ * cream/white. Data-viz stays on-brand (burgundy primary, sand/gold + teal/navy
+ * support) — no rainbows. Positive/bull = teal, negative/bear = burgundy-red.
+ * Reference design system vendored under /design-system.
  */
 
 @theme inline {
@@ -44,7 +44,8 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Raleway", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Raleway", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
   --color-border: var(--border);
@@ -66,79 +67,102 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-:root {
+:root,
+[data-brand="lfg-zest"] {
   --radius: 0.375rem;
-  /* Institutional palette: navy / slate / white with a single teal accent */
-  --background: oklch(0.985 0.003 240);
-  --foreground: oklch(0.205 0.04 255);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.205 0.04 255);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.205 0.04 255);
-  --primary: oklch(0.255 0.06 255);          /* navy */
-  --primary-foreground: oklch(0.985 0.003 240);
-  --secondary: oklch(0.955 0.008 250);
-  --secondary-foreground: oklch(0.255 0.06 255);
-  --muted: oklch(0.955 0.008 250);
-  --muted-foreground: oklch(0.5 0.025 255);
-  --accent: oklch(0.62 0.12 215);            /* steel teal accent */
-  --accent-foreground: oklch(0.985 0.003 240);
-  --destructive: oklch(0.55 0.2 27);
-  --destructive-foreground: oklch(0.985 0.003 240);
-  --success: oklch(0.55 0.14 150);
-  --success-foreground: oklch(0.985 0.003 240);
-  --border: oklch(0.9 0.012 250);
-  --input: oklch(0.9 0.012 250);
-  --ring: oklch(0.62 0.12 215);
-  --chart-1: oklch(0.255 0.06 255);
-  --chart-2: oklch(0.62 0.12 215);
-  --chart-3: oklch(0.55 0.14 150);
-  --chart-4: oklch(0.55 0.2 27);
-  --chart-5: oklch(0.7 0.04 255);
-  --sidebar: oklch(0.985 0.003 240);
-  --sidebar-foreground: oklch(0.205 0.04 255);
-  --sidebar-primary: oklch(0.255 0.06 255);
-  --sidebar-primary-foreground: oklch(0.985 0.003 240);
-  --sidebar-accent: oklch(0.955 0.008 250);
-  --sidebar-accent-foreground: oklch(0.255 0.06 255);
-  --sidebar-border: oklch(0.9 0.012 250);
-  --sidebar-ring: oklch(0.62 0.12 215);
+
+  /* ---- raw brand tokens (lfg-zest) ---------------------------------- */
+  --lfgz-burgundy: #83021a; /* PRIMARY — il rosso dominante           */
+  --lfgz-burgundy-700: #6e0a18;
+  --lfgz-maroon: #590112;
+  --lfgz-red-accent: #9e2a36;
+  --lfgz-rose: #cfa8ad;
+  --lfgz-sand: #d5c29a; /* oro-sabbia, accento data-viz           */
+  --lfgz-sand-200: #e9ddc9;
+  --lfgz-taupe: #9a8463;
+  --lfgz-cream: #f9f4ee;
+  --lfgz-ink: #231f20;
+  --lfgz-charcoal: #1e2225;
+  --lfgz-slate: #848788;
+  --lfgz-line: #e5e2de;
+  --lfgz-paper: #ffffff;
+  --lfgz-navy: #002060; /* data-viz support                       */
+  --lfgz-teal: #004a58; /* data-viz support / positivo            */
+
+  /* ---- semantic aliases (author against THESE) ---------------------- */
+  --background: #faf7f2; /* cream airy page              */
+  --foreground: var(--lfgz-ink);
+  --card: var(--lfgz-paper);
+  --card-foreground: var(--lfgz-ink);
+  --popover: var(--lfgz-paper);
+  --popover-foreground: var(--lfgz-ink);
+  --primary: var(--lfgz-burgundy);
+  --primary-foreground: #fdf8f3;
+  --secondary: #f1eade; /* faint sand surface          */
+  --secondary-foreground: var(--lfgz-ink);
+  --muted: #f4efe8;
+  --muted-foreground: var(--lfgz-slate);
+  --accent: var(--lfgz-taupe); /* readable as text + fill     */
+  --accent-foreground: #fdf8f3;
+  --destructive: var(--lfgz-red-accent);
+  --destructive-foreground: #fdf8f3;
+  --success: var(--lfgz-teal); /* positivo / bull, on-brand   */
+  --success-foreground: #fdf8f3;
+  --border: var(--lfgz-line);
+  --input: var(--lfgz-line);
+  --ring: var(--lfgz-burgundy);
+  /* chart palette — burgundy primary, sand/gold + teal/navy support     */
+  --chart-1: var(--lfgz-burgundy);
+  --chart-2: var(--lfgz-sand);
+  --chart-3: var(--lfgz-teal);
+  --chart-4: var(--lfgz-navy);
+  --chart-5: var(--lfgz-taupe);
+  --sidebar: var(--lfgz-paper);
+  --sidebar-foreground: var(--lfgz-ink);
+  --sidebar-primary: var(--lfgz-burgundy);
+  --sidebar-primary-foreground: #fdf8f3;
+  --sidebar-accent: #f1eade;
+  --sidebar-accent-foreground: var(--lfgz-ink);
+  --sidebar-border: var(--lfgz-line);
+  --sidebar-ring: var(--lfgz-burgundy);
 }
 
-
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  /* Dark variant of lfg-zest: charcoal surfaces, rose-lightened burgundy. */
+  --background: #1a1718;
+  --foreground: #f3ece4;
+  --card: #231f20;
+  --card-foreground: #f3ece4;
+  --popover: #231f20;
+  --popover-foreground: #f3ece4;
+  --primary: #c14a59; /* burgundy lightened for contrast */
+  --primary-foreground: #1a1718;
+  --secondary: #2c2728;
+  --secondary-foreground: #f3ece4;
+  --muted: #2c2728;
+  --muted-foreground: #b3ada4;
+  --accent: var(--lfgz-sand);
+  --accent-foreground: #1a1718;
+  --destructive: #c14a59;
+  --destructive-foreground: #1a1718;
+  --success: #3a8a96;
+  --success-foreground: #1a1718;
+  --border: rgb(255 255 255 / 12%);
+  --input: rgb(255 255 255 / 15%);
+  --ring: #c14a59;
+  --chart-1: #c14a59;
+  --chart-2: var(--lfgz-sand);
+  --chart-3: #3a8a96;
+  --chart-4: #6b7fb0;
+  --chart-5: var(--lfgz-taupe);
+  --sidebar: #231f20;
+  --sidebar-foreground: #f3ece4;
+  --sidebar-primary: #c14a59;
+  --sidebar-primary-foreground: #1a1718;
+  --sidebar-accent: #2c2728;
+  --sidebar-accent-foreground: #f3ece4;
+  --sidebar-border: rgb(255 255 255 / 12%);
+  --sidebar-ring: #c14a59;
 }
 
 @layer base {
@@ -149,5 +173,23 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Editorial "eyebrow"/label — the brand signature: uppercase, wide tracking. */
+  .ds-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: 600;
+    font-size: 0.6875rem;
+  }
+
+  /* Big thin decorative numeral for key statistics (StatCard). */
+  .ds-numeral {
+    font-weight: 200;
+    letter-spacing: -0.01em;
+    line-height: 1.08;
+    font-variant-numeric: tabular-nums;
   }
 }

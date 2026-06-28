@@ -1,0 +1,46 @@
+/* ============================================================
+   LFG+ZEST — SPACING, RADII & LAYOUT
+   Calm, generous, editorial. An 8px base rhythm with wide
+   page margins; restrained corner radii (the Boutique cards
+   use a soft ~14px round, structural panels stay sharp).
+   ============================================================ */
+:root {
+  /* ---- Spacing scale (8px base) ---- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  24px;
+  --space-6:  32px;
+  --space-7:  48px;
+  --space-8:  64px;
+  --space-9:  96px;
+  --space-10: 128px;
+
+  /* ---- Radii ---- */
+  --radius-none: 0px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;   /* Boutique soft cards */
+  --radius-xl:   20px;
+  --radius-pill: 999px;
+
+  /* ---- Borders ---- */
+  --bw-hair:   1px;
+  --bw-rule:   2px;      /* the brand horizontal rule */
+  --bw-tab:    3px;
+
+  /* ---- Layout ---- */
+  --page-margin:    clamp(24px, 6vw, 96px); /* @kind spacing */
+  --content-max:    1200px; /* @kind spacing */
+  --measure:        66ch;   /* @kind other */
+  --slide-w:        1280px; /* @kind spacing */
+  --slide-h:        720px;  /* @kind spacing */
+
+  /* ---- Motion ---- */
+  --ease-standard: cubic-bezier(0.22, 0.61, 0.36, 1); /* @kind other */
+  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);     /* @kind other */
+  --dur-fast:   140ms; /* @kind other */
+  --dur-base:   240ms; /* @kind other */
+  --dur-slow:   420ms; /* @kind other */
+}

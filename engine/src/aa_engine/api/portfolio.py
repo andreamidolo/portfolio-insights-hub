@@ -19,7 +19,7 @@ import pandas as pd
 
 from aa_engine.data import Regime
 from aa_engine.optimization import default_ensemble
-from aa_engine.optimization.base import PortfolioConstraints
+from aa_engine.profiles import constraints_for, load_profiles
 from aa_engine.pipeline.run import (
     _proxy_regimes,
     _quiet,
@@ -135,7 +135,7 @@ def reoptimize(
     ensemble=None,
 ) -> dict:
     """ATTUALE vs PROPOSTA: l'ensemble sull'universo del mandato + delta di rischio."""
-    if profile not in ("moderate", "balanced", "aggressive"):
+    if profile not in load_profiles().profile_ids:
         raise UploadError(f"Profilo sconosciuto: {profile!r}")
     returns, present, missing, source = _split_available(holdings)
     acmap = acmap_for(returns.columns)
@@ -146,7 +146,7 @@ def reoptimize(
     _, summary = compute_signal_outputs(returns, acmap, regimes_obj)
     views = summary_to_bl_views(summary)
     ens = ensemble or default_ensemble(n_best=4)
-    constraints = PortfolioConstraints.for_profile(profile, acmap)
+    constraints = constraints_for(profile, acmap)
     with _quiet():
         result = ens.run(returns, views=views, constraints=constraints)
     proposed_w = result.final_weights.reindex(returns.columns).fillna(0.0)

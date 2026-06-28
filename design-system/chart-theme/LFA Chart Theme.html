@@ -1,0 +1,235 @@
+<!-- @dsCard group="Charts" viewport="1280x2400" name="LFA Chart Theme — full-suite preview" subtitle="themes/lfa.json applied to representative charts" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LFA Chart Theme — Preview</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Mulish:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  :root{ --pg:#eef1f5; }
+  body{ margin:0; background:var(--pg); color:var(--lfa-navy); font-family:'Mulish',sans-serif; }
+  .wrap{ max-width:1200px; margin:0 auto; padding:40px 32px 80px; }
+  .masthead{ display:flex; align-items:center; justify-content:space-between; gap:24px; background:#fff; border:1px solid var(--lfa-line); border-radius:12px; padding:28px 34px; box-shadow:0 8px 24px rgba(26,42,85,.08); }
+  .masthead img{ height:74px; }
+  .masthead h1{ font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500; font-size:34px; color:var(--lfa-navy); margin:0; }
+  .masthead p{ margin:4px 0 0; font-size:13px; letter-spacing:.02em; color:var(--lfa-navy-500); }
+  .eyebrow{ font-weight:700; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--lfa-rose); margin:48px 0 14px; }
+  .panel{ background:#fff; border:1px solid var(--lfa-line); border-radius:12px; padding:24px; box-shadow:0 2px 8px rgba(26,42,85,.06); }
+  .swatches{ display:grid; grid-template-columns:repeat(2,1fr); gap:24px; }
+  .swrow{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
+  .chip{ display:flex; flex-direction:column; gap:6px; align-items:center; }
+  .chip .b{ width:72px; height:46px; border-radius:6px; border:1px solid rgba(0,0,0,.06); }
+  .chip .h{ font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--lfa-navy-500); }
+  .lbl{ font-weight:700; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--lfa-navy); margin-bottom:6px; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .card{ background:#fff; border:1px solid var(--lfa-line); border-radius:12px; padding:18px 18px 8px; box-shadow:0 2px 8px rgba(26,42,85,.06); }
+  .card .ct{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; color:var(--lfa-navy); padding:4px 6px 0; }
+  .card .cs{ font-size:12px; color:var(--lfa-navy-500); padding:2px 6px 10px; }
+  .chart{ width:100%; height:300px; }
+  .rationale{ font-size:14px; line-height:1.65; color:var(--lfa-navy-500); }
+  .rationale b{ color:var(--lfa-navy); }
+  .rationale ul{ margin:10px 0 0; padding-left:18px; }
+  .rationale li{ margin-bottom:8px; }
+  .flag{ background:#FBF0F2; border:1px solid #EBC9D0; border-radius:8px; padding:14px 16px; font-size:13.5px; line-height:1.6; color:#7A3142; }
+  @media(max-width:760px){ .grid2,.swatches{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div>
+      <h1>LFA Chart Theme</h1>
+      <p>Full-suite theme for Chart Studio — <code style="font-family:'IBM Plex Mono',monospace">themes/lfa.json</code>, covering all 19 chart types.</p>
+    </div>
+    <img src="../assets/logo-lfa-full.png" alt="LFA">
+  </div>
+
+  <!-- PALETTE -->
+  <div class="eyebrow">The Palette · role assignments</div>
+  <div class="swatches">
+    <div class="panel">
+      <div class="lbl">Categorical · 8 series colours</div>
+      <div class="swrow" id="sw-cat"></div>
+    </div>
+    <div class="panel">
+      <div class="lbl">Sequential · heatmap scale</div>
+      <div class="swrow" id="sw-seq"></div>
+      <div class="lbl" style="margin-top:18px">Semantic · positive / negative</div>
+      <div class="swrow" id="sw-sem"></div>
+    </div>
+    <div class="panel">
+      <div class="lbl">Ink · background · grid · axis</div>
+      <div class="swrow" id="sw-neu"></div>
+    </div>
+    <div class="panel">
+      <div class="lbl">Typography</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:30px;color:var(--lfa-navy);line-height:1.1;margin-top:6px">Cormorant Garamond <span style="font-size:14px;font-style:normal;color:var(--lfa-navy-500)">— display / titles</span></div>
+      <div style="font-family:'Mulish',sans-serif;font-size:16px;color:var(--lfa-navy);margin-top:10px">Mulish — body, axes, legend, tooltip</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--lfa-navy-500);margin-top:8px">IBM Plex Mono 1,234.56 — declared (not yet consumed)</div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="eyebrow">The Charts · LFA-dressed</div>
+  <div class="grid2">
+    <div class="card"><div class="ct">Rebased to 100</div><div class="cs">Multi-series line · categorical · ink · axis · grid</div><div class="chart" id="c-line"></div></div>
+    <div class="card"><div class="ct">Asset Allocation</div><div class="cs">Donut · categorical ≥6 · background border</div><div class="chart" id="c-donut"></div></div>
+    <div class="card"><div class="ct">Correlation Matrix</div><div class="cs">Heatmap · sequential scale</div><div class="chart" id="c-heat"></div></div>
+    <div class="card"><div class="ct">Performance Attribution</div><div class="cs">Waterfall · positive / negative</div><div class="chart" id="c-water"></div></div>
+    <div class="card"><div class="ct">Market — OHLC</div><div class="cs">Candlestick · positive / negative</div><div class="chart" id="c-candle"></div></div>
+    <div class="card"><div class="ct">Returns by Region</div><div class="cs">Grouped bar · categorical</div><div class="chart" id="c-bar"></div></div>
+    <div class="card"><div class="ct">Risk / Return</div><div class="cs">Scatter · categorical · ink · axis</div><div class="chart" id="c-scatter"></div></div>
+    <div class="card"><div class="ct">Drawdown</div><div class="cs">Area line · categorical[0] @18%</div><div class="chart" id="c-area"></div></div>
+  </div>
+
+  <!-- RATIONALE -->
+  <div class="eyebrow">Why these choices</div>
+  <div class="panel rationale">
+    <ul>
+      <li><b>Categorical (8).</b> Anchored on <b>LFA Navy</b> and the brand <b>Rose</b>, extended with sober institutional hues — alpine teal, ochre gold, indigo-mauve, slate, burgundy, steel-blue. All kept dark enough for the <b>white hard-coded labels</b> on treemap/sunburst, and spread across lightness so adjacent slices stay separable — including in greyscale.</li>
+      <li><b>Sequential.</b> A clean mono-tone ramp from a pale blue tint up to LFA Navy — institutional, unambiguous for the correlation heatmap.</li>
+      <li><b>Positive / Negative.</b> LFA's brand offers no up/down convention, so I assigned <b>alpine teal = positive (gain)</b> and <b>brand Rose = negative (loss)</b> — finance-standard green-up / red-down, but in LFA's register. Rose also doubles as the bullet benchmark marker, where it reads as a neutral reference highlight.</li>
+      <li><b>Ink / axis / grid.</b> Navy ink for all text, a hairline grey grid (<code>#E0E4EB</code>), and a muted navy-grey axis — quiet, premium, never competing with the data.</li>
+      <li><b>Type.</b> Cormorant Garamond titles (the LFA voice) over Mulish for every functional label. Mono is declared for brand completeness though the renderer doesn't consume it yet.</li>
+      <li><b>Logo + export.</b> The clean LFA mark is embedded in the theme (top-right on export); <code>exportPadding: 44</code> gives the institutional artwork room to breathe.</li>
+    </ul>
+  </div>
+
+  <div class="eyebrow">Assumptions to confirm</div>
+  <div class="flag">
+    <b>Please confirm or correct:</b> (1) the <b>green-up / red-down</b> semantic mapping (some EU houses invert this) — say the word and I'll flip to a navy-up / rose-down or any convention you prefer; (2) the four <b>extended categorical hues</b> (gold, teal, mauve, slate) aren't in LFA's core guidelines — they're my sober derivations; (3) chart <b>titles in Cormorant serif</b> vs. keeping everything in Mulish for maximum legibility at small sizes.
+  </div>
+
+</div>
+
+<script>
+const T = {
+  ink:"#23366E", background:"#FFFFFF", grid:"#E0E4EB", axis:"#8C95B2",
+  categorical:["#23366E","#C24A5E","#3E7C72","#B0852F","#6B5B95","#5A6678","#9C2D3A","#3C6E8F"],
+  sequential:["#EDF2F9","#5E77AE","#23366E"],
+  positive:"#3E7C72", negative:"#C24A5E",
+  display:"'Cormorant Garamond', Georgia, serif",
+  body:"'Mulish', sans-serif",
+  axisLineWidth:1, labelSize:12, tickColor:"#8C95B2"
+};
+
+// ---- swatch chips ----
+function chips(id, arr){ const el=document.getElementById(id); arr.forEach(c=>{ const d=document.createElement('div'); d.className='chip'; d.innerHTML=`<div class="b" style="background:${c}"></div><div class="h">${c}</div>`; el.appendChild(d); }); }
+chips('sw-cat', T.categorical);
+chips('sw-seq', T.sequential);
+const sem=document.getElementById('sw-sem');
+[['positive',T.positive],['negative',T.negative]].forEach(([n,c])=>{ const d=document.createElement('div'); d.className='chip'; d.innerHTML=`<div class="b" style="background:${c}"></div><div class="h">${n}</div>`; sem.appendChild(d); });
+chips('sw-neu', [T.ink,T.background,T.grid,T.axis]);
+
+// ---- base option (mirrors the builder's transversal styling) ----
+function base(){ return {
+  backgroundColor: T.background,
+  textStyle:{ fontFamily:T.body, color:T.ink },
+  title:{ show:false },
+  grid:{ left:48, right:24, top:30, bottom:36, containLabel:true },
+  legend:{ textStyle:{ fontFamily:T.body, color:T.ink, fontSize:12 }, top:0, icon:'roundRect', itemWidth:12, itemHeight:12 },
+  tooltip:{ textStyle:{ fontFamily:T.body } }
+};}
+function axisCfg(name){ return {
+  nameTextStyle:{ color:T.axis, fontFamily:T.body },
+  axisLine:{ lineStyle:{ color:T.axis, width:T.axisLineWidth } },
+  axisTick:{ lineStyle:{ color:T.tickColor } },
+  axisLabel:{ color:T.ink, fontFamily:T.body, fontSize:T.labelSize },
+  splitLine:{ lineStyle:{ color:T.grid } }
+};}
+const mk=(id,opt)=>{ const ch=echarts.init(document.getElementById(id)); ch.setOption(opt); window.addEventListener('resize',()=>ch.resize()); };
+
+// 1. Rebased line
+const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+mk('c-line', {...base(),
+  legend:{...base().legend, data:['Global Equity','Swiss Bonds','Alternatives']},
+  xAxis:{ type:'category', data:months, ...axisCfg(), splitLine:{show:false} },
+  yAxis:{ type:'value', ...axisCfg() },
+  series:[
+    { name:'Global Equity', type:'line', symbol:'none', smooth:true, lineStyle:{width:2,color:T.categorical[0]}, itemStyle:{color:T.categorical[0]}, data:[100,102,101,105,108,107,111,114,113,117,120,123] },
+    { name:'Swiss Bonds', type:'line', symbol:'none', smooth:true, lineStyle:{width:2,color:T.categorical[1]}, itemStyle:{color:T.categorical[1]}, data:[100,100.5,101,100.8,101.5,102,101.7,102.4,103,102.6,103.2,103.8] },
+    { name:'Alternatives', type:'line', symbol:'none', smooth:true, lineStyle:{width:2,color:T.categorical[2]}, itemStyle:{color:T.categorical[2]}, data:[100,101,103,102,104,106,105,108,110,109,112,115] }
+  ]
+});
+
+// 2. Donut
+mk('c-donut', {...base(), grid:undefined, legend:{...base().legend, orient:'vertical', right:0, top:'middle'},
+  series:[{ type:'pie', radius:['46%','72%'], center:['38%','52%'], itemStyle:{ borderColor:T.background, borderWidth:2 },
+    label:{ color:T.ink, fontFamily:T.body }, color:T.categorical,
+    data:[ {value:34,name:'US Equity'},{value:22,name:'Intl Equity'},{value:18,name:'Fixed Income'},{value:10,name:'Alternatives'},{value:9,name:'Real Assets'},{value:7,name:'Cash'} ] }]
+});
+
+// 3. Heatmap
+const assets=['Equity','Bonds','Gold','REIT','Cash'];
+const hd=[]; const corr=[[1,.1,.2,.6,-.1],[.1,1,.3,.2,.4],[.2,.3,1,.25,.05],[.6,.2,.25,1,-.05],[-.1,.4,.05,-.05,1]];
+for(let i=0;i<5;i++)for(let j=0;j<5;j++)hd.push([j,i,corr[i][j]]);
+mk('c-heat', {...base(), grid:{left:60,right:20,top:20,bottom:40,containLabel:true},
+  tooltip:{textStyle:{fontFamily:T.body}},
+  xAxis:{ type:'category', data:assets, ...axisCfg(), splitLine:{show:false} },
+  yAxis:{ type:'category', data:assets, ...axisCfg(), splitLine:{show:false} },
+  visualMap:{ min:-1, max:1, calculable:true, orient:'horizontal', left:'center', bottom:-4, inRange:{ color:T.sequential }, textStyle:{color:T.ink,fontFamily:T.body} },
+  series:[{ type:'heatmap', data:hd, label:{show:true, color:T.ink, fontFamily:T.body, fontSize:11, formatter:p=>p.value[2].toFixed(2)}, itemStyle:{borderColor:T.background,borderWidth:1} }]
+});
+
+// 4. Waterfall
+const wfCat=['Start','Equity','Bonds','FX','Fees','End'];
+const wfBase=[0,100,108,103,109,0]; const wfVal=[100,8,-5,6,-3,106];
+const assist=[0,100,103,103,106,0];
+mk('c-water', {...base(),
+  legend:{...base().legend, data:['Increase','Decrease']},
+  xAxis:{ type:'category', data:wfCat, ...axisCfg(), splitLine:{show:false} },
+  yAxis:{ type:'value', ...axisCfg() },
+  series:[
+    { type:'bar', stack:'t', itemStyle:{ borderColor:'transparent', color:'transparent' }, emphasis:{itemStyle:{color:'transparent'}}, data:[0,100,103,103,106,0] },
+    { name:'Increase', type:'bar', stack:'t', itemStyle:{color:T.positive}, data:[100,8,'-',6,'-',106] },
+    { name:'Decrease', type:'bar', stack:'t', itemStyle:{color:T.negative}, data:['-','-',5,'-',3,'-'] }
+  ]
+});
+
+// 5. Candlestick
+mk('c-candle', {...base(),
+  xAxis:{ type:'category', data:['W1','W2','W3','W4','W5','W6','W7','W8'], ...axisCfg(), splitLine:{show:false} },
+  yAxis:{ type:'value', scale:true, ...axisCfg() },
+  series:[{ type:'candlestick',
+    itemStyle:{ color:T.positive, color0:T.negative, borderColor:T.positive, borderColor0:T.negative },
+    data:[[100,108,99,109],[108,106,104,110],[106,112,105,113],[112,110,108,114],[110,116,109,117],[116,114,112,118],[114,119,113,120],[119,123,118,124]] }]
+});
+
+// 6. Grouped bar
+mk('c-bar', {...base(),
+  legend:{...base().legend, data:['2024','2025']},
+  xAxis:{ type:'category', data:['US','Europe','Asia','EM','Swiss'], ...axisCfg(), splitLine:{show:false} },
+  yAxis:{ type:'value', ...axisCfg() },
+  series:[
+    { name:'2024', type:'bar', itemStyle:{color:T.categorical[0]}, data:[8.2,5.1,6.4,4.0,3.5] },
+    { name:'2025', type:'bar', itemStyle:{color:T.categorical[1]}, data:[9.0,6.3,5.8,5.2,4.1] }
+  ]
+});
+
+// 7. Scatter
+mk('c-scatter', {...base(),
+  xAxis:{ type:'value', name:'Risk %', ...axisCfg() },
+  yAxis:{ type:'value', name:'Return %', ...axisCfg() },
+  series:[
+    { type:'scatter', symbolSize:14, itemStyle:{color:T.categorical[0]}, data:[[6,4],[8,6],[10,7]] },
+    { type:'scatter', symbolSize:14, itemStyle:{color:T.categorical[1]}, data:[[12,9],[14,8],[9,6]] },
+    { type:'scatter', symbolSize:14, itemStyle:{color:T.categorical[2]}, data:[[5,3],[7,5],[16,11]] }
+  ]
+});
+
+// 8. Drawdown area
+mk('c-area', {...base(),
+  xAxis:{ type:'category', data:months, ...axisCfg(), splitLine:{show:false} },
+  yAxis:{ type:'value', max:0, ...axisCfg() },
+  series:[{ type:'line', symbol:'none', smooth:true, lineStyle:{color:T.categorical[0],width:2}, itemStyle:{color:T.categorical[0]},
+    areaStyle:{ color:T.categorical[0], opacity:0.18 },
+    data:[0,-1.2,-0.5,-2.8,-4.1,-2.0,-1.1,-3.5,-5.2,-3.0,-1.4,-0.6] }]
+});
+</script>
+</body>
+</html>

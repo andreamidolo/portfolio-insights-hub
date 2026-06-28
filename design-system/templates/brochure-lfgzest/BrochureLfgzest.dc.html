@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Brochure Istituzionale LFG+ZEST (IT)" description="Presentazione istituzionale LFG+ZEST ricostruita — telaio verticale coerente su 1280×720, sezioni Chi Siamo → Contattaci, con diagrammi di processo/flusso (pipeline, imbuto, hub, timeline). Stampa in A4 landscape." -->
+<helmet>
+<script src="./ds-base.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  body { margin:0; background:#33333a; }
+  .bz-deck { display:flex; flex-direction:column; align-items:center; gap:24px; padding:28px 0; }
+  .bz { width:1280px; height:720px; position:relative; overflow:hidden; background:#fff; color:#231F20; font-family:'Raleway',sans-serif; box-shadow:0 18px 50px rgba(0,0,0,.35); flex:0 0 auto; box-sizing:border-box; }
+  .bz-red { background:radial-gradient(120% 140% at 75% 15%, #8B0A1F 0%, #83021A 40%, #45000B 100%); color:#fff; }
+  .bz-mtn { position:absolute; inset:auto 0 0 0; height:58%; background-image:url('../../assets/mountain-watermark.png'); background-position:bottom center; background-size:cover; background-repeat:no-repeat; mix-blend-mode:soft-light; opacity:.6; pointer-events:none; }
+
+  /* ===== UNIFIED VERTICAL FRAME — one regime for every content slide ===== */
+  .bz-pad { padding:52px 80px 30px; box-sizing:border-box; height:100%; display:flex; flex-direction:column; position:relative; z-index:2; }
+  .bz-head { flex:0 0 auto; }
+  .bz-main { flex:1 1 auto; min-height:0; display:flex; flex-direction:column; justify-content:center; }
+  .bz-foot { flex:0 0 auto; display:flex; justify-content:space-between; align-items:flex-end; font-size:8px; letter-spacing:.1em; text-transform:uppercase; color:#A39B90; padding-top:16px; margin-top:14px; }
+  .bz-red .bz-foot { color:rgba(255,255,255,.6); }
+
+  /* ===== Type & brand primitives ===== */
+  .bz-ey { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:#83021A; font-weight:500; margin:0; }
+  .bz-ey.on { color:#E7C9CE; }
+  .bz-rule { width:50px; height:2px; background:#83021A; margin:13px 0 0; border:0; }
+  .bz-red .bz-rule { background:rgba(255,255,255,.7); }
+  .bz-h { font-size:30px; font-weight:300; letter-spacing:.05em; text-transform:uppercase; color:#1E2225; line-height:1.1; margin:14px 0 0; }
+  .bz-h2 { font-size:23px; font-weight:300; letter-spacing:.05em; text-transform:uppercase; color:#1E2225; line-height:1.12; margin:14px 0 0; }
+  .bz-lead { font-size:13.5px; line-height:1.6; color:#4A4A4C; max-width:72ch; margin:16px 0 0; font-weight:400; }
+  .bz-red .bz-lead { color:rgba(255,255,255,.82); }
+  .bz-body { font-size:12.5px; line-height:1.58; color:#4A4A4C; margin:0; }
+  .bz-num { font-weight:200; color:#BDBCBD; line-height:.85; }
+  .bz-colh { font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:#83021A; margin:0 0 9px; font-weight:500; }
+  .bz-pill { display:inline-block; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:#4A4A4C; border:1px solid #D8D2CB; border-radius:999px; padding:5px 12px; }
+  .bz-photo { width:100%; aspect-ratio:1/1; background:#E5EAEB; border-radius:6px; }
+  .bz-pn { font-size:12px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225; }
+  .bz-pr { font-size:9.5px; letter-spacing:.07em; text-transform:uppercase; color:#848788; margin-top:3px; }
+  .bz-sr { width:26px; height:2px; background:#83021A; margin:10px 0 7px; }
+  .bz-tab { position:absolute; top:0; right:0; width:44px; height:172px; background:#9A8463; display:flex; align-items:center; justify-content:center; padding:14px 4px; box-sizing:border-box; z-index:3; }
+  .bz-tab span { writing-mode:vertical-rl; transform:rotate(180deg); color:#fff; font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; font-weight:500; line-height:1.55; text-align:center; max-height:144px; white-space:normal; }
+  .bz-divnum { font-size:120px; font-weight:200; color:rgba(255,255,255,.5); line-height:.9; }
+  .bz-divttl { font-size:42px; font-weight:300; letter-spacing:.08em; text-transform:uppercase; }
+
+  /* ===== Card vocabulary — three intentional, named variants ===== */
+  .card-out { border:1px solid #D8D2CB; border-radius:14px; padding:22px 22px; background:#fff; }
+  .card-cream { background:#F9F4EE; border-radius:14px; padding:22px 22px; }
+  .card-top { border-top:2px solid #83021A; padding-top:15px; }
+  .card-emph { background:#590112; color:#fff; border-radius:14px; padding:22px 22px; }
+  .card-emph .bz-body { color:rgba(255,255,255,.85); }
+
+  /* ===== Diagram: horizontal pipeline ===== */
+  .pipe { display:grid; grid-template-columns:repeat(4, 1fr); gap:0; align-items:stretch; }
+  .pipe-step { position:relative; padding:0 26px; }
+  .pipe-step:not(:last-child)::after { content:''; position:absolute; top:34px; right:-7px; width:14px; height:14px; border-top:2px solid #C9A7AB; border-right:2px solid #C9A7AB; transform:rotate(45deg); }
+  .pipe-n { font-size:46px; font-weight:200; color:#BDBCBD; line-height:.8; }
+  .pipe-t { font-size:13.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#1E2225; margin:13px 0 0; }
+  .pipe-d { font-size:11px; line-height:1.5; color:#6B6B6D; margin:8px 0 0; }
+  .pipe-bar { width:34px; height:2px; background:#83021A; margin:10px 0 0; }
+
+  /* ===== Diagram: funnel ===== */
+  .funnel-row { display:grid; grid-template-columns:minmax(0,1fr) 1.15fr; align-items:center; gap:26px; }
+  .funnel-bar { height:62px; border-radius:6px; display:flex; align-items:center; padding:0 20px; color:#fff; font-weight:600; font-size:13px; letter-spacing:.05em; text-transform:uppercase; box-sizing:border-box; }
+
+  /* ===== Diagram: continuous monitoring cycle band ===== */
+  .cyc { background:#590112; border-radius:12px; padding:14px 26px 16px; color:#fff; }
+  .cyc-h { font-size:10.5px; font-weight:600; letter-spacing:.13em; text-transform:uppercase; color:#E7C9CE; }
+  .cyc-row { display:flex; align-items:stretch; margin-top:11px; }
+  .cyc-step { flex:1; position:relative; padding:0 20px; }
+  .cyc-step:first-child { padding-left:0; }
+  .cyc-step:not(:last-child)::after { content:''; position:absolute; top:6px; right:-6px; width:11px; height:11px; border-top:2px solid rgba(231,201,206,.65); border-right:2px solid rgba(231,201,206,.65); transform:rotate(45deg); }
+  .cyc-t { font-size:11.5px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; }
+  .cyc-d { font-size:9.5px; line-height:1.45; color:rgba(255,255,255,.78); margin-top:5px; }
+  /* ===== Phase flow (vertical numbered) ===== */
+  .ph { display:flex; flex-direction:column; gap:18px; }
+  .ph-item { display:flex; gap:14px; }
+  .ph-n { flex:0 0 auto; width:27px; height:27px; border-radius:999px; border:1.5px solid #83021A; color:#83021A; font-size:12px; font-weight:600; display:flex; align-items:center; justify-content:center; }
+  .ph-t { font-size:12.5px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; color:#1E2225; }
+  .ph-d { font-size:10.5px; line-height:1.5; color:#6B6B6D; margin-top:4px; }
+  .chart-cap { font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#A39B90; margin-top:6px; text-align:center; }
+
+  @page{ size:A4 landscape; margin:0; }
+  @media print{
+    body{ background:#fff; }
+    .bz-deck{ gap:0; padding:0; }
+    .bz{ box-shadow:none; break-after:page; page-break-after:always; }
+  }
+</style>
+</helmet>
+<div class="bz-deck">
+
+  <!-- 01 COVER -->
+  <section class="bz bz-red" data-screen-label="Cover">
+    <div class="bz-mtn" style="opacity:.85;"></div>
+    <div style="position:absolute; top:46px; left:0; right:0; text-align:center; font-size:13px; letter-spacing:.32em; color:rgba(255,255,255,.85);">LFGZEST.COM</div>
+    <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:30px; z-index:2;">
+      <img src="../../assets/logo-lockup-white.png" alt="LFG+ZEST" style="width:150px; height:150px; display:block;">
+      <div style="font-size:26px; font-weight:300; letter-spacing:.1em; text-transform:uppercase;">Presentazione Istituzionale</div>
+    </div>
+    <div style="position:absolute; bottom:46px; left:0; right:0; text-align:center; font-size:12px; letter-spacing:.32em; color:rgba(255,255,255,.8);">L U G A N O&nbsp;&nbsp;&nbsp;Z U R I C H&nbsp;&nbsp;&nbsp;S W I T Z E R L A N D</div>
+  </section>
+
+  <!-- 02 INDICE -->
+  <section class="bz" data-screen-label="Indice">
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Indice</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:22px 70px;">
+          <div style="display:flex; gap:20px; align-items:baseline; border-bottom:1px solid #E5E2DE; padding-bottom:16px;"><span class="bz-num" style="font-size:38px;">01</span><span style="font-size:19px; letter-spacing:.06em; text-transform:uppercase; color:#1E2225;">Chi Siamo</span></div>
+          <div style="display:flex; gap:20px; align-items:baseline; border-bottom:1px solid #E5E2DE; padding-bottom:16px;"><span class="bz-num" style="font-size:38px;">02</span><span style="font-size:19px; letter-spacing:.06em; text-transform:uppercase; color:#1E2225;">Gestione Patrimoniale</span></div>
+          <div style="display:flex; gap:20px; align-items:baseline; border-bottom:1px solid #E5E2DE; padding-bottom:16px;"><span class="bz-num" style="font-size:38px;">03</span><span style="font-size:19px; letter-spacing:.06em; text-transform:uppercase; color:#1E2225;">Gestione Fondi</span></div>
+          <div style="display:flex; gap:20px; align-items:baseline; border-bottom:1px solid #E5E2DE; padding-bottom:16px;"><span class="bz-num" style="font-size:38px;">04</span><span style="font-size:19px; letter-spacing:.06em; text-transform:uppercase; color:#1E2225;">Strutturazione Finanziaria</span></div>
+          <div style="display:flex; gap:20px; align-items:baseline; border-bottom:1px solid #E5E2DE; padding-bottom:16px;"><span class="bz-num" style="font-size:38px;">05</span><span style="font-size:19px; letter-spacing:.06em; text-transform:uppercase; color:#1E2225;">Ulteriori Servizi</span></div>
+          <div style="display:flex; gap:20px; align-items:baseline; border-bottom:1px solid #E5E2DE; padding-bottom:16px;"><span class="bz-num" style="font-size:38px;">06</span><span style="font-size:19px; letter-spacing:.06em; text-transform:uppercase; color:#1E2225;">Contattaci</span></div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>LFGZEST.COM</span><span></span></div>
+    </div>
+  </section>
+
+  <!-- 03 DIVIDER 01 -->
+  <section class="bz bz-red" data-screen-label="Sezione 01">
+    <div class="bz-mtn"></div>
+    <img src="../../assets/logo-lockup-white.png" alt="LFG+ZEST" style="position:absolute; top:40px; left:44px; width:62px; height:62px;">
+    <div style="position:absolute; inset:0; display:flex; align-items:center; padding:0 80px; z-index:2;">
+      <div class="bz-divnum">01</div>
+      <div style="margin-left:38px;"><div class="bz-ey on">Sezione</div><div style="width:52px; height:2px; background:rgba(255,255,255,.7); margin:14px 0;"></div><div class="bz-divttl">Chi Siamo</div></div>
+    </div>
+    <div style="position:absolute; bottom:36px; left:44px; color:rgba(255,255,255,.85); font-size:11px; letter-spacing:.3em;">LFGZEST.COM</div>
+  </section>
+
+  <!-- 04 ASPIRAZIONE (red) -->
+  <section class="bz bz-red" data-screen-label="Aspirazione">
+    <div class="bz-mtn" style="opacity:.32;"></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey on">Chi Siamo</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main" style="justify-content:center;">
+        <p style="font-size:24px; font-weight:300; line-height:1.36; max-width:32ch; margin:0;">Aspiriamo a diventare il punto di riferimento in Svizzera per la gestione patrimoniale, dove talenti e clienti possano sentirsi orgogliosi di essere partner nella creazione di un nuovo paradigma nei servizi finanziari.</p>
+        <div style="font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#E7C9CE; margin-top:30px;">LFG+ZEST fa parte del gruppo LFG Holding</div>
+        <p style="font-size:11.5px; line-height:1.6; color:rgba(255,255,255,.82); margin-top:10px; max-width:78ch;">LFG Holding detiene uno dei maggiori portafogli di società di gestione patrimoniale indipendenti in Svizzera, con circa 3 miliardi di franchi svizzeri gestiti. Le società operative, supportate da oltre 50 specialisti e con uffici a Lugano e Zurigo, si rivolgono principalmente a quattro mercati chiave: Svizzera, Italia, Stati Uniti d'America e Messico.</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:38px; margin-top:26px;">
+          <div style="border-left:2px solid rgba(255,255,255,.5); padding-left:18px;">
+            <div style="font-size:13px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;">LFG+ZEST</div>
+            <p style="font-size:11px; line-height:1.55; color:rgba(255,255,255,.82); margin:7px 0 0;">Autorizzata dalla FINMA a fornire servizi di gestione patrimoniale e di fondi in Svizzera. Forti centri di competenza nel mercato italiano e latino-americano; registrata in Ontario, Quebec e Saskatchewan per la consulenza ad investitori canadesi.</p>
+          </div>
+          <div style="border-left:2px solid rgba(255,255,255,.5); padding-left:18px;">
+            <div style="font-size:13px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;">LFA</div>
+            <p style="font-size:11px; line-height:1.55; color:rgba(255,255,255,.82); margin:7px 0 0;">Uno dei principali punti di riferimento svizzeri per gli investitori statunitensi. Registrata presso la SEC come Foreign Investment Advisor, autorizzata ad offrire i propri servizi a clienti americani, domiciliati sia negli Stati Uniti che all'estero.</p>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>04</span></div>
+    </div>
+  </section>
+
+  <!-- 05 ECCELLENZA -->
+  <section class="bz" data-screen-label="Eccellenza">
+    <div class="bz-tab"><span>Chi Siamo</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Chi Siamo</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:46px;">
+          <div>
+            <p class="bz-body">LFG+ZEST, autorizzata dalla FINMA, rappresenta una realtà di eccellenza nel panorama svizzero della gestione patrimoniale e fondi. Un secondo centro di competenza nel mercato latino-americano e la registrazione in Ontario, Quebec e Saskatchewan (che ci consente di fornire servizi di consulenza ad investitori canadesi) sottolineano il nostro approccio dinamico ed internazionale.</p>
+            <p class="bz-body" style="margin-top:12px;">Nella nostra gamma di servizi proponiamo soluzioni di consulenza personalizzate e gestione discrezionale del portafoglio. Per la gestione dei fondi, siamo strutturati per seguire la creazione e la gestione di fondi e strumenti dedicati ad investitori retail e professionali, con strategie che coprono l'intera catena del valore per asset class, settori ed aree geografiche.</p>
+            <p class="bz-body" style="margin-top:12px;">Il network creato negli anni permette ai nostri clienti di usufruire di servizi aggiuntivi attraverso partner selezionati: gestione patrimoniale consolidata, pianificazione successoria, investimenti in private assets, consulenza M&amp;A e investimenti socialmente responsabili.</p>
+          </div>
+          <div style="border-left:1px solid #E5E2DE; padding-left:34px; display:flex; flex-direction:column; gap:22px; justify-content:center;">
+            <div><div style="font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#848788;">Uffici</div><div style="font-size:17px; margin-top:5px; color:#1E2225; font-weight:300;">Lugano &amp; Zurigo</div></div>
+            <div><div style="font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#848788;">Licenze</div><div style="font-size:17px; margin-top:5px; color:#1E2225; font-weight:300;">CH (FINMA) &amp; Canada (CSA)</div></div>
+            <div><div style="font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#848788;">Servizi</div><div style="font-size:17px; margin-top:5px; color:#1E2225; font-weight:300;">Gestione patrimoniale e fondi</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>05</span></div>
+    </div>
+  </section>
+
+  <!-- 06 CLIENTI -->
+  <section class="bz" data-screen-label="Clienti">
+    <div class="bz-tab"><span>Chi Siamo</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Chi Siamo · Clienti</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px 56px;">
+          <div style="display:flex; gap:16px;"><span class="bz-num" style="font-size:40px;">1</span><div><div style="font-size:14px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">HNWI &amp; Famiglie</div><p class="bz-body" style="font-size:11.5px; margin-top:6px;">Servizio focalizzato su qualità e personalizzazione, con soluzioni su misura. Vi accompagniamo attraverso le generazioni come punto di riferimento affidabile, per supportarvi, guidarvi e consigliarvi in ogni fase del percorso finanziario.</p></div></div>
+          <div style="display:flex; gap:16px;"><span class="bz-num" style="font-size:40px;">2</span><div><div style="font-size:14px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">Professionisti</div><p class="bz-body" style="font-size:11.5px; margin-top:6px;">Collaboriamo con consulenti finanziari, avvocati, commercialisti e family office, condividendo competenze specifiche. Dalla gestione patrimoniale alla strutturazione di veicoli dedicati e strategie di diversificazione internazionale, settoriale e geografica.</p></div></div>
+          <div style="display:flex; gap:16px;"><span class="bz-num" style="font-size:40px;">3</span><div><div style="font-size:14px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">Istituzionali</div><p class="bz-body" style="font-size:11.5px; margin-top:6px;">Team con esperienze decennali nei mercati. Modelli quantitativi proprietari e strumenti di market timing avanzati per ottimizzare alpha e rendimenti. La conoscenza del mercato latinoamericano ci rende un partner unico per chi vuole esplorarlo.</p></div></div>
+          <div style="display:flex; gap:16px;"><span class="bz-num" style="font-size:40px;">4</span><div><div style="font-size:14px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">Tesorerie Societarie</div><p class="bz-body" style="font-size:11.5px; margin-top:6px;">Assistiamo i dipartimenti di tesoreria per ottimizzare gli investimenti finanziari e la gestione della liquidità. Per piccole imprese o grandi aziende, sviluppiamo soluzioni personalizzate secondo gli elevati standard svizzeri.</p></div></div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>06</span></div>
+    </div>
+  </section>
+
+  <!-- 07 SERVIZI OVERVIEW -->
+  <section class="bz" data-screen-label="Servizi">
+    <div class="bz-tab"><span>Chi Siamo</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">I nostri servizi</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px;">
+          <div class="card-top"><div class="bz-num" style="font-size:34px;">01</div><div style="font-size:14px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#1E2225; margin-top:10px;">Gestione Patrimoniale</div></div>
+          <div class="card-top"><div class="bz-num" style="font-size:34px;">02</div><div style="font-size:14px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#1E2225; margin-top:10px;">Gestione Fondi</div></div>
+          <div class="card-top"><div class="bz-num" style="font-size:34px;">03</div><div style="font-size:14px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#1E2225; margin-top:10px;">Strutturazione Finanziaria</div></div>
+          <div class="card-top"><div class="bz-num" style="font-size:34px;">04</div><div style="font-size:14px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#1E2225; margin-top:10px;">Ulteriori Servizi</div></div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>LFGZEST.COM</span><span>07</span></div>
+    </div>
+  </section>
+
+  <!-- 08 DIVIDER 02 -->
+  <section class="bz bz-red" data-screen-label="Sezione 02">
+    <div class="bz-mtn"></div>
+    <img src="../../assets/logo-lockup-white.png" alt="LFG+ZEST" style="position:absolute; top:40px; left:44px; width:62px; height:62px;">
+    <div style="position:absolute; inset:0; display:flex; align-items:center; padding:0 80px; z-index:2;">
+      <div class="bz-divnum">02</div>
+      <div style="margin-left:38px;"><div class="bz-ey on">Sezione</div><div style="width:52px; height:2px; background:rgba(255,255,255,.7); margin:14px 0;"></div><div class="bz-divttl">Gestione<br>Patrimoniale</div></div>
+    </div>
+    <div style="position:absolute; bottom:36px; left:44px; color:rgba(255,255,255,.85); font-size:11px; letter-spacing:.3em;">LFGZEST.COM</div>
+  </section>
+
+  <!-- 09 GESTORE ESTERNO -->
+  <section class="bz" data-screen-label="Gestore esterno">
+    <div class="bz-tab"><span>Gestione Patrimoniale</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Gestione Patrimoniale</p>
+        <hr class="bz-rule">
+        <div class="bz-h2">Perché un gestore patrimoniale esterno</div>
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px;">
+          <div>
+            <div class="bz-colh" style="color:#9A8463;">Le sfide affrontate dagli HNWI</div>
+            <ul style="margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:11px;">
+              <li class="bz-body" style="font-size:11.5px; display:flex; gap:9px;"><span style="color:#9A8463;">—</span>Visibilità parziale su commissioni e costi nascosti, difficili da identificare o controllare.</li>
+              <li class="bz-body" style="font-size:11.5px; display:flex; gap:9px;"><span style="color:#9A8463;">—</span>Servizi standardizzati, spesso insufficienti per obiettivi specifici o esigenze complesse.</li>
+              <li class="bz-body" style="font-size:11.5px; display:flex; gap:9px;"><span style="color:#9A8463;">—</span>Mancanza di supervisione e di monitoraggio consolidato.</li>
+              <li class="bz-body" style="font-size:11.5px; display:flex; gap:9px;"><span style="color:#9A8463;">—</span>Protezione del patrimonio e pianificazione successoria inefficienti.</li>
+              <li class="bz-body" style="font-size:11.5px; display:flex; gap:9px;"><span style="color:#9A8463;">—</span>Accesso limitato a soluzioni d'investimento.</li>
+            </ul>
+          </div>
+          <div class="card-cream">
+            <div class="bz-colh">Gestore esterno: una guida affidabile</div>
+            <ul style="margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:11px;">
+              <li class="bz-body" style="font-size:11.5px; display:flex; gap:9px;"><span style="color:#83021A; font-weight:700;">✓</span><span><strong>Approccio personalizzato</strong> — strategia definita sul caso specifico di ogni cliente.</span></li>
+              <li class="bz-body" style="font-size:11.5px; display:flex; gap:9px;"><span style="color:#83021A; font-weight:700;">✓</span><span><strong>Analisi consolidata</strong> — visione unica degli investimenti, allineata a obiettivi personali.</span></li>
+              <li class="bz-body" style="font-size:11.5px; display:flex; gap:9px;"><span style="color:#83021A; font-weight:700;">✓</span><span><strong>Prospettiva a lungo termine</strong> — un'eredità duratura per le prossime generazioni.</span></li>
+              <li class="bz-body" style="font-size:11.5px; display:flex; gap:9px;"><span style="color:#83021A; font-weight:700;">✓</span>Gamma completa di strategie d'investimento.</li>
+              <li class="bz-body" style="font-size:11.5px; display:flex; gap:9px;"><span style="color:#83021A; font-weight:700;">✓</span>Piena trasparenza su costi e commissioni.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>09</span></div>
+    </div>
+  </section>
+
+  <!-- 10 SERVIZI DI GESTIONE -->
+  <section class="bz" data-screen-label="Servizi di gestione">
+    <div class="bz-tab"><span>Gestione Patrimoniale</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">La nostra offerta · Servizi di Gestione Patrimoniale</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:44px;">
+          <p class="bz-body" style="font-size:12px; line-height:1.62;">Crediamo che i nostri clienti e il rapporto che costruiamo con loro siano i nostri beni più preziosi: vogliamo che ciascuno si senta non un cliente, ma un partner. Il successo di LFG+ZEST si fonda sulla capacità di personalizzare prodotti e servizi sugli obiettivi, le preoccupazioni e i valori unici di ogni cliente. Gestiamo il patrimonio sfruttando un'ampia rete di talenti, interni ed esterni, bilanciando investimenti passivi e gestione attiva — un approccio prudente che rafforza l'immagine di LFG+ZEST come porto sicuro.</p>
+          <div>
+            <div class="bz-colh">Servizi inclusi</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:9px 16px;">
+              <div class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#83021A;">•</span>Costruzione del portafoglio multi-asset e multi-valuta</div>
+              <div class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#83021A;">•</span>Monitoraggio del portafoglio</div>
+              <div class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#83021A;">•</span>Accesso ad analisi e ricerca indipendenti</div>
+              <div class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#83021A;">•</span>Team di talenti interni e network esterno</div>
+              <div class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#83021A;">•</span>Gestione del rischio</div>
+              <div class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#83021A;">•</span>Investimenti fiscalmente efficienti</div>
+              <div class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#83021A;">•</span>Investimenti tematici, ad impatto e focus ESG</div>
+              <div class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#83021A;">•</span>Private assets (immobiliare e private equity)</div>
+            </div>
+            <div style="margin-top:18px; display:flex; gap:8px;">
+              <span class="bz-pill">Pratica standard</span>
+              <span class="bz-pill">Richieste on-demand</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>10</span></div>
+    </div>
+  </section>
+
+  <!-- 11 CONSULENZA -->
+  <section class="bz" data-screen-label="Consulenza">
+    <div class="bz-tab"><span>Gestione Patrimoniale</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Servizi di Consulenza · Mandato di Consulenza</p>
+        <hr class="bz-rule">
+        <p class="bz-lead">Con il Mandato di Consulenza, i clienti di LFG+ZEST sono direttamente coinvolti nella personalizzazione del processo d'investimento.</p>
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px;">
+          <div class="card-out"><div style="font-size:15px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#83021A;">Generazione di Alfa</div><div class="bz-sr"></div><p class="bz-body" style="font-size:11.5px;">Selezione di titoli in grado di generare rendimenti superiori ad un benchmark preselezionato, con un profilo di rischio/volatilità contenuto.</p></div>
+          <div class="card-out"><div style="font-size:15px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#83021A;">Architettura Aperta</div><div class="bz-sr"></div><p class="bz-body" style="font-size:11.5px;">Analisi e selezione indipendenti, con conseguente maggiore diversificazione di emittenti e strumenti.</p></div>
+          <div class="card-out"><div style="font-size:15px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#83021A;">Efficienza</div><div class="bz-sr"></div><p class="bz-body" style="font-size:11.5px;">Selezione di strumenti efficienti in termini di costi, in grado di fornire un inferiore errore di tracciamento.</p></div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>11</span></div>
+    </div>
+  </section>
+
+  <!-- 12 PROCESSO DI INVESTIMENTO — pipeline diagram -->
+  <section class="bz" data-screen-label="Processo">
+    <div class="bz-tab"><span>Gestione Patrimoniale</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Gestione Patrimoniale</p>
+        <hr class="bz-rule">
+        <div class="bz-h2">Processo di Investimento</div>
+        <p class="bz-lead">Il nostro processo è fondato sul ragionamento collettivo e sulla condivisione di idee. Coniughiamo analisi quantitative e competenze individuali per identificare e sfruttare le opportunità d'investimento su un orizzonte di medio-lungo periodo.</p>
+      </div>
+      <div class="bz-main">
+        <div class="pipe">
+          <div class="pipe-step"><div class="pipe-n">1</div><div class="pipe-bar"></div><div class="pipe-t">Ricerca &amp; Analisi</div><p class="pipe-d">Valutazione del quadro macro e delle dinamiche di mercato, ampliata da strumenti quantitativi e sinergie tra team interni ed esterni.</p></div>
+          <div class="pipe-step"><div class="pipe-n">2</div><div class="pipe-bar"></div><div class="pipe-t">Outlook di Mercato</div><p class="pipe-d">Outlook tattico mensile e strategico trimestrale che orientano la visione e l'asset allocation.</p></div>
+          <div class="pipe-step"><div class="pipe-n">3</div><div class="pipe-bar"></div><div class="pipe-t">Comitato Investimenti</div><p class="pipe-d">Il comitato discute e delibera l'allocazione; ogni proposta è votata collegialmente dai membri.</p></div>
+          <div class="pipe-step"><div class="pipe-n">4</div><div class="pipe-bar"></div><div class="pipe-t">Output</div><p class="pipe-d">Strategie implementate per profilo cliente, poi monitorate e ribilanciate al variare delle condizioni.</p></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; margin-top:22px; color:#9A8463; font-size:10px; letter-spacing:.12em; text-transform:uppercase;">
+          <div style="flex:1; height:1px; background:repeating-linear-gradient(90deg,#C9A7AB 0,#C9A7AB 6px,transparent 6px,transparent 12px);"></div>
+          <span>↻ Processo iterativo e continuo</span>
+          <div style="flex:1; height:1px; background:repeating-linear-gradient(90deg,#C9A7AB 0,#C9A7AB 6px,transparent 6px,transparent 12px);"></div>
+        </div>
+        <div style="margin-top:20px; background:#590112; color:#fff; border-radius:12px; padding:16px 26px; display:flex; align-items:center; gap:22px;">
+          <div style="font-weight:600; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#E7C9CE; white-space:nowrap;">Gestione del Rischio<br>&amp; Supervisione</div>
+          <div style="width:1px; align-self:stretch; background:rgba(255,255,255,.25);"></div>
+          <p style="font-size:11.5px; line-height:1.5; color:rgba(255,255,255,.85); margin:0;">Il Risk Manager valuta i portafogli rispetto al benchmark, le concentrazioni e gli outlier; le modifiche di allocazione proposte vengono votate da tutti i membri del comitato.</p>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>12</span></div>
+    </div>
+  </section>
+
+  <!-- 13 METODOLOGIA — three pillars -->
+  <section class="bz" data-screen-label="Metodologia">
+    <div class="bz-tab"><span>Gestione Patrimoniale</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Metodologia di Investimento</p>
+        <hr class="bz-rule">
+        <p class="bz-lead">Tre asset class, un'unica disciplina di selezione: ricerca, filtro e monitoraggio continuo applicati a obbligazioni, azioni e fondi.</p>
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:18px;">
+          <div class="card-out" style="text-align:center; padding:34px 24px;"><div style="font-size:19px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#1E2225;">Obbligazioni</div></div>
+          <div class="card-emph" style="text-align:center; padding:34px 24px;"><div style="font-size:19px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;">Azioni</div></div>
+          <div class="card-out" style="text-align:center; padding:34px 24px;"><div style="font-size:19px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#1E2225;">Fondi</div></div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>LFGZEST.COM</span><span>13</span></div>
+    </div>
+  </section>
+
+  <!-- 14 AZIONI — funnel diagram -->
+  <section class="bz" data-screen-label="Azioni">
+    <div class="bz-tab"><span>Gestione Patrimoniale</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Metodologia · Azioni — un approccio quantitativo unico</p>
+        <hr class="bz-rule">
+        <p class="bz-lead">Modello proprietario basato su ricerca accademica e ampi backtest. Avviato nel 2012 e costantemente affinato, classifica l'universo investibile con un punteggio multifattoriale — crescita, qualità, valutazione e performance del prezzo.</p>
+      </div>
+      <div class="bz-main">
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="funnel-row">
+            <div class="funnel-bar" style="width:100%; background:#C9A7AB; color:#3A0A14;">Universo Investibile</div>
+            <p class="bz-body" style="font-size:11px;">Società USA, europee e svizzere di media, grande e mega capitalizzazione.</p>
+          </div>
+          <div class="funnel-row">
+            <div class="funnel-bar" style="width:80%; background:#9A8463;">Modello Quantitativo</div>
+            <p class="bz-body" style="font-size:11px;">Filtra società GARP con trend di prezzo positivo; evita i titoli sopravvalutati.</p>
+          </div>
+          <div class="funnel-row">
+            <div class="funnel-bar" style="width:60%; background:#83021A;">Screening Qualitativo</div>
+            <p class="bz-body" style="font-size:11px;">Vantaggio competitivo durevole; stima del prezzo equo e dei livelli di valutazione.</p>
+          </div>
+          <div class="funnel-row">
+            <div class="funnel-bar" style="width:42%; background:#590112;">Lista di Azioni</div>
+            <p class="bz-body" style="font-size:11px;">Molteplici idee su tutti i settori, monitorate con aggiornamenti tempestivi.</p>
+          </div>
+        </div>
+        <div style="margin-top:20px;">
+          <div class="bz-colh" style="margin-bottom:9px;">Fattori principali</div>
+          <div style="display:flex; gap:7px; flex-wrap:wrap;">
+            <span class="bz-pill">Crescita</span><span class="bz-pill">Qualità &amp; Performance</span><span class="bz-pill">Valutazione</span><span class="bz-pill">Redditività</span><span class="bz-pill">Indici di mercato &amp; leva</span><span class="bz-pill">Growth Score</span><span class="bz-pill">FCF Yield Score</span><span class="bz-pill">Sales per Employee</span><span class="bz-pill">ROE 5yr avg</span><span class="bz-pill">Quality Score</span>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>15</span></div>
+    </div>
+  </section>
+
+  <!-- 15 OBBLIGAZIONI -->
+  <section class="bz" data-screen-label="Obbligazioni">
+    <div class="bz-tab"><span>Gestione Patrimoniale</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Metodologia · Obbligazioni — riepilogo</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:0.9fr 1.1fr; gap:42px; align-items:center;">
+          <div>
+            <div id="chart-obblig-funnel" style="width:100%; height:236px;"></div>
+            <div class="chart-cap">Schema illustrativo del processo di selezione</div>
+          </div>
+          <div class="ph">
+            <div class="ph-item"><div class="ph-n">1</div><div><div class="ph-t">Selezione &amp; filtraggio</div><div class="ph-d">Universo personalizzato sulle esigenze, prevalentemente investment grade. Liquidità (spread bid/ask ridotto, importo elevato), scadenza guidata dalla visione macro, esclusione ESG ≥ B- (Reuters) e ~3 anni di storico.</div></div></div>
+            <div class="ph-item"><div class="ph-n">2</div><div><div class="ph-t">Analisi relativa &amp; emittente</div><div class="ph-d">Salute finanziaria dell'emittente (Bloomberg, CreditSights); HY ed emergenti con enfasi sul free cash flow. Valutazione vs storia e derivati, classifica vs peers, leva, rating e margini EBITDA.</div></div></div>
+          </div>
+        </div>
+        <div class="cyc" style="margin-top:24px;">
+          <div class="cyc-h">↻ Ciclo di monitoraggio continuo — Selezione &amp; monitoraggio</div>
+          <div class="cyc-row">
+            <div class="cyc-step"><div class="cyc-t">Monitoraggio</div><div class="cyc-d">Prezzi, metriche, news ed eventi su base quotidiana.</div></div>
+            <div class="cyc-step"><div class="cyc-t">Aggiornamento</div><div class="cyc-d">Nuovo screening per cogliere le ultime opportunità.</div></div>
+            <div class="cyc-step"><div class="cyc-t">Segnalazione</div><div class="cyc-d">Le obbligazioni costose vengono messe in attesa.</div></div>
+            <div class="cyc-step"><div class="cyc-t">Modifiche</div><div class="cyc-d">Emittenti non più meritevoli rimossi; titoli in attesa riattivabili.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>16</span></div>
+    </div>
+  </section>
+
+  <!-- 16 FONDI -->
+  <section class="bz" data-screen-label="Fondi metodologia">
+    <div class="bz-tab"><span>Gestione Patrimoniale</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Metodologia · Fondi</p>
+        <hr class="bz-rule">
+        <div class="bz-h2">Selezione e monitoraggio dei fondi</div>
+        <p class="bz-lead">Filtri d'ingresso oggettivi, una doppia lente quantitativa e qualitativa, e lo stesso ciclo di monitoraggio continuo applicato al reddito fisso.</p>
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:0.95fr 1.05fr; gap:42px; align-items:center;">
+          <div>
+            <div id="chart-fondi-radar" style="width:100%; height:244px;"></div>
+            <div class="chart-cap">Profilo di valutazione del fondo — schema illustrativo</div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px 28px;">
+            <div>
+              <div class="bz-colh" style="color:#9A8463;">Filtri iniziali</div>
+              <ul style="margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:7px;">
+                <li class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#9A8463;">—</span>Min. AuM 50 MM (EUR/USD/CHF)</li>
+                <li class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#9A8463;">—</span>Track record ≥ 3 anni</li>
+                <li class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#9A8463;">—</span>Liquidità: NAV giornaliero/settimanale</li>
+                <li class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#9A8463;">—</span>Morningstar Overall ≥ 3 stelle</li>
+                <li class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#9A8463;">—</span>Analyst rating ≥ Bronzo</li>
+                <li class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#9A8463;">—</span>Fondi aperti, preferibilmente UCITS</li>
+              </ul>
+            </div>
+            <div>
+              <div class="bz-colh">Quantitativa</div>
+              <ul style="margin:0 0 12px; padding:0; list-style:none; display:flex; flex-direction:column; gap:7px;">
+                <li class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#83021A;">•</span>Rischio/rendimento (Sharpe, Information Ratio)</li>
+                <li class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#83021A;">•</span>Consistenza dei rendimenti in eccesso</li>
+                <li class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#83021A;">•</span>Performance momentum</li>
+              </ul>
+              <div class="bz-colh" style="color:#590112;">Qualitativa</div>
+              <ul style="margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:7px;">
+                <li class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#590112;">•</span>Analisi del portafoglio; intervista al team</li>
+                <li class="bz-body" style="font-size:10.5px; display:flex; gap:7px;"><span style="color:#590112;">•</span>Questionario di Due Diligence</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="cyc" style="margin-top:24px;">
+          <div class="cyc-h">↻ Ciclo di monitoraggio continuo — Selezione &amp; monitoraggio</div>
+          <div class="cyc-row">
+            <div class="cyc-step"><div class="cyc-t">Monitoraggio</div><div class="cyc-d">Mensile su filtri, punteggio e commento del manager.</div></div>
+            <div class="cyc-step"><div class="cyc-t">Aggiornamento</div><div class="cyc-d">Screening regolare dai modelli quantitativi.</div></div>
+            <div class="cyc-step"><div class="cyc-t">Segnalazione</div><div class="cyc-d">I fondi sottoperformanti sospesi e rivalutati.</div></div>
+            <div class="cyc-step"><div class="cyc-t">Modifiche</div><div class="cyc-d">Esclusione o reintegrazione; peer group per asset class/tema/geografia.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>17</span></div>
+    </div>
+  </section>
+
+  <!-- 17 TEAM WM -->
+  <section class="bz" data-screen-label="Team WM">
+    <div class="bz-tab"><span>Gestione Patrimoniale</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Team di Gestione Patrimoniale</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px 26px;">
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn">Alberto Conca</div><div class="bz-pr">Azionista &amp; CIO</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn">Rosy Mantia</div><div class="bz-pr">Partner</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn">Enrico Guagni</div><div class="bz-pr">Partner</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn">Mathias Hasler</div><div class="bz-pr">Portfolio Manager</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn">Siro Spellini</div><div class="bz-pr">Portfolio Manager</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn">Adrian Kempf</div><div class="bz-pr">Portfolio Manager</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn">Alessandro Brusa</div><div class="bz-pr">Analyst</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn">Pasquè</div><div class="bz-pr">Analyst</div></div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>18</span></div>
+    </div>
+  </section>
+
+  <!-- 18 DIVIDER 03 -->
+  <section class="bz bz-red" data-screen-label="Sezione 03">
+    <div class="bz-mtn"></div>
+    <img src="../../assets/logo-lockup-white.png" alt="LFG+ZEST" style="position:absolute; top:40px; left:44px; width:62px; height:62px;">
+    <div style="position:absolute; inset:0; display:flex; align-items:center; padding:0 80px; z-index:2;">
+      <div class="bz-divnum">03</div>
+      <div style="margin-left:38px;"><div class="bz-ey on">Sezione</div><div style="width:52px; height:2px; background:rgba(255,255,255,.7); margin:14px 0;"></div><div class="bz-divttl">Gestione Fondi</div></div>
+    </div>
+    <div style="position:absolute; bottom:36px; left:44px; color:rgba(255,255,255,.85); font-size:11px; letter-spacing:.3em;">LFGZEST.COM</div>
+  </section>
+
+  <!-- 19 ANIMA SVIZZERA -->
+  <section class="bz" data-screen-label="Fondi grid">
+    <div class="bz-tab"><span>Gestione Fondi</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Anima svizzera, visione globale</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
+          <div class="card-cream"><div class="bz-colh">Strategie d'investimento</div><div class="bz-body" style="font-size:11px; line-height:1.7;">Growth · Value · Attiva · Passiva · Rendita · Long/Short · Tattica · Market Neutral</div></div>
+          <div class="card-cream"><div class="bz-colh">Asset Classes</div><div class="bz-body" style="font-size:11px; line-height:1.7;">Azioni · Obbligazioni · Forex · Investimenti alternativi · Opzioni · Cash · Fondi hedge</div></div>
+          <div class="card-cream"><div class="bz-colh">Approccio</div><div class="bz-body" style="font-size:11px; line-height:1.7;">Sistematica · Discrezionale · Analisi fondamentale · Analisi tecnica · Tool quantitativi · Modello AI a supporto</div></div>
+          <div class="card-cream"><div class="bz-colh">Settori</div><div class="bz-body" style="font-size:11px; line-height:1.7;">Tecnologia · Sanità · Finanziari · Consumer · Energia · Industria</div></div>
+          <div class="card-cream"><div class="bz-colh">Investitori target &amp; veicoli</div><div class="bz-body" style="font-size:11px; line-height:1.7;">Retail · Professionali · Istituzionali — UCITS lussemburghesi · QIAIF irlandesi · RAIF lussemburghesi</div></div>
+          <div class="card-cream"><div class="bz-colh">Geografie</div><div class="bz-body" style="font-size:11px; line-height:1.7;">USA · Europa · Asia · Mercati Globali · Mercati Emergenti</div></div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>20</span></div>
+    </div>
+  </section>
+
+  <!-- 20 ZEST SICAV — hub & spoke -->
+  <section class="bz" data-screen-label="SICAV">
+    <div class="bz-tab"><span>Gestione Fondi</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Attività di Gestione Fondi · Fondi UCITS</p>
+        <hr class="bz-rule">
+        <div class="bz-h2">La Zest Asset Management SICAV (UCITS)</div>
+        <p class="bz-lead">Autorizzata dalla FINMA nel 2013 alla gestione di fondi UCITS; nel 2019 l'autorizzazione è stata estesa ai Fondi di Investimento Alternativi, con veicoli domiciliati in Irlanda e Lussemburgo.</p>
+      </div>
+      <div class="bz-main">
+        <div style="display:flex; gap:46px; align-items:center;">
+          <div style="flex:0 0 auto; display:flex; flex-direction:column; gap:22px;">
+            <div><div style="font-size:48px; font-weight:300; color:#83021A; line-height:1;">15</div><div style="font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:#848788; margin-top:6px;">Comparti</div></div>
+            <div><div style="font-size:48px; font-weight:300; color:#83021A; line-height:1;">500<span style="font-size:18px;"> mln</span></div><div style="font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:#848788; margin-top:6px;">Asset in gestione</div></div>
+          </div>
+          <div style="flex:1;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div style="background:#590112; color:#fff; border-radius:12px; padding:14px 28px; text-align:center;">
+                <div style="font-size:15px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;">Zest AM SICAV</div>
+                <div style="font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:#E7C9CE; margin-top:3px;">Ecosistema dei servizi</div>
+              </div>
+              <div style="width:2px; height:22px; background:#D8D2CB;"></div>
+              <div style="width:84%; height:2px; background:#D8D2CB;"></div>
+              <div style="width:84%; display:flex; justify-content:space-between;">
+                <div style="width:2px; height:18px; background:#D8D2CB;"></div>
+                <div style="width:2px; height:18px; background:#D8D2CB;"></div>
+                <div style="width:2px; height:18px; background:#D8D2CB;"></div>
+                <div style="width:2px; height:18px; background:#D8D2CB;"></div>
+                <div style="width:2px; height:18px; background:#D8D2CB;"></div>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:12px; width:100%; margin-top:2px;">
+                <div class="card-out" style="padding:12px 8px; text-align:center; border-radius:10px;"><div style="font-size:10.5px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; color:#1E2225; line-height:1.3;">Banca Depositaria</div></div>
+                <div class="card-out" style="padding:12px 8px; text-align:center; border-radius:10px;"><div style="font-size:10.5px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; color:#1E2225; line-height:1.3;">Investment Manager</div></div>
+                <div class="card-out" style="padding:12px 8px; text-align:center; border-radius:10px;"><div style="font-size:10.5px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; color:#1E2225; line-height:1.3;">ManCo &amp; Fund Admin</div></div>
+                <div class="card-out" style="padding:12px 8px; text-align:center; border-radius:10px;"><div style="font-size:10.5px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; color:#1E2225; line-height:1.3;">Auditor</div></div>
+                <div class="card-out" style="padding:12px 8px; text-align:center; border-radius:10px;"><div style="font-size:10.5px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; color:#1E2225; line-height:1.3;">Consulenti Legali</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>21</span></div>
+    </div>
+  </section>
+
+  <!-- 21 TEAM GESTIONE FONDI -->
+  <section class="bz" data-screen-label="Team Fondi">
+    <div class="bz-tab"><span>Gestione Fondi</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Team di Gestione Fondi</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:18px 20px;">
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Alberto Conca</div><div class="bz-pr">Azionista &amp; CIO</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Marco Simion</div><div class="bz-pr">Gestore</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Matteo Meroni</div><div class="bz-pr">Gestore</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Patrick Borradori</div><div class="bz-pr">Head of Risk &amp; Compliance</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Pasquale Corvino</div><div class="bz-pr">Gestore</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Daniele Lombardo</div><div class="bz-pr">Gestore</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Gianrito Nicodemo</div><div class="bz-pr">Gestore</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Martino Bon</div><div class="bz-pr">Gestore</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Lorenzo Scorzolini</div><div class="bz-pr">Gestore</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Tommaso Procopio</div><div class="bz-pr">Gestore</div></div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>22</span></div>
+    </div>
+  </section>
+
+  <!-- 22 DIVIDER 04 -->
+  <section class="bz bz-red" data-screen-label="Sezione 04">
+    <div class="bz-mtn"></div>
+    <img src="../../assets/logo-lockup-white.png" alt="LFG+ZEST" style="position:absolute; top:40px; left:44px; width:62px; height:62px;">
+    <div style="position:absolute; inset:0; display:flex; align-items:center; padding:0 80px; z-index:2;">
+      <div class="bz-divnum">04</div>
+      <div style="margin-left:38px;"><div class="bz-ey on">Sezione</div><div style="width:52px; height:2px; background:rgba(255,255,255,.7); margin:14px 0;"></div><div class="bz-divttl">Strutturazione<br>Finanziaria</div></div>
+    </div>
+    <div style="position:absolute; bottom:36px; left:44px; color:rgba(255,255,255,.85); font-size:11px; letter-spacing:.3em;">LFGZEST.COM</div>
+  </section>
+
+  <!-- 23 SERVIZI STRUTTURAZIONE — milestone timeline -->
+  <section class="bz" data-screen-label="Strutturazione servizi">
+    <div class="bz-tab"><span>Strutturazione Finanziaria</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Servizi di Strutturazione Finanziaria</p>
+        <hr class="bz-rule">
+        <p class="bz-lead">Imprese, banche, family office, gestori patrimoniali e investitori privati si rivolgono a noi per la conoscenza di giurisdizioni e strumenti. Accompagniamo i clienti dall'analisi delle necessità alla strutturazione su misura, fino alla gestione e al monitoraggio degli operatori terzi.</p>
+      </div>
+      <div class="bz-main">
+        <div style="position:relative; display:grid; grid-template-columns:repeat(4,1fr); margin-top:6px;">
+          <div style="position:absolute; top:18px; left:12%; right:12%; height:2px; background:#D8D2CB;"></div>
+          <div style="position:relative; text-align:center; padding:0 14px;"><div style="width:38px; height:38px; border-radius:999px; border:2px solid #83021A; color:#83021A; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; margin:0 auto 14px;">A</div><div class="bz-body" style="font-size:11px;">Idea o necessità del cliente</div></div>
+          <div style="position:relative; text-align:center; padding:0 14px;"><div style="width:38px; height:38px; border-radius:999px; border:2px solid #83021A; color:#83021A; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; margin:0 auto 14px;">B</div><div class="bz-body" style="font-size:11px;">Identificazione opportunità e studio di fattibilità</div></div>
+          <div style="position:relative; text-align:center; padding:0 14px;"><div style="width:38px; height:38px; border-radius:999px; border:2px solid #83021A; color:#83021A; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; margin:0 auto 14px;">C</div><div class="bz-body" style="font-size:11px;">Discussione, valutazione opzioni e decisione finale</div></div>
+          <div style="position:relative; text-align:center; padding:0 14px;"><div style="width:38px; height:38px; border-radius:999px; background:#83021A; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; margin:0 auto 14px;">✓</div><div class="bz-body" style="font-size:11px;">Presa in carico del progetto</div></div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:30px; flex-wrap:wrap; justify-content:center;">
+          <span class="bz-pill">1 · Strutturazione del progetto/veicolo</span>
+          <span class="bz-pill">2 · Gestione diretta degli investimenti sottostanti</span>
+          <span class="bz-pill">3 · Supervisione e coordinamento di parti terze</span>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>24</span></div>
+    </div>
+  </section>
+
+  <!-- 24 FONDI EUROPEI -->
+  <section class="bz" data-screen-label="Fondi europei">
+    <div class="bz-tab"><span>Strutturazione Finanziaria</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Veicoli d'investimento</p>
+        <hr class="bz-rule">
+        <div class="bz-h2">Fondi d'investimento europei</div>
+        <p class="bz-lead">Disciplinati dalle direttive UCITS e AIF. I FIA offrono alle famiglie un modo trasparente per mantenere il controllo del patrimonio, semplificare la pianificazione fiscale e successoria e diversificare in attività alternative.</p>
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px;">
+          <div class="card-top"><div style="font-size:14px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#1E2225;">Facilità di trasferimento</div><p class="bz-body" style="font-size:11px; margin-top:9px;">Le quote sono facilmente trasferibili tra membri della famiglia o a terzi, per disporre rapidamente delle attività sottostanti.</p></div>
+          <div class="card-top"><div style="font-size:14px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#1E2225;">Differenziazione dei diritti</div><p class="bz-body" style="font-size:11px; margin-top:9px;">Cessione e diritti economici differenziabili a priori tra i membri, in modo flessibile e senza costi amministrativi.</p></div>
+          <div class="card-top" style="border-top-color:#590112;"><div style="font-size:14px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#590112;">Differimento dell'imposta</div><p class="bz-body" style="font-size:11px; margin-top:9px;">Gli utili reinvestiti aumentano il valore delle azioni; la tassazione è posticipata fino al realizzo.</p></div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>25</span></div>
+    </div>
+  </section>
+
+  <!-- 25 AMC -->
+  <section class="bz" data-screen-label="AMC">
+    <div class="bz-tab"><span>Strutturazione Finanziaria</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Veicoli d'investimento</p>
+        <hr class="bz-rule">
+        <div class="bz-h2">Certificati a gestione attiva (AMC)</div>
+        <p class="bz-lead">Gli Actively Managed Certificates sono strumenti noti che, in determinate circostanze, rappresentano soluzioni efficienti e flessibili per strutturare una strategia personalizzata senza creare un fondo dedicato o aprire nuove relazioni bancarie.</p>
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px;">
+          <div class="card-cream"><div style="font-size:14px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#83021A;">Rapidità ed efficienza</div><p class="bz-body" style="font-size:11px; margin-top:9px;">Basso livello di amministrazione: la fase di strutturazione può richiedere solo qualche settimana.</p></div>
+          <div class="card-cream"><div style="font-size:14px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#83021A;">Flessibilità e personalizzazione</div><p class="bz-body" style="font-size:11px; margin-top:9px;">Adattabili a varie allocazioni strategiche e tattiche, con costi di struttura ridotti.</p></div>
+          <div class="card-cream"><div style="font-size:14px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#83021A;">Adattabilità a masse ridotte</div><p class="bz-body" style="font-size:11px; margin-top:9px;">Minor complessità burocratica: soluzione praticabile anche per progetti di dimensioni contenute.</p></div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>26</span></div>
+    </div>
+  </section>
+
+  <!-- 26 TEAM STRUTTURAZIONE -->
+  <section class="bz" data-screen-label="Team Strutturazione">
+    <div class="bz-tab"><span>Strutturazione Finanziaria</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Team di Strutturazione Finanziaria</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:30px; max-width:760px;">
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn">Gabriele Rossi</div><div class="bz-pr">Azionista &amp; Head Business Development</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn">Miriam Sironi</div><div class="bz-pr">Head Divisione Amministrazione Fondi</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn">Andrea Midolo</div><div class="bz-pr">Business Developer</div></div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>27</span></div>
+    </div>
+  </section>
+
+  <!-- 27 DIVIDER 05 -->
+  <section class="bz bz-red" data-screen-label="Sezione 05">
+    <div class="bz-mtn"></div>
+    <img src="../../assets/logo-lockup-white.png" alt="LFG+ZEST" style="position:absolute; top:40px; left:44px; width:62px; height:62px;">
+    <div style="position:absolute; inset:0; display:flex; align-items:center; padding:0 80px; z-index:2;">
+      <div class="bz-divnum">05</div>
+      <div style="margin-left:38px;"><div class="bz-ey on">Sezione</div><div style="width:52px; height:2px; background:rgba(255,255,255,.7); margin:14px 0;"></div><div class="bz-divttl">Ulteriori Servizi</div></div>
+    </div>
+    <div style="position:absolute; bottom:36px; left:44px; color:rgba(255,255,255,.85); font-size:11px; letter-spacing:.3em;">LFGZEST.COM</div>
+  </section>
+
+  <!-- 28 BOUTIQUE / SPORT -->
+  <section class="bz" data-screen-label="Boutique & Sport">
+    <div class="bz-tab"><span>Ulteriori Servizi</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Servizi Aggiuntivi</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:34px;">
+          <div style="border-left:2px solid #83021A; padding-left:22px;">
+            <div style="font-size:16px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">Boutique della Previdenza</div>
+            <p class="bz-body" style="font-size:11.5px; margin-top:11px;">LFG+ZEST collabora con un'importante Fondazione svizzera con sede nel Canton Svitto, con banca depositaria cantonale. Tramite la Fondazione gestiamo averi previdenziali di Libero Passaggio, Terzo Pilastro 3a (anche per frontalieri) e previdenza professionale Piani 1e.</p>
+            <p class="bz-body" style="font-size:11.5px; margin-top:9px;">Abbiamo inoltre disegnato linee di gestione personalizzate per chi ha optato o opterà per il prelievo (parziale o totale) del secondo e/o terzo pilastro.</p>
+          </div>
+          <div style="border-left:2px solid #9A8463; padding-left:22px;">
+            <div style="font-size:16px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">Sport &amp; Entertainment Division</div>
+            <p class="bz-body" style="font-size:11.5px; margin-top:11px;">Una divisione dedicata ad atleti professionisti e artisti, per offrire un supporto concreto e strutturato in un settore dove troppo spesso talento e successo non bastano a garantire stabilità nel tempo.</p>
+            <p class="bz-body" style="font-size:11.5px; margin-top:9px;">Attraverso il nostro network affianchiamo atleti, agenti e componenti del circle of trust nella costruzione di un percorso sostenibile, coprendo l'intera catena del valore al di là della gestione patrimoniale.</p>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>29</span></div>
+    </div>
+  </section>
+
+  <!-- 29 LFA US -->
+  <section class="bz" data-screen-label="LFA US">
+    <div class="bz-tab"><span>Ulteriori Servizi</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Attraverso il nostro Network</p>
+        <hr class="bz-rule">
+        <div class="bz-h2">Wealth Management per investitori USA</div>
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px;">
+          <p class="bz-body" style="font-size:12px; line-height:1.62;">Grazie a LFA SA, partner strategico e membro di LFG Holding, LFG+ZEST ha accesso a uno dei principali provider specializzati nell'offerta di soluzioni d'investimento internazionali per investitori statunitensi, ovunque essi risiedano nel mondo.</p>
+          <div class="card-cream">
+            <div style="font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:#9A8463; font-weight:500; margin-bottom:9px;">Swiss Wealth Management for US Clients</div>
+            <p class="bz-body" style="font-size:11px;">LFA è autorizzata dalla SEC a fornire servizi di consulenza finanziaria a investitori americani. La gestione patrimoniale indipendente è progettata per clienti che cercano performance, gestione del rischio e soluzioni fiscalmente efficienti. I clienti beneficiano di una rete che include le principali banche svizzere, studi legali internazionali, esperti di pianificazione patrimoniale e commercialisti (CPAs).</p>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>30</span></div>
+    </div>
+  </section>
+
+  <!-- 30 NETWORK 1 -->
+  <section class="bz" data-screen-label="Network 1">
+    <div class="bz-tab"><span>Ulteriori Servizi</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Attraverso il nostro Network · Servizi Aggiuntivi</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:34px;">
+          <div style="border-left:2px solid #83021A; padding-left:22px;">
+            <div style="font-size:16px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">Impact Investing</div>
+            <p class="bz-body" style="font-size:11.5px; margin-top:11px;">Possiamo integrare un focus su soluzioni di impact investing, con consulenza su singoli investimenti (liquidi o illiquidi) e servizi completi di advisory di portafoglio. Il nostro partner è una società di consulenza specializzata in impact investing e strumenti finanziari innovativi per lo sviluppo, fondata nel 2017 a Zurigo, con sedi a Kampala, Nairobi e Milano.</p>
+          </div>
+          <div style="border-left:2px solid #9A8463; padding-left:22px;">
+            <div style="font-size:16px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">Family Office</div>
+            <p class="bz-body" style="font-size:11.5px; margin-top:11px;">Attraverso un partner strategico, offriamo accesso a un team dedicato specializzato nei servizi di family office, pensati per famiglie internazionali con strutture complesse dal punto di vista patrimoniale, fiscale e di governance. Il servizio include consulenza e contabilità, supporto legale e fiduciario, continuità familiare e dinamiche aziendali.</p>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>31</span></div>
+    </div>
+  </section>
+
+  <!-- 31 NETWORK 2 -->
+  <section class="bz" data-screen-label="Network 2">
+    <div class="bz-tab"><span>Ulteriori Servizi</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Attraverso il nostro Network · Servizi Aggiuntivi</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:34px;">
+          <div style="border-left:2px solid #83021A; padding-left:22px;">
+            <div style="font-size:16px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">Private Equity &amp; Venture Capital</div>
+            <p class="bz-body" style="font-size:11.5px; margin-top:11px;">Per chi è interessato a partecipazioni in società non quotate, abbiamo rapporti consolidati con società attive nel PE e VC, che ci supportano in analisi e due diligence. Possiamo supportare l'analisi di singole operazioni e la strutturazione di club-deal o altri veicoli. Focus principale sulle PMI italiane, con una rete che dà accesso anche a livello internazionale.</p>
+          </div>
+          <div style="border-left:2px solid #9A8463; padding-left:22px;">
+            <div style="font-size:16px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">Investimenti Immobiliari</div>
+            <p class="bz-body" style="font-size:11.5px; margin-top:11px;">Collaboriamo con partner specializzati su diversi segmenti e geografie: sviluppo residenziale e commerciale, compravendite, operazioni in equity o debito, club-deal e veicoli d'investimento. Copertura paneuropea, inclusi Svizzera, Germania, Nord Italia e Regno Unito.</p>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>32</span></div>
+    </div>
+  </section>
+
+  <!-- 32 NETWORK 3 -->
+  <section class="bz" data-screen-label="Network 3">
+    <div class="bz-tab"><span>Ulteriori Servizi</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Attraverso il nostro Network · Servizi Aggiuntivi</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:34px;">
+          <div style="border-left:2px solid #83021A; padding-left:22px;">
+            <div style="font-size:16px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">Supporto Legale e Fiscale</div>
+            <p class="bz-body" style="font-size:11.5px; margin-top:11px;">Tramite partnership con professionisti nazionali e internazionali, i clienti contano su controparti di primo livello per soluzioni multi-giurisdizionali: pianificazione successoria, operazioni immobiliari, M&amp;A e consulenza in ambito di governance. I partner sono studi legali e fiscali specializzati in operazioni straordinarie, acquisizioni, ristrutturazioni finanziarie e real estate.</p>
+          </div>
+          <div style="border-left:2px solid #9A8463; padding-left:22px;">
+            <div style="font-size:16px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">Consulenza Assicurativa</div>
+            <p class="bz-body" style="font-size:11.5px; margin-top:11px;">Per i clienti alla ricerca di soluzioni assicurative complete, i nostri partner dedicati offrono accesso a un'ampia gamma di servizi di protezione e copertura. L'approccio garantisce la copertura di ogni aspetto della catena del valore assicurativa, offrendo tranquillità in tutte le aree della vita personale e professionale.</p>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>33</span></div>
+    </div>
+  </section>
+
+  <!-- 33 NETWORK 4 -->
+  <section class="bz" data-screen-label="Network 4">
+    <div class="bz-tab"><span>Ulteriori Servizi</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Attraverso il nostro Network · Servizi Aggiuntivi</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:34px;">
+          <div style="border-left:2px solid #83021A; padding-left:22px;">
+            <div style="font-size:16px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">Oro Fisico</div>
+            <p class="bz-body" style="font-size:11.5px; margin-top:11px;">Per clienti interessati a protezione e diversificazione alternativa, offriamo l'accesso a uno dei provider più esclusivi al mondo per acquisto, custodia e trasporto sicuro di metalli preziosi, con caveau privati in Svizzera e Singapore. Per patrimoni oltre una certa soglia, è disponibile uno dei caveau più sicuri al mondo, nelle Alpi svizzere, accessibile 24/7, fuori dal sistema bancario e interamente in giurisdizione svizzera.</p>
+          </div>
+          <div style="border-left:2px solid #9A8463; padding-left:22px;">
+            <div style="font-size:16px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#1E2225;">Fondi Hedge</div>
+            <p class="bz-body" style="font-size:11.5px; margin-top:11px;">Da un lato competenze interne consolidate nel monitoraggio e analisi quantitativa di hedge funds; dall'altro collaboriamo con una società partner con track record pluridecennale (oltre 30 anni), circa 3 miliardi USD in gestione e presenze strategiche in Regno Unito, Stati Uniti, Svizzera e Italia.</p>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>34</span></div>
+    </div>
+  </section>
+
+  <!-- 34 DIVIDER 06 -->
+  <section class="bz bz-red" data-screen-label="Sezione 06">
+    <div class="bz-mtn"></div>
+    <img src="../../assets/logo-lockup-white.png" alt="LFG+ZEST" style="position:absolute; top:40px; left:44px; width:62px; height:62px;">
+    <div style="position:absolute; inset:0; display:flex; align-items:center; padding:0 80px; z-index:2;">
+      <div class="bz-divnum">06</div>
+      <div style="margin-left:38px;"><div class="bz-ey on">Sezione</div><div style="width:52px; height:2px; background:rgba(255,255,255,.7); margin:14px 0;"></div><div class="bz-divttl">Contattaci</div></div>
+    </div>
+    <div style="position:absolute; bottom:36px; left:44px; color:rgba(255,255,255,.85); font-size:11px; letter-spacing:.3em;">LFGZEST.COM</div>
+  </section>
+
+  <!-- 35 CONTATTI -->
+  <section class="bz" data-screen-label="Contatti">
+    <div class="bz-tab"><span>Contattaci</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Contattaci</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px;">
+          <div>
+            <div class="bz-colh" style="margin-bottom:14px;">Azionisti</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px 18px;">
+              <div><div class="bz-pn" style="font-size:11.5px;">Walter Biland</div><div class="bz-body" style="font-size:10px; color:#83021A;">walter.biland@lfgzest.com</div></div>
+              <div><div class="bz-pn" style="font-size:11.5px;">Gabriele Rossi</div><div class="bz-body" style="font-size:10px; color:#83021A;">gabriele.rossi@lfgzest.com</div></div>
+              <div><div class="bz-pn" style="font-size:11.5px;">Alberto Conca</div><div class="bz-body" style="font-size:10px; color:#83021A;">alberto.conca@lfgzest.com</div></div>
+              <div><div class="bz-pn" style="font-size:11.5px;">Francesco Bernasconi</div><div class="bz-body" style="font-size:10px; color:#83021A;">bernasconi@lfa.ch</div></div>
+              <div><div class="bz-pn" style="font-size:11.5px;">Siro Spellini</div><div class="bz-body" style="font-size:10px; color:#83021A;">siro.spellini@lfgzest.com</div></div>
+              <div><div class="bz-pn" style="font-size:11.5px;">Enrico Guagni</div><div class="bz-body" style="font-size:10px; color:#83021A;">enrico.guagni@lfgzest.com</div></div>
+            </div>
+          </div>
+          <div>
+            <div class="bz-colh" style="margin-bottom:14px;">Direttori</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px 18px;">
+              <div><div class="bz-pn" style="font-size:11.5px;">Miriam Sironi</div><div class="bz-body" style="font-size:10px; color:#83021A;">miriam.sironi@lfgzest.com</div></div>
+              <div><div class="bz-pn" style="font-size:11.5px;">Rosy Mantia</div><div class="bz-body" style="font-size:10px; color:#83021A;">rosy.mantia@lfgzest.com</div></div>
+              <div><div class="bz-pn" style="font-size:11.5px;">Patrick Borradori</div><div class="bz-body" style="font-size:10px; color:#83021A;">patrick.borradori@lfgzest.com</div></div>
+              <div><div class="bz-pn" style="font-size:11.5px;">Antonio Viggiani</div><div class="bz-body" style="font-size:10px; color:#83021A;">antonio.viggiani@lfgzest.com</div></div>
+              <div><div class="bz-pn" style="font-size:11.5px;">Siro Spellini</div><div class="bz-body" style="font-size:10px; color:#83021A;">siro.spellini@lfgzest.com</div></div>
+              <div><div class="bz-pn" style="font-size:11.5px;">Enrico Guagni</div><div class="bz-body" style="font-size:10px; color:#83021A;">enrico.guagni@lfgzest.com</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>36</span></div>
+    </div>
+  </section>
+
+  <!-- 36 CONSIGLIO DI AMMINISTRAZIONE -->
+  <section class="bz" data-screen-label="CdA">
+    <div class="bz-tab"><span>Contattaci</span></div>
+    <div class="bz-pad">
+      <div class="bz-head">
+        <p class="bz-ey">Il Consiglio di Amministrazione</p>
+        <hr class="bz-rule">
+      </div>
+      <div class="bz-main">
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:24px;">
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Morys Cavadini</div><div class="bz-pr">Presidente</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Michele Menaballi</div><div class="bz-pr">Vice Presidente</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Enrico Guagni</div><div class="bz-pr">Membro</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Piero Colonna</div><div class="bz-pr">Membro</div></div>
+          <div><div class="bz-photo"></div><div class="bz-sr"></div><div class="bz-pn" style="font-size:11px;">Gianluca Generali</div><div class="bz-pr">Membro</div></div>
+        </div>
+      </div>
+      <div class="bz-foot"><span>Documento privato e riservato — non destinato alla distribuzione</span><span>37</span></div>
+    </div>
+  </section>
+
+  <!-- 37 DISCLAIMER -->
+  <section class="bz" data-screen-label="Disclaimer">
+    <div class="bz-pad">
+      <div class="bz-head">
+        <div style="display:flex; align-items:center; gap:12px; border-bottom:2px solid #83021A; padding-bottom:10px;">
+          <img src="../../assets/logo-mark-red.png" alt="LFG+ZEST" style="width:30px; height:30px;">
+          <div style="font-size:16px; font-weight:300; letter-spacing:.1em; text-transform:uppercase; color:#83021A;">Disclaimer · LFG+ZEST SA</div>
+        </div>
+      </div>
+      <div class="bz-main" style="justify-content:flex-start;">
+        <div style="column-count:2; column-gap:40px; margin-top:16px; font-size:8.5px; line-height:1.62; color:#4A4A4C; text-align:justify;">
+          <p style="margin:0 0 8px;">LFG+ZEST SA è un gestore di patrimoni individuali e collettivi con sede a Lugano e regolamentato dall'Autorità federale di vigilanza sui mercati finanziari (FINMA). Svolge la propria attività finanziaria esclusivamente in Svizzera, dove è in possesso di tutte le autorizzazioni richieste.</p>
+          <p style="margin:0 0 8px;"><strong>Nessuna distribuzione, offerta, sollecitazione, consulenza.</strong> Le informazioni e le opinioni contenute hanno carattere puramente informativo e non costituiscono invito, offerta, raccomandazione, consiglio o incentivo all'acquisto o alla vendita, alla richiesta o sottoscrizione di titoli, strumenti, prodotti o servizi finanziari, né persuasione ad effettuare transazioni. Non costituiscono consulenza legale, fiscale, commerciale o di altro tipo.</p>
+          <p style="margin:0 0 8px;"><strong>Nessuna garanzia.</strong> Pur con ogni sforzo, LFG+ZEST SA non garantisce che i contenuti siano sempre corretti, accurati, completi, affidabili o aggiornati. I dati si basano su informazioni non sottoposte a revisione contabile e possono variare per rettifiche di fine anno.</p>
+          <p style="margin:0 0 8px;"><strong>Esclusione di responsabilità.</strong> In nessun caso, inclusa la negligenza, LFG+ZEST SA, i suoi amministratori o dipendenti possono essere ritenuti responsabili per perdite o danni, diretti o consequenziali, derivanti dall'accesso e/o uso del documento.</p>
+          <p style="margin:0 0 8px;"><strong>Rischi d'investimento.</strong> L'investimento comporta rischi, incluse le fluttuazioni di mercato. Le performance passate non sono un indicatore dei risultati futuri. Ogni investimento va valutato sulla base del Prospetto Informativo e dell'idoneità rispetto al profilo dell'investitore.</p>
+          <p style="margin:0 0 8px;"><strong>Diritto d'autore.</strong> Tutto il contenuto è coperto da Copyright, di proprietà di LFG+ZEST SA. Ogni riproduzione, anche parziale, è consentita solo previo consenso scritto.</p>
+          <p style="margin:0;"><strong>Legge applicabile e foro competente.</strong> Si applica il diritto svizzero; i tribunali di Lugano hanno giurisdizione esclusiva su ogni controversia. © LFG+ZEST SA.</p>
+        </div>
+      </div>
+      <div class="bz-foot"><span>LFG+ZEST SA · Lugano · Zurich · Switzerland</span><span>LFGZEST.COM</span></div>
+    </div>
+  </section>
+
+  <!-- 38 BACK COVER -->
+  <section class="bz bz-red" data-screen-label="Back cover">
+    <div class="bz-mtn" style="opacity:.45;"></div>
+    <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:2;">
+      <img src="../../assets/logo-lockup-white.png" alt="LFG+ZEST" style="width:128px; height:128px; display:block;">
+    </div>
+    <div style="position:absolute; left:0; right:0; bottom:54px; display:flex; justify-content:center; gap:60px; align-items:flex-start; z-index:2;">
+      <div style="font-size:12px; line-height:1.7; color:rgba(255,255,255,.85); text-align:center;"><b style="font-weight:600; letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:4px; color:#fff;">Lugano</b>Via F. Pelli 3<br>6900 Lugano · Switzerland<br>+41 91 912 49 61</div>
+      <div style="width:1px; align-self:stretch; background:rgba(255,255,255,.25);"></div>
+      <div style="font-size:12px; line-height:1.7; color:rgba(255,255,255,.85); text-align:center;"><b style="font-weight:600; letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:4px; color:#fff;">Zurich</b>Talstrasse 65<br>8001 Zurich · Switzerland<br>+41 43 497 31 39</div>
+      <div style="width:1px; align-self:stretch; background:rgba(255,255,255,.25);"></div>
+      <div style="font-size:12px; line-height:1.9; color:rgba(255,255,255,.9); text-align:center; letter-spacing:.06em;">info@lfgzest.com<br>LFGZEST.COM</div>
+    </div>
+  </section>
+
+  <!--SLOT-->
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1280, &quot;height&quot;: 720}}">class Component extends DCLogic {
+  componentDidMount() { this._charts = []; this._tick = 0; this.initCharts(); }
+  componentWillUnmount() { (this._charts || []).forEach(c => { try { c.dispose(); } catch (e) {} }); }
+  initCharts() {
+    const ec = window.echarts;
+    if (!ec) { if (this._tick++ < 40) { setTimeout(() => this.initCharts(), 150); } return; }
+    const RAL = 'Raleway, system-ui, sans-serif';
+    const ink = '#231F20', grid = '#E5E2DE';
+
+    const fEl = document.getElementById('chart-obblig-funnel');
+    if (fEl && !fEl.dataset.init) {
+      fEl.dataset.init = '1';
+      const c = ec.init(fEl);
+      c.setOption({
+        textStyle: { fontFamily: RAL },
+        tooltip: { trigger: 'item', textStyle: { fontFamily: RAL } },
+        series: [{
+          type: 'funnel', top: 4, bottom: 4, left: '2%', right: '2%',
+          minSize: '38%', maxSize: '100%', sort: 'descending', gap: 3,
+          label: { color: '#fff', fontWeight: 600, fontSize: 11.5, fontFamily: RAL, formatter: '{b}' },
+          labelLine: { show: false }, itemStyle: { borderWidth: 0 },
+          data: [
+            { value: 100, name: 'Universo investibile', itemStyle: { color: '#CFA8AD' } },
+            { value: 62, name: 'Filtri iniziali', itemStyle: { color: '#B0586A' } },
+            { value: 34, name: 'Analisi emittente', itemStyle: { color: '#83021A' } },
+            { value: 16, name: 'Lista obbligazioni', itemStyle: { color: '#590112' } }
+          ]
+        }]
+      });
+      this._charts.push(c);
+    }
+
+    const rEl = document.getElementById('chart-fondi-radar');
+    if (rEl && !rEl.dataset.init) {
+      rEl.dataset.init = '1';
+      const c = ec.init(rEl);
+      c.setOption({
+        textStyle: { fontFamily: RAL },
+        tooltip: { textStyle: { fontFamily: RAL } },
+        radar: {
+          indicator: [
+            { name: 'Sharpe', max: 100 }, { name: 'Information Ratio', max: 100 },
+            { name: 'Consistenza', max: 100 }, { name: 'Momentum', max: 100 },
+            { name: 'Due Diligence', max: 100 }, { name: 'Qualità portafoglio', max: 100 }
+          ],
+          radius: '64%', center: ['50%', '53%'],
+          axisName: { color: ink, fontSize: 10, fontFamily: RAL },
+          splitLine: { lineStyle: { color: grid } },
+          axisLine: { lineStyle: { color: grid } },
+          splitArea: { areaStyle: { color: ['#FBF6F1', '#FFFFFF'] } }
+        },
+        series: [{
+          type: 'radar', symbolSize: 5,
+          data: [{
+            value: [82, 74, 88, 66, 90, 80],
+            areaStyle: { color: 'rgba(131,2,26,0.20)' },
+            lineStyle: { color: '#83021A', width: 2 },
+            itemStyle: { color: '#590112' }
+          }]
+        }]
+      });
+      this._charts.push(c);
+    }
+  }
+  renderVals() { return {}; }
+}</script>
+</body>
+</html>

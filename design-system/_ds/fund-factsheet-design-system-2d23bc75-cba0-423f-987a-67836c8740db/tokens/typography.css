@@ -1,0 +1,46 @@
+/* ============================================================
+   TYPOGRAPHY — type scale tuned for dense A4 factsheets.
+   Documents are print-first: small, tight, tabular.
+   The builder UI uses the larger end of the scale.
+   ============================================================ */
+
+:root {
+  /* ---- Families ---- */
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Inter', system-ui, sans-serif;      /* remapped per family */
+  --font-serif: 'Cormorant Garamond', Georgia, serif;  /* HIVE display */
+  --font-geometric: 'Jost', system-ui, sans-serif;     /* Zest display */
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* ---- Document type scale (px @ 96dpi ≈ factsheet print sizes) ---- */
+  --fs-micro:  8px;    /* disclaimer fine print */
+  --fs-foot:   9px;    /* footnotes, source lines */
+  --fs-tiny:  10px;    /* dense table cells */
+  --fs-xs:    11px;    /* table body, captions */
+  --fs-sm:    12px;    /* body small */
+  --fs-base:  13px;    /* body */
+  --fs-md:    15px;    /* lead paragraph */
+  --fs-lg:    18px;    /* sub-headers */
+  --fs-xl:    22px;    /* section / KPI value */
+  --fs-2xl:   28px;    /* fund title (inner page) */
+  --fs-3xl:   40px;    /* cover title */
+  --fs-4xl:   56px;    /* cover hero */
+
+  /* ---- Weights ---- */
+  --fw-regular: 400; /* @kind other */
+  --fw-medium:  500; /* @kind other */
+  --fw-semibold:600; /* @kind other */
+  --fw-bold:    700; /* @kind other */
+  --fw-black:   800; /* @kind other */
+
+  /* ---- Line heights ---- */
+  --lh-tight: 1.12; /* @kind other */
+  --lh-snug:  1.3; /* @kind other */
+  --lh-body:  1.5; /* @kind other */
+
+  /* ---- Tracking ---- */
+  --ls-label: 0.08em; /* @kind other */
+  --ls-tight: -0.02em; /* @kind other */
+
+  --tnum: "tnum" 1, "lnum" 1; /* @kind other */
+}

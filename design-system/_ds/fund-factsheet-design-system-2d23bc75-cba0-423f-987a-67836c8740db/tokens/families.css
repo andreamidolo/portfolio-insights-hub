@@ -1,0 +1,110 @@
+/* ============================================================
+   FAMILIES — the three document brands.
+   Each is a swappable theme scope: set data-family / class on a
+   container (or the .a4 sheet) and every component re-skins.
+   Mirrors themes/*.json from the factsheetbuilder repo.
+   ============================================================ */
+
+/* ---------- VG / AQA — blue institutional (house default) ---------- */
+:root,
+.family-vg, [data-family="vg"] {
+  --accent:        #2b5d8c;
+  --accent-2:      #c08a3e;
+  --accent-deep:   #1f4e79;
+  --accent-ink:    #ffffff;
+
+  --doc-ink:        #1f2933;
+  --section-bar-bg: transparent;
+  --section-bar-ink: #2b5d8c;
+  --section-title-color: #2b5d8c;
+  --section-style: underline; /* @kind other */          /* uppercase blue title + rule */
+
+  --table-header-bg: #2b5d8c;
+  --table-header-ink: #ffffff;
+  --table-zebra:     #eef3f8;
+  --doc-line:        #d8dee6;
+  --doc-mist:        #eef3f8;
+
+  --chart-grid: #eef3f8;
+  --chart-axis: #5a6470;
+  --page-margin: 13mm;
+
+  --cat-1:#2b5d8c; --cat-2:#1f4e79; --cat-3:#7fa8d0;
+  --cat-4:#c08a3e; --cat-5:#3f7d6e; --cat-6:#8c5a7c;
+  --cat-7:#5a6470; --cat-8:#a8c2da; --cat-9:#b1503f; --cat-10:#2f7d5b;
+
+  --display-font: 'Inter', system-ui, sans-serif;
+  --display-weight: 800;
+  --display-tracking: -0.02em;
+}
+
+/* ---------- HIVE / LFG·Zest — bordeaux + gold, serif, covered ---------- */
+.family-hive, [data-family="hive"] {
+  --accent:        #6d1f2e;   /* bordeaux */
+  --accent-2:      #b08d3c;   /* gold */
+  --accent-deep:   #4f141f;
+  --accent-ink:    #ffffff;
+
+  --doc-ink:        #2a2326;
+  --section-bar-bg: #6d1f2e;            /* centered bordeaux title bar */
+  --section-bar-ink: #ffffff;
+  --section-title-color: #ffffff;
+  --section-style: bar; /* @kind other */
+
+  --table-header-bg: #6d1f2e;
+  --table-header-ink: #ffffff;
+  --table-zebra:     #f6eef0;
+  --doc-line:        #e4d8da;
+  --doc-mist:        #f6eef0;
+
+  --chart-grid: #efe6e8;
+  --chart-axis: #6a6065;
+  --page-margin: 14mm;
+
+  --cat-1:#6d1f2e; --cat-2:#8a3340; --cat-3:#a85a4f;
+  --cat-4:#b08d3c; --cat-5:#c7a55a; --cat-6:#5a6b5e;
+  --cat-7:#7c8a6e; --cat-8:#9a4a5a; --cat-9:#bb7a4a; --cat-10:#4f141f;
+
+  --display-font: 'Cormorant Garamond', Georgia, serif;
+  --display-weight: 600;
+  --display-tracking: 0em;
+}
+
+/* ---------- Zest AM SICAV — navy + blue, dense Morningstar/Butterfly look ----------
+   Palette taken from the real "Zest Butterfly II" factsheet: deep navy #14153E
+   (logo + section bars + table headers), working blue #2E5F9E (charts/accents),
+   pale-blue zebra tints, and Excel-style conditional green/red cells. */
+.family-zest, [data-family="zest"] {
+  --accent:        #14153e;   /* deep navy — brand anchor */
+  --accent-2:      #2e5f9e;   /* working blue */
+  --accent-deep:   #0f2447;
+  --accent-ink:    #ffffff;
+
+  --doc-ink:        #14153e;
+  --section-bar-bg: #14153e;
+  --section-bar-ink: #ffffff;
+  --section-title-color: #14153e;
+  --section-style: underline; /* @kind other */
+
+  --table-header-bg: #14153e;
+  --table-header-ink: #ffffff;
+  --table-zebra:     #eff4fa;   /* pale blue zebra */
+  --doc-line:        #d0d7e2;   /* blue-grey hairline */
+  --doc-mist:        #eaf1f8;   /* tinted panel fill */
+
+  /* Zest uses brighter Excel-style conditional cells than the muted house pair */
+  --pos: #1b7a1b; --pos-soft: #c6efce;
+  --neg: #c00000; --neg-soft: #f4cccc;
+
+  --chart-grid: #e8edf3;
+  --chart-axis: #7a8499;
+  --page-margin: 12mm;
+
+  --cat-1:#14153e; --cat-2:#2e5f9e; --cat-3:#0f4c7d;
+  --cat-4:#5b8cc4; --cat-5:#8aa9d2; --cat-6:#b8c6d8;
+  --cat-7:#0563c1; --cat-8:#3f6b8c; --cat-9:#c00000; --cat-10:#1b7a1b;
+
+  --display-font: 'Jost', system-ui, sans-serif;
+  --display-weight: 600;
+  --display-tracking: 0.04em;
+}

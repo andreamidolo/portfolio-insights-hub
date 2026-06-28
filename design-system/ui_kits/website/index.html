@@ -1,0 +1,65 @@
+<!-- @dsCard group="Website" viewport="1280x720" name="lfa.ch — interactive site" subtitle="Home · What We Do · About — click-through recreation" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LFA — Swiss Wealth Management for U.S. Clients</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  html, body { margin: 0; background: var(--lfa-white); }
+  #app { min-height: 100vh; }
+  .lfa-nav-sticky { position: sticky; top: 0; z-index: 50; }
+  ::selection { background: var(--lfa-rose); color: #fff; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="../../_ds_bundle.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="text/babel" src="shared.jsx"></script>
+  <script type="text/babel" src="Footer.jsx"></script>
+  <script type="text/babel" src="Home.jsx"></script>
+  <script type="text/babel" src="WhatWeDo.jsx"></script>
+  <script type="text/babel" src="About.jsx"></script>
+
+  <script type="text/babel" data-presets="react">
+    const { NavBar } = window.LFADesignSystem_f7f6ac;
+
+    const ROUTES = {
+      'Home': 'home', 'Who We Serve': 'home', 'Resources': 'home',
+      'About Us': 'about', 'Why LFA': 'about',
+      'What We Do': 'what',
+    };
+    const ACTIVE_LABEL = { home: '', about: 'About Us', what: 'What We Do' };
+
+    function App() {
+      const [route, setRoute] = React.useState('home');
+      const go = (r) => { setRoute(r); window.scrollTo({ top: 0 }); };
+      const navTo = (label) => go(ROUTES[label] || 'home');
+
+      React.useEffect(() => { if (window.lucide) window.lucide.createIcons(); });
+
+      const Screen = route === 'what' ? window.WhatWeDo
+                   : route === 'about' ? window.About
+                   : window.Home;
+
+      return (
+        <div>
+          <div className="lfa-nav-sticky">
+            <NavBar active={ACTIVE_LABEL[route]} onNavigate={navTo} onCta={() => go('what')} />
+          </div>
+          <Screen go={go} />
+          <window.Footer />
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+  </script>
+</body>
+</html>
