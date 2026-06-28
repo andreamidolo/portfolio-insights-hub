@@ -285,30 +285,77 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  let res: Response;
-  try {
-    res = await fetch(`${API_BASE_URL}${path}`, {
-      headers: { "content-type": "application/json" },
-      ...init,
-    });
-  } catch (cause) {
-    // Network error / engine not running: surfaced as a clear, declared state.
-    throw new ApiError(
-      `Cannot reach the engine API at ${API_BASE_URL}. Is the FastAPI server running?`,
-    );
-  }
-  if (!res.ok) {
-    let detail = "";
+interface RequestOptions {
+  timeoutMs?: number;
+  retries?: number; // additional attempts beyond the first
+  retryDelayMs?: number;
+}
+
+const LIGHT_TIMEOUT_MS = 15_000;
+const HEAVY_TIMEOUT_MS = 90_000;
+const HEAVY_OPTS: RequestOptions = {
+  timeoutMs: HEAVY_TIMEOUT_MS,
+  retries: 1,
+  retryDelayMs: 2_000,
+};
+
+async function request<T>(
+  path: string,
+  init?: RequestInit,
+  opts: RequestOptions = {},
+): Promise<T> {
+  const timeoutMs = opts.timeoutMs ?? LIGHT_TIMEOUT_MS;
+  const maxRetries = opts.retries ?? 0;
+  const retryDelayMs = opts.retryDelayMs ?? 2_000;
+
+  let lastError: ApiError | undefined;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    let res: Response;
     try {
-      const body = (await res.json()) as { error?: { message?: string } };
-      detail = body?.error?.message ? ` — ${body.error.message}` : "";
-    } catch {
-      /* response had no JSON body */
+      res = await fetch(`${API_BASE_URL}${path}`, {
+        headers: { "content-type": "application/json" },
+        signal: controller.signal,
+        ...init,
+      });
+    } catch (cause) {
+      clearTimeout(timer);
+      const aborted = (cause as { name?: string })?.name === "AbortError";
+      lastError = new ApiError(
+        aborted
+          ? `Il motore è in avvio (cold start ~30–90s sul piano Free di Render). Riprova tra qualche secondo.`
+          : `Impossibile raggiungere il motore (${API_BASE_URL}). Verifica la connessione e riprova.`,
+      );
+      if (attempt < maxRetries) {
+        await new Promise((r) => setTimeout(r, retryDelayMs));
+        continue;
+      }
+      throw lastError;
     }
-    throw new ApiError(`API ${path} returned ${res.status}${detail}`, res.status);
+    clearTimeout(timer);
+
+    if (!res.ok) {
+      let detail = "";
+      try {
+        const body = (await res.json()) as { error?: { message?: string } };
+        detail = body?.error?.message ? ` — ${body.error.message}` : "";
+      } catch {
+        /* response had no JSON body */
+      }
+      const err = new ApiError(`API ${path} returned ${res.status}${detail}`, res.status);
+      // Retry only on transient upstream errors (typical Render cold-start 502/503/504).
+      if (attempt < maxRetries && [502, 503, 504].includes(res.status)) {
+        lastError = err;
+        await new Promise((r) => setTimeout(r, retryDelayMs));
+        continue;
+      }
+      throw err;
+    }
+    return (await res.json()) as T;
   }
-  return (await res.json()) as T;
+  throw lastError ?? new ApiError(`API ${path} failed`);
 }
 
 // ---- endpoint fetchers ---------------------------------------------------
@@ -323,33 +370,45 @@ export const api = {
   regimes: (asOf?: string) => request<RegimesResponse>(`/regimes${asOf ? `?as_of=${asOf}` : ""}`),
 
   riskPanel: (profile: Profile, currency: Currency, opts: RiskPanelOptions = {}) =>
-    request<RiskPanelResponse>("/risk/panel", {
-      method: "POST",
-      body: JSON.stringify({
-        profile,
-        currency,
-        alpha: opts.alpha ?? 0.05,
-        mar: opts.mar ?? 0,
-        regime_conditional: opts.regimeConditional ?? true,
-      }),
-    }),
+    request<RiskPanelResponse>(
+      "/risk/panel",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          profile,
+          currency,
+          alpha: opts.alpha ?? 0.05,
+          mar: opts.mar ?? 0,
+          regime_conditional: opts.regimeConditional ?? true,
+        }),
+      },
+      HEAVY_OPTS,
+    ),
 
   contributions: (profile: Profile, currency: Currency, measure = "MV") =>
     request<ContributionsResponse>(
       `/risk/contributions?profile=${profile}&currency=${currency}&measure=${measure}`,
+      undefined,
+      HEAVY_OPTS,
     ),
 
   runAllocation: (profile: Profile, currency: Currency, asOf?: string | null) =>
-    request<AllocationResponse>("/allocation/run", {
-      method: "POST",
-      body: JSON.stringify({ profile, currency, as_of: asOf ?? null }),
-    }),
+    request<AllocationResponse>(
+      "/allocation/run",
+      {
+        method: "POST",
+        body: JSON.stringify({ profile, currency, as_of: asOf ?? null }),
+      },
+      HEAVY_OPTS,
+    ),
 
   signals: (asOf?: string) => request<SignalsResponse>(`/signals${asOf ? `?as_of=${asOf}` : ""}`),
 
   optimizationModels: (profile: Profile, currency: Currency, asOf?: string | null) =>
     request<OptimizationModelsResponse>(
       `/optimization/models?profile=${profile}&currency=${currency}${asOf ? `&as_of=${asOf}` : ""}`,
+      undefined,
+      HEAVY_OPTS,
     ),
 
   uploadPrices: (csv: string, filename?: string) =>
@@ -367,14 +426,22 @@ export const api = {
     }),
 
   analyzePortfolio: (holdings: HoldingInput[], opts: { alpha?: number; mar?: number } = {}) =>
-    request<PortfolioAnalyzeResponse>("/portfolio/analyze", {
-      method: "POST",
-      body: JSON.stringify({ holdings, alpha: opts.alpha ?? 0.05, mar: opts.mar ?? 0 }),
-    }),
+    request<PortfolioAnalyzeResponse>(
+      "/portfolio/analyze",
+      {
+        method: "POST",
+        body: JSON.stringify({ holdings, alpha: opts.alpha ?? 0.05, mar: opts.mar ?? 0 }),
+      },
+      HEAVY_OPTS,
+    ),
 
   reoptimizePortfolio: (holdings: HoldingInput[], profile: Profile, currency: Currency) =>
-    request<PortfolioReoptimizeResponse>("/portfolio/reoptimize", {
-      method: "POST",
-      body: JSON.stringify({ holdings, profile, currency }),
-    }),
+    request<PortfolioReoptimizeResponse>(
+      "/portfolio/reoptimize",
+      {
+        method: "POST",
+        body: JSON.stringify({ holdings, profile, currency }),
+      },
+      HEAVY_OPTS,
+    ),
 };
