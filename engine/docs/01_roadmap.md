@@ -59,12 +59,18 @@ individual risk, validati su un portafoglio campione, con test verdi e CI passan
 - [x] Meccanismo "N modelli → walk-forward OOS → media dei 4 migliori" (`n_best`, `Scorer` pluggable)
 - [x] `PortfolioConstraints` (profili come *range* di equity: cap + floor)
 
-**Signals (Stadio 1, parte non-opzioni)**
+**Signals (Stadio 1, parte non-opzioni)** — impalcatura completa a strati
 - [x] Regole di **security selection** (slide 36-38 AlgoEagle) — deterministiche
-- [ ] Trend scanner + oscillatori
-- [ ] A.I. forecast (ensemble SVM) — la parte ML
-- [ ] Alpha crash (stagionalità × momentum)
+- [x] Trend scanner + oscillatori (`TrendSignal`, `OscillatorSignal`)
+- [x] **SUMMARY** + ponte Black-Litterman (`summary_signal`, `summary_to_bl_views`)
+- [x] A.I. forecast (ensemble SVM) — validato walk-forward; **NON batte il baseline
+  → escluso dal SUMMARY** (onesto, come l'iterazione opzioni)
+- [x] Alpha crash (versione base: momentum 12-1 × stagionalità)
 - [x] Integrazione del `RegimeProvider` (proxy/`StaticRegimeProvider` oggi, opzioni domani)
+
+> Esito chiave: i **segnali tecnici** (via SUMMARY → views BL) **migliorano**
+> l'allocazione OOS vs il motore senza segnali; l'**SVM no** (escluso). Vedi
+> `docs/validation/signals_stage1_results.md`.
 
 > Nota Riskfolio-Lib: pin a `>=7.2,<7.3` (la 7.3.0 ha un bug nella bisection di
 > HERC). Aggiungere un modello = una classe in più (drop-in nei runner).
