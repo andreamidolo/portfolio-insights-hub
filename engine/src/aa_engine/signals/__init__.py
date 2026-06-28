@@ -11,3 +11,8 @@ e le REGOLE DI SECURITY SELECTION (slide 36-38 AlgoEagle).
 TODO[sig]: iniziare dalle regole di selection (deterministiche, facili) e dal
 trend scanner; l'ensemble SVM dopo.
 """
+
+from .regime import StaticRegimeProvider
+from .selection import select_securities
+
+__all__ = ["select_securities", "StaticRegimeProvider"]
