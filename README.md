@@ -34,6 +34,7 @@ Implementato in `engine/src/aa_engine/risk`:
 | 2 — Aggregate Risk | `compute_measure`, `risk_panel` (21 metriche, 3 famiglie) | ✅ |
 | 4 — Individual Risk | `marginal_risk`, `risk_contribution`, `leave_one_out`, `worst_realizations` | ✅ |
 | VaR backtesting | Kupiec POF, Christoffersen Independence/CC, traffic light Basilea | ✅ |
+| API REST | FastAPI (`aa_engine.api`) — contratto `docs/05_api_contract.md` | ✅ |
 | 3 — Factorial Risk | `risk.factor` | 🔜 fase succ. |
 | 5 — Stress Testing | `risk.stress` (stub documentato) | 🔜 dopo |
 
@@ -52,18 +53,32 @@ cd engine
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 
-pytest -q                          # test (contratto risk engine + backtesting)
+pytest -q                          # test (risk engine + backtesting + API)
 python -m aa_engine.risk.demo      # stampa il pannello di rischio completo
 ```
 
+### API REST (FastAPI)
+```bash
+cd engine
+pip install -e ".[api]"                            # fastapi + uvicorn
+uvicorn aa_engine.api.main:app --reload --port 8000
+# health:  http://localhost:8000/api/v1/health
+# docs:    http://localhost:8000/docs
+```
+Endpoint (prefisso `/api/v1`, vedi `engine/docs/05_api_contract.md`):
+`GET /health`, `GET /regimes`, `GET /portfolio`, `POST /risk/panel`,
+`GET /risk/contributions`. I dati provengono da un backbone campione
+deterministico (`aa_engine.api.sample`) — stessa forma, domani, con dati live.
+
 ### Front-end (React/Vite)
 ```bash
-bun install          # oppure: npm install
+bun install
 bun run dev          # Vite dev server
 ```
-Quando l'API FastAPI del motore sarà viva, il front-end punterà a
-`http://localhost:8000/api/v1` (vedi il contratto API). Finché non lo è, la UI usa
-i mock in `src/lib/risk-data.ts`.
+Il front-end chiama l'API e, **se non è raggiungibile, ricade sui mock**
+(`src/lib/risk-data.ts`) mostrando un badge `MOCK`/`LIVE` nell'header. La base URL
+dell'API è configurabile con la variabile d'ambiente `VITE_API_BASE_URL`
+(default `http://localhost:8000/api/v1`).
 
 ---
 
