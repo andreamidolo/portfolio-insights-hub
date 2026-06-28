@@ -1,12 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   getRiskPanelData,
   type Currency,
   type RegimeIndicator,
+  type RiskPanelData,
   type RiskProfile,
   type SummaryStats,
 } from "@/lib/risk-data";
+import { loadLiveRiskPanel } from "@/lib/risk-api";
+
+type DataSource = "live" | "mock";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -14,8 +18,7 @@ export const Route = createFileRoute("/")({
       { title: "Risk Panel — Allocation Engine" },
       {
         name: "description",
-        content:
-          "Internal risk dashboard for the quantitative asset allocation engine.",
+        content: "Internal risk dashboard for the quantitative asset allocation engine.",
       },
     ],
   }),
@@ -29,10 +32,28 @@ function RiskPanelPage() {
   const [profile, setProfile] = useState<RiskProfile>("Balanced");
   const [currency, setCurrency] = useState<Currency>("EUR");
 
-  const data = useMemo(
-    () => getRiskPanelData(profile, currency),
-    [profile, currency],
-  );
+  // SSR + first paint use the mock so the page always renders; the client then
+  // tries the live API and upgrades the data in place (falling back on error).
+  const [data, setData] = useState<RiskPanelData>(() => getRiskPanelData(profile, currency));
+  const [source, setSource] = useState<DataSource>("mock");
+
+  useEffect(() => {
+    let cancelled = false;
+    setData(getRiskPanelData(profile, currency)); // immediate, while the API loads
+    loadLiveRiskPanel(profile, currency)
+      .then((live) => {
+        if (!cancelled) {
+          setData(live);
+          setSource("live");
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setSource("mock");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [profile, currency]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -42,6 +63,7 @@ function RiskPanelPage() {
         asOf={data.asOf}
         profile={profile}
         currency={currency}
+        source={source}
         onProfile={setProfile}
         onCurrency={setCurrency}
       />
@@ -66,11 +88,7 @@ function RiskPanelPage() {
               </thead>
               <tbody>
                 {data.sections.map((section) => (
-                  <RiskSection
-                    key={section.title}
-                    title={section.title}
-                    rows={section.rows}
-                  />
+                  <RiskSection key={section.title} title={section.title} rows={section.rows} />
                 ))}
               </tbody>
             </table>
@@ -78,8 +96,9 @@ function RiskPanelPage() {
         </section>
 
         <p className="mt-6 text-xs text-muted-foreground">
-          Source: internal allocation engine. Figures are mock data shown for
-          interface preview only.
+          {source === "live"
+            ? "Source: internal allocation engine (live API). Figures computed by aa_engine.risk on sample data."
+            : "Source: internal allocation engine. Live API unavailable — showing mock data for interface preview."}
         </p>
       </main>
     </div>
@@ -92,9 +111,7 @@ function TopBar() {
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-2.5">
         <div className="flex items-center gap-3">
           <div className="h-5 w-5 rounded-sm bg-accent" aria-hidden />
-          <span className="text-sm font-semibold tracking-wide">
-            ALLOCATION ENGINE
-          </span>
+          <span className="text-sm font-semibold tracking-wide">ALLOCATION ENGINE</span>
           <span className="text-xs text-primary-foreground/60">v2.4.1</span>
         </div>
         <nav className="flex items-center gap-6 text-sm">
@@ -115,6 +132,7 @@ interface HeaderProps {
   asOf: string;
   profile: RiskProfile;
   currency: Currency;
+  source: DataSource;
   onProfile: (p: RiskProfile) => void;
   onCurrency: (c: Currency) => void;
 }
@@ -124,6 +142,7 @@ function Header({
   asOf,
   profile,
   currency,
+  source,
   onProfile,
   onCurrency,
 }: HeaderProps) {
@@ -131,15 +150,15 @@ function Header({
     <div className="border-b border-border bg-card">
       <div className="mx-auto flex max-w-[1400px] flex-wrap items-end justify-between gap-6 px-6 py-5">
         <div>
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Portfolio
+            <SourceBadge source={source} />
           </div>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
             {portfolioName}
           </h1>
           <div className="mt-1 text-xs text-muted-foreground">
-            As of {formatDate(asOf)} · Base currency{" "}
-            <span className="font-mono">{currency}</span>
+            As of {formatDate(asOf)} · Base currency <span className="font-mono">{currency}</span>
           </div>
         </div>
 
@@ -159,6 +178,28 @@ function Header({
         </div>
       </div>
     </div>
+  );
+}
+
+function SourceBadge({ source }: { source: DataSource }) {
+  const live = source === "live";
+  return (
+    <span
+      title={live ? "Live data from the aa_engine API" : "Live API unavailable — mock data"}
+      className={
+        "inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[10px] font-semibold tracking-wide " +
+        (live ? "bg-success/10 text-success" : "bg-muted text-muted-foreground")
+      }
+    >
+      <span
+        className={
+          "inline-block h-1.5 w-1.5 rounded-full " +
+          (live ? "bg-success" : "bg-muted-foreground/60")
+        }
+        aria-hidden
+      />
+      {live ? "LIVE" : "MOCK"}
+    </span>
   );
 }
 
@@ -210,13 +251,7 @@ function SegmentedControl<T extends string>({
   );
 }
 
-function SummaryCards({
-  summary,
-  currency,
-}: {
-  summary: SummaryStats;
-  currency: Currency;
-}) {
+function SummaryCards({ summary, currency }: { summary: SummaryStats; currency: Currency }) {
   const items = [
     {
       label: "Cumulative Return",
@@ -247,10 +282,7 @@ function SummaryCards({
   return (
     <section className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {items.map((it) => (
-        <div
-          key={it.label}
-          className="rounded-md border border-border bg-card p-4"
-        >
+        <div key={it.label} className="rounded-md border border-border bg-card p-4">
           <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
             {it.label}
           </div>
@@ -298,25 +330,18 @@ function RegimeCell({ regime }: { regime: RegimeIndicator }) {
   return (
     <div className="flex items-center justify-between gap-3 px-4 py-3">
       <div>
-        <div className="text-sm font-medium text-foreground">
-          {regime.assetClass}
-        </div>
-        <div className="text-[11px] text-muted-foreground">
-          since {formatDate(regime.since)}
-        </div>
+        <div className="text-sm font-medium text-foreground">{regime.assetClass}</div>
+        <div className="text-[11px] text-muted-foreground">since {formatDate(regime.since)}</div>
       </div>
       <div
         className={
           "flex items-center gap-1.5 rounded-sm px-2 py-1 text-xs font-semibold " +
-          (bull
-            ? "bg-success/10 text-success"
-            : "bg-destructive/10 text-destructive")
+          (bull ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive")
         }
       >
         <span
           className={
-            "inline-block h-1.5 w-1.5 rounded-full " +
-            (bull ? "bg-success" : "bg-destructive")
+            "inline-block h-1.5 w-1.5 rounded-full " + (bull ? "bg-success" : "bg-destructive")
           }
           aria-hidden
         />
@@ -326,21 +351,11 @@ function RegimeCell({ regime }: { regime: RegimeIndicator }) {
   );
 }
 
-function SectionTitle({
-  title,
-  subtitle,
-}: {
-  title: string;
-  subtitle?: string;
-}) {
+function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-2 flex items-baseline justify-between">
-      <h2 className="text-sm font-semibold uppercase tracking-wider text-foreground">
-        {title}
-      </h2>
-      {subtitle && (
-        <span className="text-xs text-muted-foreground">{subtitle}</span>
-      )}
+      <h2 className="text-sm font-semibold uppercase tracking-wider text-foreground">{title}</h2>
+      {subtitle && <span className="text-xs text-muted-foreground">{subtitle}</span>}
     </div>
   );
 }
