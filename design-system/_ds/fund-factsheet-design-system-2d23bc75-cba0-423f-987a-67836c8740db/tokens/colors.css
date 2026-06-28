@@ -1,0 +1,68 @@
+/* ============================================================
+   COLORS — base palette + shared semantic tokens
+   Per-family accent overrides live in families.css.
+   Defaults below = the institutional VG / AQA blue (house default).
+   ============================================================ */
+
+:root {
+  /* ---- Neutral ink scale (cool, near-black for print) ---- */
+  --ink-900: #14191f;   /* darkest body text on covers */
+  --ink-800: #1f2933;   /* VG body ink */
+  --ink-700: #2a2326;   /* HIVE warm body ink */
+  --ink-600: #404a55;
+  --ink-500: #5a6470;   /* axis / muted labels */
+  --ink-400: #7a8499;
+  --ink-300: #9aa3ad;
+  --ink-200: #c3cad2;
+  --ink-100: #e2e6eb;
+
+  /* ---- Surfaces ---- */
+  --surface-page: #ffffff;        /* the A4 sheet */
+  --surface-app:  #f4f6f8;        /* builder app canvas behind the sheet */
+  --surface-card: #ffffff;
+  --surface-sunken: #eef1f5;
+
+  /* ---- Hairlines & rules (factsheets live on thin grey lines) ---- */
+  --line-strong: #c3cad2;
+  --line:        #d8dee6;
+  --line-soft:   #eef1f5;
+
+  /* ---- Financial semantics (shared across families) ---- */
+  --pos: #2f7d5b;        /* gains — muted institutional green */
+  --pos-soft: #e7f1ec;
+  --neg: #b1503f;        /* losses — muted brick red (never pure red) */
+  --neg-soft: #f6e9e6;
+  --flat: #5a6470;
+
+  /* ---- Chart plumbing (overridden per family) ---- */
+  --chart-grid: #eef3f8;
+  --chart-axis: #5a6470;
+
+  /* ============================================================
+     SEMANTIC DOC TOKENS — what components actually consume.
+     Default = VG / AQA. families.css remaps these per brand.
+     ============================================================ */
+  --accent:        #2b5d8c;   /* primary brand accent */
+  --accent-2:      #c08a3e;   /* secondary accent */
+  --accent-deep:   #1f4e79;   /* darkest accent (hover / deep fills) */
+  --accent-ink:    #ffffff;   /* text on accent fills */
+
+  --doc-ink:       var(--ink-800);
+  --section-bar-bg: transparent;        /* VG uses underlined title, not a bar */
+  --section-bar-ink: #2b5d8c;
+  --section-title-color: #2b5d8c;
+
+  --table-header-bg: #2b5d8c;
+  --table-header-ink: #ffffff;
+  --table-zebra:     #eef3f8;
+  --doc-line:        #d8dee6;
+  --doc-mist:        #eef3f8;          /* faint tinted panel fill */
+
+  --page-margin: 13mm;
+
+  /* ---- Brand reference colors (logo / identity, not doc accents) ---- */
+  --brand-lfgzest-red: #c72026;
+  --brand-tages-blue:  #0069ae;
+  --brand-aqa-blue:    #2b5d8c;
+  --brand-zest-navy:   #14153e;
+}

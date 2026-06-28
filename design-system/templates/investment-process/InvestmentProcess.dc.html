@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="LFA Investment Process" description="The Investment Process deck — 16:9 editable slides (cover, philosophy, talents, fixed income, equities, funds, model portfolios with live LFA-themed charts), prints to A4 landscape." -->
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Mulish:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="./ds-base.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="../../charts/lfa-chart-engine.js"></script>
+<script src="../../charts/lfa-chart-studio.js"></script>
+<style>
+  *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; box-sizing:border-box; }
+  lfa-chart{ display:block; width:100%; height:100%; }
+  body{ margin:0; background:#e4e8ef; font-family:'Mulish',sans-serif; }
+  .ip-doc{ --accent:#C24A5E; --navy:#23366E; --navy-deep:#1A2A55; --navy-500:#54618C; --navy-300:#8C95B2; --line:#E0E4EB; --paper:#F7F8FA; }
+  .slide{ position:relative; width:1280px; height:720px; margin:30px auto; background:#fff; box-shadow:0 24px 60px rgba(26,42,85,.18); overflow:hidden; color:var(--navy); }
+  .slide.dark{ background:var(--navy); color:#fff; }
+  .pad{ position:relative; padding:58px 76px; height:100%; display:flex; flex-direction:column; }
+  .eyebrow{ font-weight:700; font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); margin:0; }
+  .stitle{ font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500; font-size:46px; line-height:1.06; letter-spacing:-.01em; margin:12px 0 0; color:var(--navy); }
+  .slide.dark .stitle{ color:#fff; }
+  .rule{ width:56px; height:3px; background:var(--accent); border:0; margin:18px 0 0; }
+  .ftr{ position:absolute; left:76px; right:76px; bottom:28px; display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--navy-300); }
+  .slide.dark .ftr{ color:rgba(255,255,255,.55); }
+  .lead{ font-size:17px; line-height:1.66; color:var(--navy-500); }
+  .ghostnum{ position:absolute; font-family:'Cormorant Garamond',serif; font-weight:600; font-style:italic; line-height:.8; opacity:.10; }
+  @page{ size:A4 landscape; margin:0; }
+  @media print{
+    body{ background:#fff; }
+    .ip-doc{ zoom:.876; }
+    .slide{ margin:0; box-shadow:none; break-after:page; page-break-after:always; }
+  }
+</style>
+</helmet>
+
+<div class="ip-doc" ref="{{ setRoot }}">
+
+  <!-- ============ COVER ============ -->
+  <section class="slide" data-screen-label="Cover" style="padding:0;">
+    <div style="display:flex;height:100%;">
+      <div style="width:44%;flex:none;position:relative;overflow:hidden;"><img src="../../assets/cover-lfa-front-band.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 72px;">
+        <img src="../../assets/logo-lfa-full.png" alt="LFA" style="height:58px;align-self:flex-start;margin-bottom:52px;">
+        <div class="eyebrow">Lugano Financial Advisors SA · Q1 2026</div>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;color:var(--navy);font-size:74px;line-height:1.0;letter-spacing:-.015em;margin:18px 0 0;">The Investment Process</h1>
+        <p style="color:var(--navy-500);font-size:18px;line-height:1.6;max-width:42ch;margin:24px 0 0;">A systematic, prudent and tax-aware framework for building, advising and managing portfolios for U.S. investors.</p>
+        <div style="margin-top:48px;font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--navy-300);">Private &amp; Confidential — prepared for client</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTENTS ============ -->
+  <section class="slide" data-screen-label="Contents">
+    <div class="ghostnum" style="right:48px;top:-40px;font-size:420px;color:var(--navy);">·</div>
+    <div class="pad">
+      <p class="eyebrow">Contents</p>
+      <h2 class="stitle">What this document covers</h2>
+      <hr class="rule">
+      <div style="margin-top:48px;display:grid;grid-template-columns:1fr 1fr;gap:30px 64px;">
+        <sc-for list="{{ toc }}" as="t" hint-placeholder-count="6">
+          <div style="display:flex;gap:22px;align-items:baseline;border-top:1px solid var(--line);padding-top:18px;">
+            <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:34px;color:var(--accent);min-width:48px;">{{ t.no }}</div>
+            <div>
+              <div style="font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);">{{ t.title }}</div>
+              <div style="font-size:14px;line-height:1.5;color:var(--navy-500);margin-top:5px;">{{ t.sub }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>The Investment Process</span><span>lfa.ch</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DIVIDER 01 ============ -->
+  <section class="slide dark" data-screen-label="01 Divider">
+    <div class="ghostnum" style="right:40px;bottom:-90px;font-size:520px;color:#fff;">01</div>
+    <div class="pad" style="justify-content:center;">
+      <p class="eyebrow" style="color:#E7A9B4;">Section 01</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:62px;line-height:1.05;color:#fff;margin:14px 0 0;max-width:18ch;">The Investment Philosophy</h2>
+      <hr class="rule" style="width:64px;">
+      <p style="color:rgba(255,255,255,.8);font-size:18px;line-height:1.6;max-width:50ch;margin:26px 0 0;">Our clients take the center stage. The principles, the people and the committee behind every decision.</p>
+    </div>
+    <div class="ftr"><span>The Investment Philosophy</span><span>lfa.ch · 01</span></div>
+  </section>
+
+  <!-- ============ 01·1 CENTER STAGE ============ -->
+  <section class="slide" data-screen-label="Our Clients Take the Center Stage">
+    <div class="pad">
+      <p class="eyebrow">Investment Philosophy</p>
+      <h2 class="stitle">Our Clients Take the Center Stage</h2>
+      <hr class="rule">
+      <div style="margin-top:30px;display:grid;grid-template-columns:1fr 1fr;gap:38px;column-gap:54px;">
+        <div style="font-size:14.5px;line-height:1.62;color:var(--navy-500);">
+          <p style="margin:0 0 14px;">We at LFA — Lugano Financial Advisors SA believe that our clients, and the relationship we hold with them, are the most valuable assets we own. Our aim is to make them feel more like partners rather than clients. For this reason, our investment process is built and continuously improved, with the purpose of bettering the service and experience delivered to them.</p>
+          <p style="margin:0 0 14px;">Our success is based on the ability to customize our products and services, tailoring them according to our partners' unique goals, concerns, and values. In time, through our proximity, we aim to become a <em style="color:var(--navy);font-style:normal;font-weight:700;">safe harbor</em> in our clients' minds.</p>
+          <p style="margin:0;">Our decision-making process combines quantitative and qualitative analysis. We embrace technological innovation, yet we remain strong supporters of the human touch, which will never disappear from our offering.</p>
+        </div>
+        <div style="font-size:14.5px;line-height:1.62;color:var(--navy-500);">
+          <p style="margin:0 0 14px;">We invest our clients' assets by exploiting our access to both external and internal talents, while striking the proper balance between passive investments and active managers. Yet we keep a close eye on costs — because markets can be volatile, but costs and taxes are forever. Both cost- and tax-efficiency play an important role in our process.</p>
+          <p style="margin:0;">Nonetheless, it is the fact that we invest with <em style="color:var(--navy);font-style:normal;font-weight:700;">prudence and care</em> that portrays LFA as a safe harbor in the imagery of our partners. Prudence and care are not a synonym for lower returns; they are the act of managing resources providently and avoiding unnecessary risks.</p>
+          <div style="margin-top:24px;border-left:3px solid var(--accent);padding:6px 0 6px 20px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:24px;line-height:1.3;color:var(--navy);">The "Why" and the "How" sit at the heart of every portfolio we build.</div>
+        </div>
+      </div>
+      <div class="ftr"><span>Investment Philosophy</span><span>lfa.ch · 01</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 01·2 THE WHAT ============ -->
+  <section class="slide" data-screen-label="The What — capabilities">
+    <div class="pad">
+      <p class="eyebrow">Investment Philosophy · The "What"</p>
+      <h2 class="stitle">The capabilities behind every mandate</h2>
+      <hr class="rule">
+      <div style="margin-top:34px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;">
+        <sc-for list="{{ capabilities }}" as="c" hint-placeholder-count="8">
+          <div style="border:1px solid var(--line);border-radius:8px;padding:22px 20px;min-height:148px;display:flex;flex-direction:column;background:var(--paper);">
+            <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:22px;color:var(--accent);">{{ c.no }}</div>
+            <div style="width:30px;height:2px;background:var(--accent);margin:12px 0 14px;"></div>
+            <div style="font-weight:800;font-size:13.5px;line-height:1.34;letter-spacing:.02em;color:var(--navy);">{{ c.title }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>Investment Philosophy</span><span>lfa.ch · 01</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 01·3 TWO PILLARS ============ -->
+  <section class="slide" data-screen-label="Our Two Pillars">
+    <div class="pad">
+      <p class="eyebrow">Investment Philosophy</p>
+      <h2 class="stitle">Our Two Pillars</h2>
+      <hr class="rule">
+      <div style="margin-top:34px;display:grid;grid-template-columns:1fr 1fr;gap:30px;flex:1;">
+        <div style="border:1px solid var(--line);border-radius:10px;padding:38px;display:flex;flex-direction:column;">
+          <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:30px;color:var(--navy);">Investing with Prudence and Care</div>
+          <hr class="rule">
+          <p style="font-size:15.5px;line-height:1.64;color:var(--navy-500);margin:22px 0 0;">We strive to balance participating in bull markets and preserving capital during periods of severe financial stress.</p>
+          <p style="font-size:15.5px;line-height:1.64;color:var(--navy-500);margin:14px 0 0;">We avoid unnecessary risks and never compromise on liquidity — yet we embrace investment opportunities with genuine potential for alpha generation.</p>
+        </div>
+        <div style="border:1px solid var(--line);border-radius:10px;padding:38px;display:flex;flex-direction:column;background:var(--navy);color:#fff;">
+          <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:30px;color:#fff;">Efficient Investing</div>
+          <hr class="rule" style="background:#E7A9B4;">
+          <p style="font-size:15.5px;line-height:1.64;color:rgba(255,255,255,.84);margin:22px 0 0;">One of our objectives is to minimize costs without missing the opportunity offered by talented active managers.</p>
+          <p style="font-size:15.5px;line-height:1.64;color:rgba(255,255,255,.84);margin:14px 0 0;">Building portfolios, we combine passive and active investments — focusing on our in-house capabilities, where we find numerous talents and an efficient cost structure.</p>
+        </div>
+      </div>
+      <div class="ftr" style="position:static;margin-top:26px;"><span>Investment Philosophy</span><span>lfa.ch · 01</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 01·4 INVESTMENT COMMITTEE ============ -->
+  <section class="slide" data-screen-label="Investment Committee">
+    <div class="pad">
+      <p class="eyebrow">Investment Philosophy</p>
+      <h2 class="stitle">The Investment Committee</h2>
+      <hr class="rule">
+      <p class="lead" style="margin:18px 0 0;max-width:96ch;font-size:15px;">Our process encourages collective thinking rather than individual decision-making — taking advantage of the synergies in our ecosystem, and combining quantitative methods with human talent to uncover long-term opportunities.</p>
+      <div style="margin-top:26px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;flex:1;">
+        <sc-for list="{{ committee }}" as="s" hint-placeholder-count="4">
+          <div style="padding:24px 24px 24px 0;border-top:3px solid var(--accent);margin-right:22px;">
+            <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:20px;color:var(--accent);">{{ s.step }}</div>
+            <div style="font-weight:800;font-size:14px;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);margin:6px 0 12px;">{{ s.title }}</div>
+            <ul style="margin:0;padding-left:16px;font-size:12.5px;line-height:1.5;color:var(--navy-500);">
+              <sc-for list="{{ s.points }}" as="p" hint-placeholder-count="3">
+                <li style="margin-bottom:8px;">{{ p }}</li>
+              </sc-for>
+            </ul>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>Investment Philosophy</span><span>lfa.ch · 01</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DIVIDER 02 ============ -->
+  <section class="slide dark" data-screen-label="02 Divider">
+    <div class="ghostnum" style="right:40px;bottom:-90px;font-size:520px;color:#fff;">02</div>
+    <div class="pad" style="justify-content:center;">
+      <p class="eyebrow" style="color:#E7A9B4;">Section 02</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:62px;line-height:1.05;color:#fff;margin:14px 0 0;max-width:18ch;">Portfolio Management Talents</h2>
+      <hr class="rule" style="width:64px;">
+      <p style="color:rgba(255,255,255,.8);font-size:18px;line-height:1.6;max-width:50ch;margin:26px 0 0;">The people who turn our philosophy into portfolios — experienced, credentialed and close to our clients.</p>
+    </div>
+    <div class="ftr"><span>Portfolio Management Talents</span><span>lfa.ch · 02</span></div>
+  </section>
+
+  <!-- ============ 02·1 MEET OUR TALENTS ============ -->
+  <section class="slide" data-screen-label="Meet our Talents">
+    <div class="pad">
+      <p class="eyebrow">Portfolio Management Talents</p>
+      <h2 class="stitle">Meet our Talents</h2>
+      <hr class="rule">
+      <div style="margin-top:32px;display:grid;grid-template-columns:repeat(3,1fr);gap:26px;flex:1;">
+        <sc-for list="{{ talents }}" as="t" hint-placeholder-count="3">
+          <div style="border:1px solid var(--line);border-radius:10px;padding:28px;display:flex;flex-direction:column;background:var(--paper);">
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div style="width:58px;height:58px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:24px;flex:none;">{{ t.initials }}</div>
+              <div>
+                <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:23px;line-height:1.05;color:var(--navy);">{{ t.name }}</div>
+                <div style="font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-top:5px;">{{ t.role }}</div>
+              </div>
+            </div>
+            <hr class="rule" style="width:40px;margin-top:20px;">
+            <p style="font-size:12.5px;line-height:1.58;color:var(--navy-500);margin:18px 0 0;">{{ t.bio }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>Portfolio Management Talents</span><span>lfa.ch · 02</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DIVIDER 03 ============ -->
+  <section class="slide dark" data-screen-label="03 Divider">
+    <div class="ghostnum" style="right:40px;bottom:-90px;font-size:520px;color:#fff;">03</div>
+    <div class="pad" style="justify-content:center;">
+      <p class="eyebrow" style="color:#E7A9B4;">Section 03 · Investment Selection</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:62px;line-height:1.05;color:#fff;margin:14px 0 0;max-width:14ch;">Fixed Income</h2>
+      <hr class="rule" style="width:64px;">
+      <p style="color:rgba(255,255,255,.8);font-size:18px;line-height:1.6;max-width:50ch;margin:26px 0 0;">From a customised universe to a monitored shortlist — a disciplined, relative-value approach to bonds.</p>
+    </div>
+    <div class="ftr"><span>Investment Selection · Fixed Income</span><span>lfa.ch · 03</span></div>
+  </section>
+
+  <!-- ============ 03·1 SUMMARY ============ -->
+  <section class="slide" data-screen-label="Fixed Income — Summary">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Fixed Income</p>
+      <h2 class="stitle">The selection in three steps</h2>
+      <hr class="rule">
+      <div style="margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;flex:1;align-content:start;">
+        <div style="border-top:3px solid var(--accent);padding:26px 0 0;">
+          <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:46px;color:var(--accent);line-height:.9;">01</div>
+          <div style="font-weight:800;font-size:16px;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);margin:16px 0 10px;">Universe Selection &amp; Filtering</div>
+          <p style="font-size:14px;line-height:1.6;color:var(--navy-500);margin:0;">Customisation of the universe according to specific needs, with the application of initial filters to arrive at a final universe.</p>
+        </div>
+        <div style="border-top:3px solid var(--accent);padding:26px 0 0;">
+          <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:46px;color:var(--accent);line-height:.9;">02</div>
+          <div style="font-weight:800;font-size:16px;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);margin:16px 0 10px;">Relative Analysis &amp; Issuer Check</div>
+          <p style="font-size:14px;line-height:1.6;color:var(--navy-500);margin:0;">Quantitative analysis focused on the bonds' relative attractiveness; a qualitative focus on the financial health of the issuer.</p>
+        </div>
+        <div style="border-top:3px solid var(--accent);padding:26px 0 0;">
+          <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:46px;color:var(--accent);line-height:.9;">03</div>
+          <div style="font-weight:800;font-size:16px;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);margin:16px 0 10px;">Selection &amp; Monitoring</div>
+          <p style="font-size:14px;line-height:1.6;color:var(--navy-500);margin:0;">A final decision is taken on the most attractive bonds, after which the ongoing monitoring process begins.</p>
+        </div>
+      </div>
+      <div class="ftr"><span>Investment Selection · Fixed Income</span><span>lfa.ch · 03</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 03·2 UNIVERSE & FILTERS ============ -->
+  <section class="slide" data-screen-label="Fixed Income — Universe & Filters">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Fixed Income</p>
+      <h2 class="stitle">Universe &amp; Filters</h2>
+      <hr class="rule">
+      <div style="margin-top:30px;display:grid;grid-template-columns:1.05fr 1fr;gap:48px;flex:1;align-items:center;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+          <div style="width:100%;height:96px;background:var(--navy);color:#fff;clip-path:polygon(0 0,100% 0,90% 100%,10% 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+            <div style="font-weight:800;font-size:14px;letter-spacing:.04em;">INVESTMENT-GRADE ISSUERS</div>
+            <div style="font-size:11.5px;opacity:.78;margin-top:3px;">comprise the main universe</div>
+          </div>
+          <div style="color:var(--accent);font-size:18px;line-height:.6;">▼</div>
+          <div style="width:80%;height:88px;background:var(--navy-700,#2E3F73);color:#fff;clip-path:polygon(0 0,100% 0,87% 100%,13% 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+            <div style="font-weight:800;font-size:14px;letter-spacing:.04em;">APPLICATION OF INITIAL FILTERS</div>
+            <div style="font-size:11.5px;opacity:.78;margin-top:3px;">customisable per partner needs</div>
+          </div>
+          <div style="color:var(--accent);font-size:18px;line-height:.6;">▼</div>
+          <div style="width:58%;height:80px;background:var(--accent);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-radius:4px;">
+            <div style="font-weight:800;font-size:15px;letter-spacing:.05em;">FINAL UNIVERSE</div>
+            <div style="font-size:11.5px;opacity:.86;margin-top:3px;">maintained &amp; monitored regularly</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-300);margin-bottom:14px;">The filters — all customisable</div>
+          <sc-for list="{{ fiFilters }}" as="f" hint-placeholder-count="5">
+            <div style="display:flex;gap:14px;padding:13px 0;border-top:1px solid var(--line);">
+              <div style="width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:6px;flex:none;"></div>
+              <div><span style="font-weight:700;color:var(--navy);font-size:14px;">{{ f.k }}</span><span style="color:var(--navy-500);font-size:13.5px;">  —  {{ f.v }}</span></div>
+            </div>
+          </sc-for>
+          <p style="font-size:11px;color:var(--navy-300);margin:14px 0 0;">Main sources: Bloomberg, CreditSights and other third-party providers. *On-demand request.</p>
+        </div>
+      </div>
+      <div class="ftr"><span>Investment Selection · Fixed Income</span><span>lfa.ch · 03</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 03·3 MARKET & ISSUER CHECK ============ -->
+  <section class="slide" data-screen-label="Fixed Income — Market & Issuer Check">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Fixed Income</p>
+      <h2 class="stitle">Market &amp; Issuer Check</h2>
+      <hr class="rule">
+      <div style="margin-top:28px;display:grid;grid-template-columns:1fr 1fr;gap:26px;flex:1;">
+        <div style="border:1px solid var(--line);border-radius:10px;padding:28px 30px;">
+          <div style="font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy);">Quantitative</div>
+          <hr class="rule" style="width:40px;">
+          <sc-for list="{{ fiQuant }}" as="q" hint-placeholder-count="4">
+            <div style="margin-top:18px;">
+              <div style="font-weight:700;font-size:13px;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;">{{ q.k }}</div>
+              <div style="font-size:13px;line-height:1.5;color:var(--navy-500);margin-top:3px;">{{ q.v }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="border:1px solid var(--line);border-radius:10px;padding:28px 30px;background:var(--navy);color:#fff;">
+          <div style="font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#fff;">Qualitative</div>
+          <hr class="rule" style="width:40px;background:#E7A9B4;">
+          <div style="margin-top:20px;display:flex;flex-direction:column;gap:14px;">
+            <sc-for list="{{ fiQual }}" as="q" hint-placeholder-count="5">
+              <div style="display:flex;gap:12px;align-items:center;"><div style="width:7px;height:7px;border-radius:50%;background:#E7A9B4;flex:none;"></div><span style="font-size:14px;color:rgba(255,255,255,.9);font-weight:600;">{{ q }}</span></div>
+            </sc-for>
+          </div>
+          <p style="font-size:11.5px;line-height:1.55;color:rgba(255,255,255,.66);margin:22px 0 0;border-top:1px solid rgba(255,255,255,.18);padding-top:14px;">For High Yield and Emerging Market issuers we put more emphasis on the qualitative analysis, focusing primarily on free cash flow generation — key to reducing the probability of a default.</p>
+        </div>
+      </div>
+      <div class="ftr"><span>Investment Selection · Fixed Income</span><span>lfa.ch · 03</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 03·4 BOND SELECTION & MONITORING ============ -->
+  <section class="slide" data-screen-label="Fixed Income — Selection & Monitoring">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Fixed Income</p>
+      <h2 class="stitle">Bond Selection &amp; Monitoring</h2>
+      <hr class="rule">
+      <p class="lead" style="margin:16px 0 0;font-size:15px;max-width:96ch;">When an issuer is approved, we select the most attractive bonds on the issuer curve, based on price / yield and duration. From there, the portfolio is kept under continuous review.</p>
+      <div style="margin-top:28px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;flex:1;align-content:start;">
+        <sc-for list="{{ fiCycle }}" as="c" hint-placeholder-count="4">
+          <div style="border:1px solid var(--line);border-radius:10px;padding:24px;background:var(--paper);height:100%;">
+            <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:24px;color:var(--accent);">{{ c.k }}</div>
+            <div style="width:28px;height:2px;background:var(--accent);margin:12px 0 14px;"></div>
+            <p style="font-size:13px;line-height:1.55;color:var(--navy-500);margin:0;">{{ c.v }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>Investment Selection · Fixed Income</span><span>lfa.ch · 03</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 03·5 BOND LIST ============ -->
+  <section class="slide" data-screen-label="Fixed Income — Bond List">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Fixed Income</p>
+      <h2 class="stitle">Bond List <span style="font-size:24px;color:var(--navy-300);font-weight:400;">— an example of what we could recommend</span></h2>
+      <hr class="rule">
+      <div style="margin-top:24px;display:flex;flex-direction:column;flex:1;justify-content:space-between;">
+        <sc-for list="{{ bondList }}" as="b" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:200px 1fr;gap:28px;padding:18px 0;border-top:1px solid var(--line);align-items:start;">
+            <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:26px;color:var(--navy);">{{ b.name }}</div>
+            <p style="font-size:14px;line-height:1.55;color:var(--navy-500);margin:4px 0 0;">{{ b.note }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>Investment Selection · Fixed Income</span><span>lfa.ch · 03</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DIVIDER 04 ============ -->
+  <section class="slide dark" data-screen-label="04 Divider">
+    <div class="ghostnum" style="right:40px;bottom:-90px;font-size:520px;color:#fff;">04</div>
+    <div class="pad" style="justify-content:center;">
+      <p class="eyebrow" style="color:#E7A9B4;">Section 04 · Investment Selection</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:62px;line-height:1.05;color:#fff;margin:14px 0 0;max-width:14ch;">Equities</h2>
+      <hr class="rule" style="width:64px;">
+      <p style="color:rgba(255,255,255,.8);font-size:18px;line-height:1.6;max-width:50ch;margin:26px 0 0;">A quantamental approach — a proprietary multi-factor model, refined by deep qualitative judgement.</p>
+    </div>
+    <div class="ftr"><span>Investment Selection · Equities</span><span>lfa.ch · 04</span></div>
+  </section>
+
+  <!-- ============ 04·1 QUANTAMENTAL IN BRIEF ============ -->
+  <section class="slide" data-screen-label="Equities — Quantamental Approach">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Equities</p>
+      <h2 class="stitle">Our Quantamental Approach in Brief</h2>
+      <hr class="rule">
+      <div style="margin-top:40px;display:grid;grid-template-columns:1fr 44px 1fr 44px 1fr;align-items:center;flex:1;align-content:center;">
+        <div style="border:1px solid var(--line);border-radius:10px;padding:30px;background:var(--paper);height:100%;display:flex;flex-direction:column;">
+          <div style="font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);">Quantitative Analysis</div>
+          <hr class="rule" style="width:34px;">
+          <p style="font-size:14px;line-height:1.6;color:var(--navy-500);margin:18px 0 0;">A proprietary, sophisticated multi-factor model filters the initial universe.</p>
+        </div>
+        <div style="text-align:center;color:var(--accent);font-size:30px;font-weight:300;">›</div>
+        <div style="border:1px solid var(--line);border-radius:10px;padding:30px;background:var(--paper);height:100%;display:flex;flex-direction:column;">
+          <div style="font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);">Qualitative Assessment</div>
+          <hr class="rule" style="width:34px;">
+          <p style="font-size:14px;line-height:1.6;color:var(--navy-500);margin:18px 0 0;">An extensive analysis of a company's business, its competitors and its long-term strategy.</p>
+        </div>
+        <div style="text-align:center;color:var(--accent);font-size:30px;font-weight:300;">›</div>
+        <div style="border-radius:10px;padding:30px;background:var(--navy);color:#fff;height:100%;display:flex;flex-direction:column;">
+          <div style="font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:#fff;">Equity List</div>
+          <hr class="rule" style="width:34px;background:#E7A9B4;">
+          <p style="font-size:14px;line-height:1.6;color:rgba(255,255,255,.85);margin:18px 0 0;">A comprehensive list of long-term investment opportunities, regularly monitored.</p>
+        </div>
+      </div>
+      <div class="ftr"><span>Investment Selection · Equities</span><span>lfa.ch · 04</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 04·2 QUANTAMENTAL SELECTION ============ -->
+  <section class="slide" data-screen-label="Equities — Quantamental Selection">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Equities</p>
+      <h2 class="stitle">Quantamental Equity Selection</h2>
+      <hr class="rule">
+      <div style="margin-top:30px;display:flex;flex-direction:column;gap:14px;flex:1;justify-content:center;">
+        <sc-for list="{{ eqStages }}" as="s" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:230px 1fr;gap:30px;align-items:center;">
+            <div style="background:var(--navy);color:#fff;border-radius:8px;padding:18px 22px;display:flex;align-items:center;gap:14px;">
+              <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:30px;color:#E7A9B4;line-height:.8;">{{ s.no }}</div>
+              <div style="font-weight:800;font-size:14px;letter-spacing:.05em;text-transform:uppercase;">{{ s.title }}</div>
+            </div>
+            <p style="font-size:14px;line-height:1.55;color:var(--navy-500);margin:0;">{{ s.body }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <p style="font-size:11.5px;color:var(--navy-300);margin:6px 0 0;">* An ESG filter is possible upon request.</p>
+      <div class="ftr"><span>Investment Selection · Equities</span><span>lfa.ch · 04</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 04·3 METHODOLOGY (1) ============ -->
+  <section class="slide" data-screen-label="Equities — Methodology (1)">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Equities · Quantitative Model</p>
+      <h2 class="stitle">Proprietary Methodology Explained <span style="color:var(--navy-300);font-weight:400;">(1)</span></h2>
+      <hr class="rule">
+      <div style="margin-top:28px;display:grid;grid-template-columns:1.15fr 1fr;gap:46px;flex:1;align-items:center;">
+        <div style="font-size:14px;line-height:1.62;color:var(--navy-500);">
+          <p style="margin:0 0 12px;">The proprietary model is based on extensive literature and has been widely back-tested. First implemented in 2012, it has been continuously updated since — a multi-factor model that can be applied to any universe, apart from financial companies.</p>
+          <p style="margin:0 0 8px;">It ranks the constituents of the universe on several factors, including but not limited to:</p>
+          <div style="display:flex;flex-direction:column;gap:9px;margin-top:6px;">
+            <div><span style="font-weight:700;color:var(--navy);">Growth</span> — a scarce resource; its presence limits the risk of value traps.</div>
+            <div><span style="font-weight:700;color:var(--navy);">Quality</span> — optimisation of all factors of production (capital, employees, R&amp;D) plus balance-sheet and P&amp;L measures.</div>
+            <div><span style="font-weight:700;color:var(--navy);">Valuation</span> — an attractive valuation offers a margin of safety and reduces the risk of permanent losses.</div>
+            <div><span style="font-weight:700;color:var(--navy);">Price Performance</span> — the market anticipates micro / macro condition changes.</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-300);margin-bottom:14px;">The factor set</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <sc-for list="{{ eqFactors }}" as="f" hint-placeholder-count="6">
+              <div style="border:1px solid var(--line);border-radius:8px;padding:16px 18px;background:var(--paper);font-weight:700;font-size:13.5px;color:var(--navy);line-height:1.3;">{{ f }}</div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <div class="ftr"><span>Investment Selection · Equities</span><span>lfa.ch · 04</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 04·4 METHODOLOGY (2) ============ -->
+  <section class="slide" data-screen-label="Equities — Methodology (2)">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Equities · Quantitative Model</p>
+      <h2 class="stitle">Proprietary Methodology Explained <span style="color:var(--navy-300);font-weight:400;">(2)</span></h2>
+      <hr class="rule">
+      <div style="margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:46px;flex:1;align-items:center;">
+        <div style="font-size:14px;line-height:1.62;color:var(--navy-500);">
+          <p style="margin:0 0 6px;font-weight:700;color:var(--navy);">Each factor</p>
+          <ul style="margin:0 0 16px;padding-left:18px;"><li style="margin-bottom:6px;">Carries a pre-defined weight, based on the objective we are trying to achieve.</li><li>Is composed of several attributes, each also carrying a pre-defined weight.</li></ul>
+          <p style="margin:0 0 6px;font-weight:700;color:var(--navy);">The final rank</p>
+          <ul style="margin:0;padding-left:18px;"><li style="margin-bottom:6px;">Allocated to each stock by weighting the ranks of every attribute and factor by its exposure.</li><li>Oscillates from <b style="color:var(--navy);">0.0 (best)</b> to <b style="color:var(--navy);">9.0 (worst)</b>. Because the model is sector-agnostic, certain sectors may at times hold no high-ranked stocks.</li></ul>
+          <div style="margin-top:20px;border-left:3px solid var(--accent);padding:6px 0 6px 18px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;line-height:1.35;color:var(--navy);">The purpose: select profitable, cash-generating companies, reasonably priced.</div>
+        </div>
+        <div>
+          <div style="font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-300);margin-bottom:14px;">Illustrative attributes</div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <sc-for list="{{ eqScores }}" as="s" hint-placeholder-count="7">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-top:1px solid var(--line);font-size:13px;">
+                <span style="font-weight:700;color:var(--navy);letter-spacing:.02em;">{{ s.k }}</span>
+                <span style="font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">{{ s.g }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <div class="ftr"><span>Investment Selection · Equities</span><span>lfa.ch · 04</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 04·5 EQUITY LIST ============ -->
+  <section class="slide" data-screen-label="Equities — Equity List">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Equities</p>
+      <h2 class="stitle">Equity List <span style="font-size:24px;color:var(--navy-300);font-weight:400;">— an example of what we could recommend</span></h2>
+      <hr class="rule">
+      <div style="margin-top:18px;display:flex;flex-direction:column;flex:1;justify-content:space-between;">
+        <sc-for list="{{ equityList }}" as="e" hint-placeholder-count="5">
+          <div style="display:grid;grid-template-columns:170px 1fr;gap:26px;padding:13px 0;border-top:1px solid var(--line);align-items:start;">
+            <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:24px;color:var(--navy);">{{ e.name }}</div>
+            <p style="font-size:13.5px;line-height:1.5;color:var(--navy-500);margin:3px 0 0;">{{ e.note }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>Investment Selection · Equities</span><span>lfa.ch · 04</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DIVIDER 05 ============ -->
+  <section class="slide dark" data-screen-label="05 Divider">
+    <div class="ghostnum" style="right:40px;bottom:-90px;font-size:520px;color:#fff;">05</div>
+    <div class="pad" style="justify-content:center;">
+      <p class="eyebrow" style="color:#E7A9B4;">Section 05 · Investment Selection</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:62px;line-height:1.05;color:#fff;margin:14px 0 0;max-width:14ch;">Funds</h2>
+      <hr class="rule" style="width:64px;">
+      <p style="color:rgba(255,255,255,.8);font-size:18px;line-height:1.6;max-width:50ch;margin:26px 0 0;">Statistical screening paired with deep due diligence — identifying managers worth their fee.</p>
+    </div>
+    <div class="ftr"><span>Investment Selection · Funds</span><span>lfa.ch · 05</span></div>
+  </section>
+
+  <!-- ============ 05·1 SUMMARY ============ -->
+  <section class="slide" data-screen-label="Funds — Summary">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Funds</p>
+      <h2 class="stitle">The selection in three steps</h2>
+      <hr class="rule">
+      <div style="margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;flex:1;align-content:start;">
+        <div style="border-top:3px solid var(--accent);padding:26px 0 0;">
+          <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:46px;color:var(--accent);line-height:.9;">01</div>
+          <div style="font-weight:800;font-size:16px;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);margin:16px 0 10px;">Universe Selection &amp; Filtering</div>
+          <p style="font-size:14px;line-height:1.6;color:var(--navy-500);margin:0;">Customisation of the universe according to specific needs, with initial filters applied to arrive at a final universe.</p>
+        </div>
+        <div style="border-top:3px solid var(--accent);padding:26px 0 0;">
+          <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:46px;color:var(--accent);line-height:.9;">02</div>
+          <div style="font-weight:800;font-size:16px;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);margin:16px 0 10px;">Relative Analysis &amp; Due Diligence</div>
+          <p style="font-size:14px;line-height:1.6;color:var(--navy-500);margin:0;">Quantitative analysis on the fund's relative statistics; a qualitative focus on the investment process and broader due diligence.</p>
+        </div>
+        <div style="border-top:3px solid var(--accent);padding:26px 0 0;">
+          <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:46px;color:var(--accent);line-height:.9;">03</div>
+          <div style="font-weight:800;font-size:16px;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);margin:16px 0 10px;">Selection &amp; Monitoring</div>
+          <p style="font-size:14px;line-height:1.6;color:var(--navy-500);margin:0;">A final decision is taken, after which the ongoing monitoring process begins.</p>
+        </div>
+      </div>
+      <div class="ftr"><span>Investment Selection · Funds</span><span>lfa.ch · 05</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 05·2 UNIVERSE & FILTERS ============ -->
+  <section class="slide" data-screen-label="Funds — Universe & Filters">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Funds</p>
+      <h2 class="stitle">Universe &amp; Filters</h2>
+      <hr class="rule">
+      <div style="margin-top:30px;display:grid;grid-template-columns:1.05fr 1fr;gap:48px;flex:1;align-items:center;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+          <div style="width:100%;height:96px;background:var(--navy);color:#fff;clip-path:polygon(0 0,100% 0,90% 100%,10% 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+            <div style="font-weight:800;font-size:14px;letter-spacing:.04em;">INVESTMENT UNIVERSE</div>
+            <div style="font-size:11.5px;opacity:.78;margin-top:3px;">open-end funds · all asset classes</div>
+          </div>
+          <div style="color:var(--accent);font-size:18px;line-height:.6;">▼</div>
+          <div style="width:80%;height:88px;background:#2E3F73;color:#fff;clip-path:polygon(0 0,100% 0,87% 100%,13% 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+            <div style="font-weight:800;font-size:14px;letter-spacing:.04em;">APPLICATION OF INITIAL FILTERS*</div>
+            <div style="font-size:11.5px;opacity:.78;margin-top:3px;">quantitative &amp; qualitative ratings</div>
+          </div>
+          <div style="color:var(--accent);font-size:18px;line-height:.6;">▼</div>
+          <div style="width:58%;height:80px;background:var(--accent);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-radius:4px;">
+            <div style="font-weight:800;font-size:15px;letter-spacing:.05em;">FINAL UNIVERSE</div>
+            <div style="font-size:11.5px;opacity:.86;margin-top:3px;">grouped into peer groups for ranking</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-300);margin-bottom:14px;">The filters</div>
+          <sc-for list="{{ fundFilters }}" as="f" hint-placeholder-count="6">
+            <div style="display:flex;gap:14px;padding:11px 0;border-top:1px solid var(--line);">
+              <div style="width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:6px;flex:none;"></div>
+              <div><span style="font-weight:700;color:var(--navy);font-size:13.5px;">{{ f.k }}</span><span style="color:var(--navy-500);font-size:13px;">  —  {{ f.v }}</span></div>
+            </div>
+          </sc-for>
+          <p style="font-size:11px;color:var(--navy-300);margin:12px 0 0;">*Exceptions to the rule may apply on an ad-hoc basis. Maintained &amp; monitored regularly.</p>
+        </div>
+      </div>
+      <div class="ftr"><span>Investment Selection · Funds</span><span>lfa.ch · 05</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 05·3 MONITORING ============ -->
+  <section class="slide" data-screen-label="Funds — Monitoring">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Funds</p>
+      <h2 class="stitle">Monitoring</h2>
+      <hr class="rule">
+      <div style="margin-top:30px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;flex:1;align-content:center;">
+        <sc-for list="{{ fundCycle }}" as="c" hint-placeholder-count="4">
+          <div style="border:1px solid var(--line);border-radius:10px;padding:26px;background:var(--paper);height:100%;">
+            <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:24px;color:var(--accent);">{{ c.k }}</div>
+            <div style="width:28px;height:2px;background:var(--accent);margin:12px 0 14px;"></div>
+            <p style="font-size:13px;line-height:1.55;color:var(--navy-500);margin:0;">{{ c.v }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>Investment Selection · Funds</span><span>lfa.ch · 05</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 05·4 ANALYSIS ============ -->
+  <section class="slide" data-screen-label="Funds — Analysis">
+    <div class="pad">
+      <p class="eyebrow">Investment Selection · Funds</p>
+      <h2 class="stitle">Analysis</h2>
+      <hr class="rule">
+      <div style="margin-top:28px;display:grid;grid-template-columns:1fr 1fr;gap:26px;flex:1;">
+        <div style="border:1px solid var(--line);border-radius:10px;padding:28px 30px;">
+          <div style="font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy);">Quantitative</div>
+          <hr class="rule" style="width:40px;">
+          <sc-for list="{{ fundQuant }}" as="q" hint-placeholder-count="3">
+            <div style="margin-top:18px;">
+              <div style="font-weight:700;font-size:13px;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;">{{ q.k }}</div>
+              <div style="font-size:13px;line-height:1.5;color:var(--navy-500);margin-top:3px;">{{ q.v }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="border:1px solid var(--line);border-radius:10px;padding:28px 30px;background:var(--navy);color:#fff;">
+          <div style="font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#fff;">Qualitative</div>
+          <hr class="rule" style="width:40px;background:#E7A9B4;">
+          <div style="margin-top:22px;display:flex;flex-direction:column;gap:18px;">
+            <sc-for list="{{ fundQual }}" as="q" hint-placeholder-count="3">
+              <div style="display:flex;gap:12px;align-items:center;"><div style="width:7px;height:7px;border-radius:50%;background:#E7A9B4;flex:none;"></div><span style="font-size:14.5px;color:rgba(255,255,255,.9);font-weight:600;">{{ q }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <div class="ftr"><span>Investment Selection · Funds</span><span>lfa.ch · 05</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DIVIDER 06 ============ -->
+  <section class="slide dark" data-screen-label="06 Divider">
+    <div class="ghostnum" style="right:40px;bottom:-90px;font-size:520px;color:#fff;">06</div>
+    <div class="pad" style="justify-content:center;">
+      <p class="eyebrow" style="color:#E7A9B4;">Section 06</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:62px;line-height:1.05;color:#fff;margin:14px 0 0;max-width:16ch;">Model Portfolios &amp; Performance</h2>
+      <hr class="rule" style="width:64px;">
+      <p style="color:rgba(255,255,255,.8);font-size:18px;line-height:1.6;max-width:54ch;margin:26px 0 0;">Benchmark composition, asset and currency allocation, and the track record across risk profiles and currencies.</p>
+    </div>
+    <div class="ftr"><span>Model Portfolios &amp; Performance</span><span>lfa.ch · 06</span></div>
+  </section>
+
+  <!-- ============ 06·1 BENCHMARK COMPOSITION ============ -->
+  <section class="slide" data-screen-label="Benchmark Composition">
+    <div class="pad">
+      <p class="eyebrow">Model Portfolios &amp; Performance</p>
+      <h2 class="stitle">Benchmark Composition &amp; Asset Breakdown</h2>
+      <hr class="rule">
+      <div style="margin-top:22px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px 40px;flex:1;">
+        <div style="display:flex;flex-direction:column;"><div style="font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);">Low <span style="color:var(--navy-300);font-weight:600;">— benchmark (USD)</span></div><lfa-chart chart-id="ip-bench-low" theme="lfa" style="flex:1;min-height:0;"></lfa-chart></div>
+        <div style="display:flex;flex-direction:column;"><div style="font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);">Moderate <span style="color:var(--navy-300);font-weight:600;">— benchmark (USD)</span></div><lfa-chart chart-id="ip-bench-mod" theme="lfa" style="flex:1;min-height:0;"></lfa-chart></div>
+        <div style="display:flex;flex-direction:column;"><div style="font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);">Medium <span style="color:var(--navy-300);font-weight:600;">— benchmark (USD)</span></div><lfa-chart chart-id="ip-bench-med" theme="lfa" style="flex:1;min-height:0;"></lfa-chart></div>
+        <div style="display:flex;flex-direction:column;"><div style="font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);">High <span style="color:var(--navy-300);font-weight:600;">— benchmark (USD)</span></div><lfa-chart chart-id="ip-bench-high" theme="lfa" style="flex:1;min-height:0;"></lfa-chart></div>
+      </div>
+      <div class="ftr"><span>Model Portfolios &amp; Performance</span><span>lfa.ch · 06</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 06·2 ASSET & CURRENCY ALLOCATION ============ -->
+  <section class="slide" data-screen-label="Asset & Currency Allocation">
+    <div class="pad">
+      <p class="eyebrow">Model Portfolios &amp; Performance · Moderate &amp; Medium mandates</p>
+      <h2 class="stitle">Asset &amp; Currency Allocation</h2>
+      <hr class="rule">
+      <div style="margin-top:18px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:auto 1fr auto 1fr;gap:6px 32px;flex:1;">
+        <div style="grid-column:1/4;font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-300);">Asset allocation</div>
+        <div style="display:flex;flex-direction:column;"><div style="font-weight:800;font-size:12px;color:var(--navy);">USD Mandates</div><lfa-chart chart-id="ip-alloc-usd" theme="lfa" style="flex:1;min-height:0;"></lfa-chart></div>
+        <div style="display:flex;flex-direction:column;"><div style="font-weight:800;font-size:12px;color:var(--navy);">EUR Mandates</div><lfa-chart chart-id="ip-alloc-eur" theme="lfa" style="flex:1;min-height:0;"></lfa-chart></div>
+        <div style="display:flex;flex-direction:column;"><div style="font-weight:800;font-size:12px;color:var(--navy);">CHF Mandates</div><lfa-chart chart-id="ip-alloc-chf" theme="lfa" style="flex:1;min-height:0;"></lfa-chart></div>
+        <div style="grid-column:1/4;font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-300);border-top:1px solid var(--line);padding-top:6px;">Currency allocation</div>
+        <div style="display:flex;flex-direction:column;"><lfa-chart chart-id="ip-ccy-usd" theme="lfa" style="flex:1;min-height:0;"></lfa-chart></div>
+        <div style="display:flex;flex-direction:column;"><lfa-chart chart-id="ip-ccy-eur" theme="lfa" style="flex:1;min-height:0;"></lfa-chart></div>
+        <div style="display:flex;flex-direction:column;"><lfa-chart chart-id="ip-ccy-chf" theme="lfa" style="flex:1;min-height:0;"></lfa-chart></div>
+      </div>
+      <div class="ftr"><span>Model Portfolios &amp; Performance</span><span>lfa.ch · 06</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 06·3 PERFORMANCE LOW & MODERATE ============ -->
+  <section class="slide" data-screen-label="Performance — Low & Moderate">
+    <div class="pad">
+      <p class="eyebrow">Model Portfolios &amp; Performance · USD</p>
+      <h2 class="stitle">Performance <span style="font-size:24px;color:var(--navy-300);font-weight:400;">— Low &amp; Moderate mandates</span></h2>
+      <hr class="rule">
+      <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:40px;flex:1;">
+        <div style="display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;padding:18px 20px;">
+          <div style="font-weight:800;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--navy);">Low Mandates</div>
+          <div style="font-size:11.5px;color:var(--navy-300);margin-top:2px;">Cumulative (rebased to 100) &amp; annual return</div>
+          <lfa-chart chart-id="ip-perf-low" theme="lfa" style="flex:1;min-height:0;margin-top:6px;"></lfa-chart>
+        </div>
+        <div style="display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;padding:18px 20px;">
+          <div style="font-weight:800;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--navy);">Moderate Mandates</div>
+          <div style="font-size:11.5px;color:var(--navy-300);margin-top:2px;">Cumulative (rebased to 100) &amp; annual return</div>
+          <lfa-chart chart-id="ip-perf-moderate" theme="lfa" style="flex:1;min-height:0;margin-top:6px;"></lfa-chart>
+        </div>
+      </div>
+      <div class="ftr"><span>Model Portfolios &amp; Performance</span><span>lfa.ch · 06</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 06·4 PERFORMANCE MEDIUM & HIGH ============ -->
+  <section class="slide" data-screen-label="Performance — Medium & High">
+    <div class="pad">
+      <p class="eyebrow">Model Portfolios &amp; Performance · USD</p>
+      <h2 class="stitle">Performance <span style="font-size:24px;color:var(--navy-300);font-weight:400;">— Medium &amp; High mandates</span></h2>
+      <hr class="rule">
+      <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:40px;flex:1;">
+        <div style="display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;padding:18px 20px;">
+          <div style="font-weight:800;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--navy);">Medium Mandates</div>
+          <div style="font-size:11.5px;color:var(--navy-300);margin-top:2px;">Cumulative (rebased to 100) &amp; annual return</div>
+          <lfa-chart chart-id="ip-perf-medium" theme="lfa" style="flex:1;min-height:0;margin-top:6px;"></lfa-chart>
+        </div>
+        <div style="display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;padding:18px 20px;">
+          <div style="font-weight:800;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--navy);">High Mandates</div>
+          <div style="font-size:11.5px;color:var(--navy-300);margin-top:2px;">Cumulative (rebased to 100) &amp; annual return</div>
+          <lfa-chart chart-id="ip-perf-high" theme="lfa" style="flex:1;min-height:0;margin-top:6px;"></lfa-chart>
+        </div>
+      </div>
+      <div class="ftr"><span>Model Portfolios &amp; Performance</span><span>lfa.ch · 06</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DISCLAIMER ============ -->
+  <section class="slide" data-screen-label="Disclaimer">
+    <div class="pad">
+      <p class="eyebrow">Disclaimer</p>
+      <h2 class="stitle">Important information</h2>
+      <hr class="rule">
+      <div style="margin-top:28px;display:flex;flex-direction:column;gap:18px;max-width:108ch;font-size:13.5px;line-height:1.7;color:var(--navy-500);">
+        <p style="margin:0;">The present document contains general information on the company and has not been produced to solicit or promote any specific service or product. It is for information purposes and should not be construed as an investment recommendation. Past performance is no guarantee of future performance.</p>
+        <p style="margin:0;">The information contained in this presentation is the opinion of LFA and does not reflect the view of any other person or entity. The information provided is believed to be from reliable, accurate and complete sources, but no liability is accepted for any inaccuracies.</p>
+        <p style="margin:0;">LFA is an investment adviser registered with the U.S. Securities and Exchange Commission and only transacts business in States where it is properly registered or is excluded or exempted from registration requirements.</p>
+        <p style="margin:0;">Unless otherwise provided, all content of this document is covered by Copyright. All rights pertain to LFA — Lugano Financial Advisors SA. The material has been prepared in a private and confidential perspective, with the sole purpose of consultation. Every reproduction of the material, even if only partial, in any form, written and/or electronic, is solely allowed upon prior explicit consent granted by LFA — Lugano Financial Advisors SA.</p>
+      </div>
+      <div class="ftr"><span>Private &amp; Confidential</span><span>lfa.ch</span></div>
+    </div>
+  </section>
+
+  <!-- ============ BACK COVER · CONTACTS ============ -->
+  <section class="slide" data-screen-label="Contacts" style="padding:0;">
+    <div style="display:flex;height:100%;">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 72px;">
+        <img src="../../assets/logo-lfa-full.png" alt="LFA" style="height:54px;align-self:flex-start;margin-bottom:34px;">
+        <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:54px;color:var(--navy);margin:0;line-height:1;">Let's talk.</h2>
+        <hr class="rule" style="width:64px;">
+        <div style="margin-top:34px;display:grid;grid-template-columns:repeat(3,1fr);gap:26px;">
+          <div>
+            <div style="font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);">Lugano</div>
+            <div style="font-size:13.5px;line-height:1.7;color:var(--navy-500);margin-top:9px;">Via F. Pelli 3<br>6900 Lugano<br>T +41 91 921 37 52</div>
+          </div>
+          <div>
+            <div style="font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);">Zurich</div>
+            <div style="font-size:13.5px;line-height:1.7;color:var(--navy-500);margin-top:9px;">Talstrasse 65<br>8001 Zurich<br>T +41 43 497 22 83</div>
+          </div>
+          <div>
+            <div style="font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);">Sion</div>
+            <div style="font-size:13.5px;line-height:1.7;color:var(--navy-500);margin-top:9px;">25 Rue de Lausanne<br>1950 Sion<br>T +41 79 208 02 84</div>
+          </div>
+        </div>
+        <div style="margin-top:34px;font-size:14px;font-weight:700;color:var(--navy);letter-spacing:.04em;">www.lfa.ch · info@lfa.ch</div>
+      </div>
+      <div style="width:44%;flex:none;position:relative;overflow:hidden;"><img src="../../assets/cover-lfa-back-band.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></div>
+    </div>
+  </section>
+
+  <!--SLOT-->
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1280, &quot;height&quot;: 720}, &quot;accentColor&quot;: {&quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#C24A5E&quot;, &quot;tsType&quot;: &quot;string&quot;}}">
+class Component extends DCLogic {
+  setRootEl(el){ this.root = el; this.applyTweaks(); }
+
+  applyTweaks(){
+    if(!this.root) return;
+    const accent = this.props.accentColor || '#C24A5E';
+    this.root.style.setProperty('--accent', accent);
+  }
+
+  componentDidMount(){ this.applyTweaks(); this.publishSpecs(); }
+  componentDidUpdate(){ this.applyTweaks(); this.publishSpecs(); }
+
+  // Publish each chart as an editable spec into the shared registry that
+  // <lfa-chart> reads. Users edit via the Chart Studio popup (pencil on hover);
+  // edits persist per chart-id in localStorage and survive reloads.
+  publishSpecs(){
+    const D = this.chartData();
+    const reg = (window.LFA_CHART_SPECS = window.LFA_CHART_SPECS || {});
+    const pts = (xs, ys) => xs.map((x,i)=>({ x, y: ys[i] }));
+    [['ip-alloc-usd','USD'],['ip-alloc-eur','EUR'],['ip-alloc-chf','CHF']].forEach(([id,ccy])=>{
+      const d = D.alloc[ccy];
+      reg[id] = { type:'groupbar', meta:{ title:'', yLabel:'%' }, series:[
+        { name:'Moderate', points: pts(D.classes, d.moderate) },
+        { name:'Medium',   points: pts(D.classes, d.medium) }
+      ]};
+    });
+    [['ip-ccy-usd','USD'],['ip-ccy-eur','EUR'],['ip-ccy-chf','CHF']].forEach(([id,ccy])=>{
+      const d = D.ccy[ccy];
+      reg[id] = { type:'barh', meta:{ title:'', xLabel:'%' }, series:[
+        { name:'Moderate', points: pts(D.currencies, d.moderate) },
+        { name:'Medium',   points: pts(D.currencies, d.medium) }
+      ]};
+    });
+    [['ip-bench-low','Low'],['ip-bench-mod','Moderate'],['ip-bench-med','Medium'],['ip-bench-high','High']].forEach(([id,risk])=>{
+      reg[id] = { type:'barh', meta:{ title:'', xLabel:'%' }, series:[
+        { name:risk, points: pts(D.classes, D.bench[risk]) }
+      ]};
+    });
+    Object.keys(D.perf).forEach(key=>{
+      const p = D.perf[key];
+      reg['ip-perf-'+key] = { type:'combo', meta:{ title:'', yLabel:'Annual %', y2Label:'Index' }, series:[
+        { name:'Annual %',   points: pts(p.years, p.annual) },
+        { name:'Cumulative', points: pts(p.years, p.cum) }
+      ]};
+    });
+    if(window.LFAChart) window.LFAChart.redrawAll();
+  }
+
+  chartData(){
+    return this.props.chartData || {
+      classes:['Cash','Equity','Fixed Inc.','Alt.','Comm.'],
+      currencies:['USD','EUR','CHF','Gold','EMC'],
+      alloc:{
+        USD:{ moderate:[3.57,25.96,49.92,12.16,6.53], medium:[1.32,53.78,30.66,8.63,5.61] },
+        EUR:{ moderate:[1.88,29.16,62.91,6.04,0], medium:[1.67,56.70,36.02,5.61,0] },
+        CHF:{ moderate:[1.91,28.48,63.12,6.48,0], medium:[1.08,54.04,39.05,5.83,0] }
+      },
+      ccy:{
+        USD:{ moderate:[91.11,0,0,2.56,6.33], medium:[94.24,0,0,2.71,3.06] },
+        EUR:{ moderate:[4.29,88.22,0,4.26,3.24], medium:[4.80,91.25,0,2.46,1.48] },
+        CHF:{ moderate:[18.15,0,74.21,4.37,3.27], medium:[14.38,0,79.89,4.29,1.45] }
+      },
+      bench:{
+        Low:[12,12,66,5,5], Moderate:[5,30,55,7,3], Medium:[3,50,38,6,3], High:[2,75,13,6,4]
+      },
+      perf:{
+        low:{ years:['15','16','17','18','19','20','21','22','23','24','25',"Q1'26"], cum:[100,98.34,105.25,100.34,112.45,120.45,125.13,109.64,119.22,126.68,137.67,136.14], annual:[-2.82,1.19,7.03,-4.66,12.06,7.12,3.88,-12.38,8.74,6.26,1.20,-1.11] },
+        moderate:{ years:['15','16','17','18','19','20','21','22','23','24','25',"Q1'26"], cum:[100,107.96,106.30,115.76,120.90,120.67,113.36,118.96,122.01,128.71,128.71,115.45], annual:[0.00,7.96,-1.54,8.90,4.44,-0.19,-6.06,4.94,2.57,1.61,1.61,-10.30] },
+        medium:{ years:['15','16','17','18','19','20','21','22','23','24','25',"Q1'26"], cum:[100,102.59,114.22,107.18,125.58,139.65,153.35,130.13,146.51,161.59,180.00,175.96], annual:[-1.92,4.60,11.33,-6.16,17.17,11.20,9.81,-15.14,12.59,10.29,11.39,-2.25] },
+        high:{ years:['17','18','19','20','21','22','23','24',"Q1'26"], cum:[100,118.71,139.84,153.60,129.01,150.46,170.05,190.21,184.48], annual:[18.71,17.80,9.84,-16.01,16.63,13.02,11.86,-3.02,0] }
+      }
+    };
+  }
+
+  renderVals(){
+    return {
+      setRoot: (el)=>{ if(el) this.setRootEl(el); },
+      talents: [
+        { initials:'MB', name:'Massimo Borghesi', role:'Chief Investment Officer', bio:'Over 25 years in asset management and more than a decade within LFG Holding, covering CIO and CEO roles. He began as a fund manager at one of Italy\u2019s largest banks, specialising in US equities, then held senior roles at UBS and Julius Baer in Lugano as Head of Equity Analysis and Head of Advisory & Portfolio Management. Degree in Financial and Banking Economics, CFA charterholder and certified Financial Risk Manager.' },
+        { initials:'EM', name:'Edoardo Mango', role:'Senior Investment Advisor', bio:'With LFG Holding since 2015, covering CIO and Investment Advisory positions. Previously 10+ years at Bank Julius Bär in Zurich, where he helped integrate the wealth-management unit of Merrill Lynch, after starting as a portfolio manager in Lugano. BSc in Business Administration (Bocconi), MSc in International Management (King\u2019s College London) and CFA charterholder. Fluent in Italian and English.' },
+        { initials:'RD', name:'Riccardo De Marco', role:'Junior Portfolio Manager', bio:'Joined LFA in 2025. He holds an MSc in Financial Technology and Computing and combines programming and quantitative techniques with qualitative, research-driven reasoning to build data-informed narratives. Previously in Treasury within the banking industry in Milan. A recognised alumnus of the Swiss Finance Institute, fluent in English and Italian.' }
+      ],
+      fiFilters: [
+        { k:'Liquidity', v:'narrow bid/offer spread (sector-dependent); amount outstanding large enough.' },
+        { k:'Maturity', v:'based on the current house view; may vary across time.' },
+        { k:'History*', v:'approx. three years of available data.' },
+        { k:'ESG exclusion', v:'rating \u2265 B- (Reuters).' }
+      ],
+      fiQuant: [
+        { k:'Liquidity test', v:'Evolution of free-cash-flow generation, per internal model.' },
+        { k:'Relative valuation vs own history', v:'Current swap spread relative to its historical level.' },
+        { k:'Relative valuation vs derivatives', v:'Difference between the CDS and the swap spread.' },
+        { k:'Ranking against peers', v:'Delta swap spread higher than, or in line with, the historical average.' }
+      ],
+      fiQual: ['Leverage trend','Free cash flow generation','Rating drift and outlook','EBITDA margins','Bond-friendly policies'],
+      fiCycle: [
+        { k:'Monitor', v:'Daily monitoring of price dynamics, quantitative and qualitative metrics, news flow and corporate events.' },
+        { k:'Refresh', v:'New screening of bonds to find the latest opportunities in the market.' },
+        { k:'Flag', v:'Expensive bonds are flagged and put on hold.' },
+        { k:'Changes', v:'Issuers no longer creditworthy are removed; bonds on hold may be reactivated as conditions change.' }
+      ],
+      bondList: [
+        { name:'Visa', note:'Market leader in the industry. Strong cash-flow generation, with EBITDA margins growing and stable leverage. Spreads currently slightly above the historical average.' },
+        { name:'United Rentals', note:'U.S. equipment-rental company across commercial, construction, industrial and residential sectors. Very high margins (\u224846%), record FCF of $2.4bn on an upward trend, and leverage of 2.4x trending down.' },
+        { name:'Home Depot', note:'Home-improvement retailer selling building materials and home-improvement products. EBITDA margins stable over the years, leverage controlled around 1.5x and a strong cash position of \u2248$8.7bn.' },
+        { name:'TotalEnergies', note:'Holds more than $28bn in cash, FCF positive (\u2248$11bn) and current leverage \u22481.25x. A liquid issue at \u224899.75 (YTC 1.82%, spread 215bps vs a 1yr average of 160) — also cheap versus peers.' }
+      ],
+      eqStages: [
+        { no:'01', title:'Universe', body:'US, European and Swiss mid- and large-cap companies, plus international mega-cap names.' },
+        { no:'02', title:'Quantitative Model', body:'Our proprietary, multi-factor model screens for GARP companies (growth at a reasonable price) showing positive price momentum — helping avoid both bubbly stocks and value traps.' },
+        { no:'03', title:'Qualitative Screen', body:'We select companies with a durable competitive edge, emphasising long-term growth. Traditional metrics estimate a hypothetical fair price versus current valuation levels.' },
+        { no:'04', title:'Equity List', body:'The final list offers multiple investment ideas, covers all sectors of the economy and is regularly monitored with timely updates.' }
+      ],
+      eqFactors: ['Growth','Quality & Performance','Valuation','Profitability','Management Behaviour & Leverage','Market Indices & Leverage'],
+      eqScores: [
+        { k:'Growth score', g:'Growth' },
+        { k:'FCF yield score', g:'Valuation' },
+        { k:'Sales per employee', g:'Quality' },
+        { k:'FCF per employee', g:'Quality' },
+        { k:'R&D per employee', g:'Quality' },
+        { k:'Revenue vs debt growth', g:'Quality' },
+        { k:'ROE 5yr average', g:'Profitability' }
+      ],
+      equityList: [
+        { name:'Google', note:'A growing user base supports digital spending; Android\u2019s smartphone dominance backs search as traffic shifts from desktop to mobile. High quality factor, strong margins and price momentum stand out.' },
+        { name:'Electronic Arts', note:'Market leader in sports games, with more than 50% of sports-game sales. Growth from new segments (online and mobile gaming). Very cheap valuation and strong price momentum.' },
+        { name:'Qualcomm', note:'Holds almost every essential patent across 3G, 4G and 5G handsets. Market leader in wireless chips, well positioned for the 5G rollout with strong partnerships across major smartphone makers. High quality, cheap valuation, strong momentum.' },
+        { name:'BMW', note:'Durable competitive advantage from global brand recognition, powertrain technology and pricing power. Global presence reduces regional reliance. High quality factor, very cheap valuation and strong price momentum.' },
+        { name:'Novartis', note:'Long-term growth from a solid late-stage pipeline; a focus on unmet medical needs should drive excess returns over time. Very cheap valuation, high-margin profile and low leverage.' }
+      ],
+      fundFilters: [
+        { k:'Size', v:'minimum AuM of 50MM in EUR / USD / CHF.' },
+        { k:'Tenure', v:'minimum 3 years of available data.' },
+        { k:'Liquidity', v:'daily or weekly NAV.' },
+        { k:'Morningstar Overall (quant.)', v:'three stars or above (max. five).' },
+        { k:'Morningstar Analyst (qual.)', v:'bronze or better (gold / silver / bronze).' }
+      ],
+      fundCycle: [
+        { k:'Monitor', v:'Monthly monitoring of initial filters, quantitative scoring and relevant qualitative information (via manager commentary).' },
+        { k:'Refresh', v:'A new screening of funds through the quantitative analysis on a regular — and ad-hoc — basis.' },
+        { k:'Flag', v:'Poor performance is flagged, leading to suspension from the list and a revaluation of the business case.' },
+        { k:'Changes', v:'The revaluation can lead to either exclusion from the list or reintegration.' }
+      ],
+      fundQuant: [
+        { k:'Statistical analysis', v:'A set of risk / reward measures, including the Sharpe and Information Ratio.' },
+        { k:'Consistency of excess returns', v:'Has the excess return been consistent over time, or is it a one-off?' },
+        { k:'Performance momentum', v:'An analysis of the trend of recent performance.' }
+      ],
+      fundQual: ['Investment process analysis','Portfolio management team interview','Due diligence questionnaire'],
+      toc: [
+        { no:'01', title:'The Investment Philosophy', sub:'Center stage, two pillars, the committee' },
+        { no:'02', title:'Portfolio Management Talents', sub:'The people behind the process' },
+        { no:'03', title:'Investment Selection · Fixed Income', sub:'Universe, relative value, monitoring' },
+        { no:'04', title:'Investment Selection · Equities', sub:'A quantamental, multi-factor approach' },
+        { no:'05', title:'Investment Selection · Funds', sub:'Screening, due diligence, monitoring' },
+        { no:'06', title:'Model Portfolios & Performance', sub:'Allocations, currencies, track record' }
+      ],
+      capabilities: [
+        { no:'01', title:'Multi-asset & multi-currency portfolio construction' },
+        { no:'02', title:'Access to talented external & internal managers' },
+        { no:'03', title:'Tax-efficient investing' },
+        { no:'04', title:'Risk management' },
+        { no:'05', title:'ESG / ethical analysis & thematic investments' },
+        { no:'06', title:'Access to independent research analysts' },
+        { no:'07', title:'Real estate & private equity' },
+        { no:'08', title:'Continuous portfolio monitoring' }
+      ],
+      committee: [
+        { step:'1', title:'Research & Analysis', points:['Extensive hours assessing the macroeconomic backdrop and market dynamics.','Proprietary quantitative tools and synergies with internal & external fund managers.','Independent research providers to ensure an unbiased result.'] },
+        { step:'2', title:'Market Outlook', points:['Monthly Group meetings on the latest events.','Quarterly Group meetings: structured, top-down analysis of the economic and financial environment.'] },
+        { step:'3', title:'Investment Committee', points:['Risk Manager assesses portfolios vs. benchmark, concentration and outliers.','PM team reviews current allocation and open tactical calls.','Recommended changes are voted upon by all members.'] },
+        { step:'4', title:'Output', points:['Decisions implemented per each client\u2019s unique profile.','CIO drafts the monthly & quarterly newsletter summarising markets and Group decisions.'] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

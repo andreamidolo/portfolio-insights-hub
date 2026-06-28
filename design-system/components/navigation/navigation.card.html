@@ -1,0 +1,42 @@
+<!-- @dsCard group="Components" viewport="700x340" name="Navigation — NavBar & MandateTabs" -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;background:var(--lfa-paper);font-family:var(--font-sans)}
+  .pad{padding:24px}
+  .split{display:flex;gap:30px;align-items:flex-start}
+  .panel{flex:1;background:var(--lfa-white);border:1px solid var(--lfa-line);border-radius:var(--radius-md);padding:24px}
+  .panel h4{margin:0 0 8px;font-family:var(--font-sans);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--lfa-navy)}
+  .panel p{margin:0;font-size:14px;line-height:1.6;color:var(--lfa-navy-500)}
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="../../_ds_bundle.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { NavBar, MandateTabs } = window.LFADesignSystem_f7f6ac;
+    const copy = {
+      'Investment Management':'Discretionary and advisory portfolio management aligned to your goals and risk profile.',
+      'International Wealth Planning':'Cross-border structuring designed around U.S. reporting requirements.',
+      'Alternative Investments':'Access to alternatives that broaden diversification beyond public markets.',
+      'Family Office Services':'Coordinated oversight across banking, legal and estate-planning partners.',
+      'Sports Division':'Specialist advisory for professional athletes and their advisors.',
+      'Self-Directed IRAs':'Swiss-based management within a U.S.-compliant IRA framework.'
+    };
+    function Demo(){
+      const [tab,setTab]=React.useState('Investment Management');
+      const items=Object.keys(copy);
+      return (<div>
+        <NavBar active="What We Do" />
+        <div className="pad split">
+          <MandateTabs items={items} value={tab} onChange={setTab} />
+          <div className="panel"><h4>{tab}</h4><p>{copy[tab]}</p></div>
+        </div>
+      </div>);
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+  </script>
+</body></html>

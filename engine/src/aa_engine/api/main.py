@@ -30,6 +30,7 @@ from .schemas import (
     PortfolioReoptimizeRequest,
     PortfolioReoptimizeResponse,
     PortfolioResponse,
+    ProfilesConfigResponse,
     RegimesResponse,
     RiskPanelRequest,
     RiskPanelResponse,
@@ -46,8 +47,8 @@ except Exception:  # pragma: no cover
 
 API_PREFIX = "/api/v1"
 
-Profile = Literal["moderate", "balanced", "aggressive"]
-Currency = Literal["EUR", "USD"]
+Profile = Literal["conservative", "moderate", "balanced", "aggressive"]
+Currency = Literal["EUR", "USD", "CHF"]
 
 
 def _default_origins() -> list[str]:
@@ -75,6 +76,30 @@ def create_app() -> FastAPI:
     @app.get(f"{API_PREFIX}/health", response_model=HealthResponse, tags=["meta"])
     def health() -> HealthResponse:
         return HealthResponse(version=_VERSION)
+
+    @app.get(f"{API_PREFIX}/profiles", response_model=ProfilesConfigResponse, tags=["meta"])
+    def profiles() -> ProfilesConfigResponse:
+        # Profili = DATI configurabili (config/risk_profiles.json): la UI legge da qui
+        # le 4 linee, le bande min-max per asset class, i benchmark e le valute.
+        from aa_engine.profiles import GROUPS, load_profiles
+
+        cfg = load_profiles()
+        return ProfilesConfigResponse(
+            placeholder=cfg.placeholder,
+            asset_classes=list(GROUPS),
+            currencies=list(cfg.currencies),
+            profiles=[
+                {
+                    "id": p.id, "label": p.label, "benchmark": p.benchmark,
+                    "bands": {g: {"min": b.min, "max": b.max} for g, b in p.bands.items()},
+                }
+                for p in cfg.profiles.values()
+            ],
+            benchmarks=[
+                {"id": bid, "label": b.label, "composition": b.composition}
+                for bid, b in cfg.benchmarks.items()
+            ],
+        )
 
     @app.get(f"{API_PREFIX}/regimes", response_model=RegimesResponse, tags=["risk"])
     def regimes(as_of: str | None = Query(default=None)) -> RegimesResponse:

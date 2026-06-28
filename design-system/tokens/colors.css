@@ -1,0 +1,62 @@
+/* ============================================================
+   LFA — COLOR TOKENS
+   Lugano Financial Advisors SA · Swiss Wealth Management
+   Source of truth: refreshed lfa.ch website + brand logo.
+   ============================================================ */
+:root {
+  /* ---- Brand core --------------------------------------- */
+  /* Primary navy — the logo letters, stars, headings, body text */
+  --lfa-navy:        #23366E;
+  --lfa-navy-deep:   #1A2A55;   /* darker depth, footer fills        */
+  --lfa-navy-700:    #2E3F73;
+  --lfa-navy-500:    #54618C;   /* muted navy, secondary text        */
+  --lfa-navy-300:    #8C95B2;   /* navy on tint, disabled            */
+
+  /* Swiss red — the bold cross in the logo. Use sparingly, as accent. */
+  --lfa-red:         #C31F3A;
+  --lfa-red-deep:    #A5172E;
+
+  /* Rose / crimson — the website's working accent: CTAs, links,
+     hover underlines, and the full-bleed "What We Do" section fills. */
+  --lfa-rose:        #C24A5E;
+  --lfa-rose-deep:   #A93C50;   /* hover / pressed                   */
+  --lfa-rose-section:#C55466;   /* large editorial section background */
+
+  /* ---- Diagram / illustration tints --------------------- */
+  /* Soft pastel set used in the radial "Why LFA" wheel diagrams. */
+  --lfa-tint-rose:   #DDA9B2;
+  --lfa-tint-blue:   #D0E4ED;
+  --lfa-tint-sage:   #BCD3D2;
+  --lfa-tint-steel:  #60729B;
+
+  /* ---- Neutrals ----------------------------------------- */
+  --lfa-white:       #FFFFFF;
+  --lfa-paper:       #F7F8FA;   /* off-white page / alt section      */
+  --lfa-mist:        #EEF1F5;   /* faint blue-grey fill              */
+  --lfa-line:        #E0E4EB;   /* hairline borders                  */
+  --lfa-line-strong: #C9CFDA;
+  --lfa-grey:        #6B7280;   /* secondary body copy on white      */
+  --lfa-ink:         #2A2E3A;   /* near-black body alternative       */
+
+  /* ---- Semantic aliases --------------------------------- */
+  --text-strong:     var(--lfa-navy);
+  --text-body:       var(--lfa-navy-500);
+  --text-muted:      var(--lfa-grey);
+  --text-on-dark:    var(--lfa-white);
+  --text-on-rose:    var(--lfa-white);
+
+  --surface-page:    var(--lfa-white);
+  --surface-alt:     var(--lfa-paper);
+  --surface-card:    var(--lfa-white);
+  --surface-navy:    var(--lfa-navy);
+  --surface-rose:    var(--lfa-rose-section);
+
+  --accent:          var(--lfa-rose);
+  --accent-hover:    var(--lfa-rose-deep);
+  --accent-swiss:    var(--lfa-red);
+
+  --border-subtle:   var(--lfa-line);
+  --border-strong:   var(--lfa-line-strong);
+
+  --focus-ring:      color-mix(in srgb, var(--lfa-rose) 55%, transparent);
+}

@@ -78,8 +78,20 @@ Endpoint (prefisso `/api/v1`, vedi `engine/docs/05_api_contract.md`):
 `GET /signals` (Stadio 1), `GET /optimization/models` (Stadio 2 — i 41 modelli),
 `POST /data/upload` + `GET /data/universe` (upload prezzi), `POST /portfolio/upload`,
 `POST /portfolio/analyze` e `POST /portfolio/reoptimize` (analisi di un mandato
-reale). I dati provengono da un backbone campione deterministico
+reale), `GET /profiles` (i 4 profili configurabili: bande min-max, benchmark,
+valute). I dati provengono da un backbone campione deterministico
 (`aa_engine.api.sample`), oppure dai prezzi **caricati dall'utente** via CSV.
+
+**Profili di rischio = DATI, non codice.** Le 4 linee (conservative / moderate /
+balanced / aggressive) vivono in [`engine/config/risk_profiles.json`](engine/config/risk_profiles.json):
+bande min-max per 5 asset class + benchmark, in 3 valute (EUR/USD/CHF). Cambiare
+una banda nel file cambia l'allocazione, senza toccare il codice. I valori sono
+**placeholder marcati**, da sostituire con le griglie reali di LFG.
+
+Il front-end adotta il **design system LFG** (brand `lfg-zest`: burgundy/sand,
+font Raleway) — vedi [`design-system/USAGE.md`](design-system/USAGE.md): StatCard,
+tabelle editoriali, grafici on-brand (donut allocazione, barre contribuzioni/
+ATTUALE-vs-PROPOSTA), tabella dei 41 modelli ordinabile.
 
 ### Front-end (React/Vite) — dashboard a 6 sezioni
 ```bash

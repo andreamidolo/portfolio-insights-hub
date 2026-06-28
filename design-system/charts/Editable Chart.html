@@ -1,0 +1,58 @@
+<!-- @dsCard group="Charts" viewport="900x520" name="Editable chart — <lfa-chart>" subtitle="Drop-in element used across the deck templates. Hover a chart → Edit → the Chart Studio popup. Edits persist per chart-id." -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Mulish:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="lfa-chart-engine.js"></script>
+<script src="lfa-chart-studio.js"></script>
+<style>
+  body{ margin:0; background:#F7F8FA; font-family:'Mulish',sans-serif; color:#23366E; padding:26px; }
+  .head{ max-width:840px; margin:0 auto 20px; }
+  .eyebrow{ font-weight:700; font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:#C24A5E; margin:0; }
+  h1{ font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:600; font-size:34px; margin:8px 0 6px; }
+  p.lead{ color:#54618C; font-size:14px; line-height:1.6; margin:0; max-width:70ch; }
+  .grid{ max-width:840px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .card{ background:#fff; border:1px solid #E0E4EB; border-radius:10px; padding:16px; box-shadow:0 8px 24px rgba(26,42,85,.08); }
+  .card h3{ font-family:'Cormorant Garamond',serif; font-style:italic; margin:0 0 4px; font-size:20px; }
+  .card .sub{ color:#8C95B2; font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; margin-bottom:8px; }
+  lfa-chart{ height:240px; }
+  .note{ max-width:840px; margin:18px auto 0; font-size:12.5px; color:#54618C; line-height:1.6; border-top:1px solid #E0E4EB; padding-top:14px; }
+  code{ background:#EDF1F7; border-radius:4px; padding:1px 6px; font-family:'Inter',monospace; font-size:12px; color:#23366E; }
+</style>
+</head>
+<body>
+<div class="head">
+  <p class="eyebrow">Charts · component</p>
+  <h1>Editable chart</h1>
+  <p class="lead">Every chart in the LFA deck templates is an <code>&lt;lfa-chart&gt;</code>. Hover any chart below and click <b>Edit</b> to open the Chart Studio popup — change the type, edit the data table, paste from Excel, retitle. Changes apply live and persist per <code>chart-id</code>.</p>
+</div>
+<script>
+window.LFA_CHART_SPECS = {
+  'demo-combo': { type:'combo', meta:{ title:'Performance', yLabel:'Annual %', y2Label:'Index' }, series:[
+    { name:'Annual %', points:[{x:'21',y:3.9},{x:'22',y:-12.4},{x:'23',y:8.7},{x:'24',y:6.3},{x:'25',y:1.2}] },
+    { name:'Cumulative', points:[{x:'21',y:125},{x:'22',y:110},{x:'23',y:119},{x:'24',y:127},{x:'25',y:138}] }
+  ]},
+  'demo-donut': { type:'donut', meta:{ title:'Asset allocation' }, series:[{ name:'Allocation', points:[
+    {x:'Equity',y:54},{x:'Fixed Income',y:31},{x:'Alternatives',y:9},{x:'Cash',y:6}
+  ]}]},
+  'demo-group': { type:'groupbar', meta:{ title:'Allocation by mandate', yLabel:'%' }, series:[
+    { name:'Moderate', points:[{x:'Cash',y:3.6},{x:'Equity',y:26},{x:'Fixed Inc.',y:50},{x:'Alt.',y:12},{x:'Comm.',y:6.5}] },
+    { name:'Medium', points:[{x:'Cash',y:1.3},{x:'Equity',y:54},{x:'Fixed Inc.',y:31},{x:'Alt.',y:8.6},{x:'Comm.',y:5.6}] }
+  ]},
+  'demo-scatter': { type:'scatter', meta:{ title:'Risk / Reward', xLabel:'Risk', yLabel:'Reward' }, series:[
+    { name:'Low', points:[{x:1,y:1.2}] },{ name:'Moderate', points:[{x:2.3,y:2.6}] },
+    { name:'Medium', points:[{x:3.6,y:4.1}] },{ name:'High', points:[{x:5,y:5.6}] }
+  ]}
+};
+</script>
+<div class="grid">
+  <div class="card"><h3>Combo</h3><div class="sub">bars + line · dual axis</div><lfa-chart chart-id="demo-combo" theme="lfa"></lfa-chart></div>
+  <div class="card"><h3>Donut</h3><div class="sub">composition</div><lfa-chart chart-id="demo-donut" theme="lfa"></lfa-chart></div>
+  <div class="card"><h3>Grouped bars</h3><div class="sub">categories compared</div><lfa-chart chart-id="demo-group" theme="lfa"></lfa-chart></div>
+  <div class="card"><h3>Scatter</h3><div class="sub">risk / return</div><lfa-chart chart-id="demo-scatter" theme="lfa"></lfa-chart></div>
+</div>
+<p class="note">Usage: <code>&lt;lfa-chart chart-id="my-id" theme="lfa"&gt;&lt;/lfa-chart&gt;</code> with a spec registered on <code>window.LFA_CHART_SPECS["my-id"]</code>. Set <code>window.LFA_CHART_EDIT = false</code> to hide the pencil for final exports. The same engine drives the standalone Chart Studio.</p>
+</body>
+</html>

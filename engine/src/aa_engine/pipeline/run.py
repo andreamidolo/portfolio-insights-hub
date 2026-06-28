@@ -21,8 +21,8 @@ import numpy as np
 from aa_engine.backtest.performance import performance_summary
 from aa_engine.data import Regime
 from aa_engine.optimization import OptimizationEnsemble, default_ensemble
-from aa_engine.optimization.base import PortfolioConstraints
 from aa_engine.optimization.sample import ASSET_CLASS_MAP, sample_returns
+from aa_engine.profiles import benchmark_weights, constraints_for, load_profiles
 from aa_engine.risk import compute_measure
 from aa_engine.signals import (
     AlphaCrashSignal,
@@ -58,6 +58,7 @@ class AllocationResult:
     asset_class_weights: dict[str, float]
     risk: dict[str, float]                        # StdDev, VaR, CVaR, MaxDD, Calmar…
     excluded_models: dict[str, str] = field(default_factory=dict)
+    benchmark: dict = field(default_factory=dict)  # confronto col benchmark del profilo
 
     def to_payload(self) -> dict:
         """Dict JSON-serializzabile (per l'API e il salvataggio)."""
@@ -70,6 +71,7 @@ class AllocationResult:
             "final_weights": self.final_weights,
             "asset_class_weights": self.asset_class_weights,
             "risk": self.risk, "excluded_models": self.excluded_models,
+            "benchmark": self.benchmark or None,
         }
 
 
@@ -192,7 +194,8 @@ def _build_context(
     nei vincoli dell'ottimizzazione, a valle). La estraiamo così l'API può
     esporre i segnali senza far girare i 41 modelli.
     """
-    if profile not in ("moderate", "balanced", "aggressive"):
+    # I profili sono DATI (config esterna): validiamo contro la config, non un literal.
+    if profile not in load_profiles().profile_ids:
         raise ValueError(f"Profilo sconosciuto: {profile!r}")
 
     returns_all = sample_returns()
@@ -240,9 +243,10 @@ def run_allocation(
     """
     ctx = _build_context(profile, currency, as_of, universe=universe)
 
-    # 4. OTTIMIZZAZIONE: ~38 modelli → 4 migliori → media, con le views BL
+    # 4. OTTIMIZZAZIONE: ~38 modelli → 4 migliori → media, con le views BL.
+    #    I vincoli sono le BANDE min-max del profilo (config esterna, data-driven).
     ens = ensemble or default_ensemble(n_best=4)
-    constraints = PortfolioConstraints.for_profile(profile, ctx.acmap)
+    constraints = constraints_for(profile, ctx.acmap)
     sel_views = {t: v for t, v in ctx.views.items() if t in ctx.selected}
     with _quiet():
         result = ens.run(ctx.returns[ctx.selected], views=sel_views, constraints=constraints)
@@ -256,6 +260,8 @@ def run_allocation(
     for t, w in final.items():
         ac_weights[ctx.acmap[t]] = round(ac_weights.get(ctx.acmap[t], 0.0) + float(w), 4)
 
+    benchmark = _benchmark_block(profile, ctx)
+
     return AllocationResult(
         profile=profile, currency=currency, as_of=ctx.as_of,
         n_models_active=result.n_active,
@@ -267,7 +273,38 @@ def run_allocation(
         asset_class_weights=ac_weights,
         risk=risk,
         excluded_models=result.excluded,
+        benchmark=benchmark,
     )
+
+
+def _benchmark_block(profile: str, ctx: _Context) -> dict:
+    """Confronto col benchmark del profilo (oltre che vs 1/N): pesi + rischio.
+
+    Il benchmark è DATO configurabile (``config/risk_profiles.json``). I pesi
+    sono a livello di strumento sull'universo selezionato; il rischio è calcolato
+    con lo stesso ``_risk_summary`` dell'allocazione, così il confronto è coerente.
+    """
+    cfg = load_profiles()
+    prof = cfg.profile(profile)
+    bm = cfg.benchmarks.get(prof.benchmark)
+    if bm is None:
+        return {}
+    sel_acmap = {t: ctx.acmap[t] for t in ctx.selected}
+    bw = benchmark_weights(profile, sel_acmap, config=cfg)
+    if not bw:
+        return {}
+    bw_series = pd.Series(bw).reindex(ctx.selected).fillna(0.0)
+    bm_ac: dict[str, float] = {}
+    for t, w in bw.items():
+        bm_ac[ctx.acmap[t]] = round(bm_ac.get(ctx.acmap[t], 0.0) + float(w), 4)
+    return {
+        "id": prof.benchmark,
+        "label": bm.label,
+        "placeholder": cfg.placeholder,
+        "weights": {t: round(float(w), 4) for t, w in bw.items()},
+        "asset_class_weights": bm_ac,
+        "risk": _risk_summary(ctx.returns[ctx.selected], bw_series),
+    }
 
 
 # --------------------------------------------------------------------------- #
@@ -313,7 +350,7 @@ def compute_optimization_models(
     """
     ctx = _build_context(profile, currency, as_of)
     ens = ensemble or default_ensemble(n_best=4)
-    constraints = PortfolioConstraints.for_profile(profile, ctx.acmap)
+    constraints = constraints_for(profile, ctx.acmap)
     sel_views = {t: v for t, v in ctx.views.items() if t in ctx.selected}
     with _quiet():
         result = ens.run(ctx.returns[ctx.selected], views=sel_views, constraints=constraints)
@@ -372,8 +409,8 @@ def _main() -> None:
     from .report import render_markdown
 
     parser = argparse.ArgumentParser(description="AA engine — pipeline di allocazione (Fase 4).")
-    parser.add_argument("--profile", default="balanced", choices=["moderate", "balanced", "aggressive"])
-    parser.add_argument("--currency", default="EUR", choices=["EUR", "USD"])
+    parser.add_argument("--profile", default="balanced", choices=load_profiles().profile_ids)
+    parser.add_argument("--currency", default="EUR", choices=["EUR", "USD", "CHF"])
     parser.add_argument("--as-of", default=None)
     parser.add_argument("--out", default=None, help="percorso del report markdown (default: report_<profile>.md)")
     args = parser.parse_args()

@@ -55,6 +55,10 @@ INSTRUMENTS: tuple[Instrument, ...] = (
 
 # Pesi target per asset class, per profilo (sommano a 1).
 PROFILE_ASSET_WEIGHTS: dict[str, dict[str, float]] = {
+    "conservative": {
+        "Equity": 0.15, "Fixed Income": 0.50, "HY": 0.05, "Commodities": 0.03,
+        "Gold": 0.05, "Money Market": 0.20, "Alternative": 0.02,
+    },
     "moderate": {
         "Equity": 0.30, "Fixed Income": 0.40, "HY": 0.05, "Commodities": 0.05,
         "Gold": 0.05, "Money Market": 0.13, "Alternative": 0.02,

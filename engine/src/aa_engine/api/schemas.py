@@ -13,8 +13,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Profile = Literal["moderate", "balanced", "aggressive"]
-Currency = Literal["EUR", "USD"]
+Profile = Literal["conservative", "moderate", "balanced", "aggressive"]
+Currency = Literal["EUR", "USD", "CHF"]
 RegimeLabel = Literal["bull", "bear"]
 
 
@@ -148,6 +148,15 @@ class SignalRow(BaseModel):
     summary: SignalCell
 
 
+class BenchmarkBlock(BaseModel):
+    id: str
+    label: str
+    placeholder: bool = False
+    weights: dict[str, float] = {}
+    asset_class_weights: dict[str, float] = {}
+    risk: dict[str, float] = {}
+
+
 class AllocationResponse(BaseModel):
     profile: Profile
     currency: Currency
@@ -162,6 +171,7 @@ class AllocationResponse(BaseModel):
     asset_class_weights: dict[str, float]
     risk: dict[str, float]
     excluded_models: dict[str, str] = {}
+    benchmark: BenchmarkBlock | None = None
 
 
 # --------------------------------------------------------------------------- #
@@ -285,6 +295,35 @@ class ReoptimizeRow(BaseModel):
     current: float
     proposed: float
     delta: float
+
+
+# --------------------------------------------------------------------------- #
+# Profili di rischio configurabili (docs/14)
+# --------------------------------------------------------------------------- #
+class BandItem(BaseModel):
+    min: float
+    max: float
+
+
+class ProfileItem(BaseModel):
+    id: str
+    label: str
+    bands: dict[str, BandItem]        # gruppo → banda (5 asset class)
+    benchmark: str
+
+
+class BenchmarkItem(BaseModel):
+    id: str
+    label: str
+    composition: dict[str, float]
+
+
+class ProfilesConfigResponse(BaseModel):
+    placeholder: bool                 # True = valori di esempio, da sostituire (LFG)
+    asset_classes: list[str]
+    currencies: list[str]
+    profiles: list[ProfileItem]
+    benchmarks: list[BenchmarkItem]
 
 
 class PortfolioReoptimizeResponse(BaseModel):

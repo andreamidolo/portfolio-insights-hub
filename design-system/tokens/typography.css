@@ -1,0 +1,57 @@
+/* ============================================================
+   LFA — TYPOGRAPHY TOKENS
+   Display: Cormorant Garamond (serif, often italic) — the LFA voice.
+   Body/UI: Mulish (humanist sans) — calm, legible, professional.
+   ============================================================ */
+:root {
+  /* ---- Families ----------------------------------------- */
+  --font-serif: 'Cormorant Garamond', 'Hoefler Text', Georgia, 'Times New Roman', serif;
+  --font-sans:  'Mulish', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  --font-display: var(--font-serif);   /* hero & section titles  */
+  --font-body:    var(--font-sans);    /* paragraphs, UI, labels */
+
+  /* ---- Type scale (px-based, fluid-friendly) ------------ */
+  --fs-display:   64px;   /* hero serif headline            */
+  --fs-h1:        48px;
+  --fs-h2:        38px;
+  --fs-h3:        28px;
+  --fs-h4:        22px;
+  --fs-lead:      20px;   /* intro / standfirst paragraph   */
+  --fs-body:      17px;
+  --fs-sm:        15px;
+  --fs-xs:        13px;
+  --fs-label:     12px;   /* letterspaced eyebrow / labels  */
+
+  /* ---- Weights ------------------------------------------ */
+  --fw-light:     300;  /* @kind font */
+  --fw-regular:   400;  /* @kind font */
+  --fw-medium:    500;  /* @kind font */
+  --fw-semibold:  600;  /* @kind font */
+  --fw-bold:      700;  /* @kind font */
+  --fw-serif-reg: 400;  /* @kind font */
+  --fw-serif-med: 500;  /* @kind font */
+  --fw-serif-sb:  600;  /* @kind font */
+
+  /* ---- Line heights ------------------------------------- */
+  --lh-tight:     1.08;   /* @kind font */
+  --lh-heading:   1.18;   /* @kind font */
+  --lh-snug:      1.35;   /* @kind font */
+  --lh-body:      1.62;   /* @kind font */
+
+  /* ---- Letter spacing ----------------------------------- */
+  --ls-display:  -0.01em;   /* @kind font */
+  --ls-tight:    -0.005em;  /* @kind font */
+  --ls-normal:    0;        /* @kind font */
+  --ls-label:     0.14em;   /* @kind font */
+  --ls-wide:      0.22em;   /* @kind font */
+
+  /* ---- Semantic roles ----------------------------------- */
+  --type-display:  italic var(--fw-serif-med) var(--fs-display)/var(--lh-tight) var(--font-serif);
+  --type-h1:       var(--fw-serif-med) var(--fs-h1)/var(--lh-heading) var(--font-serif);
+  --type-h2:       italic var(--fw-serif-med) var(--fs-h2)/var(--lh-heading) var(--font-serif);
+  --type-h3:       var(--fw-serif-med) var(--fs-h3)/var(--lh-snug) var(--font-serif);
+  --type-lead:     var(--fw-regular) var(--fs-lead)/var(--lh-body) var(--font-sans);
+  --type-body:     var(--fw-regular) var(--fs-body)/var(--lh-body) var(--font-sans);
+  --type-label:    var(--fw-bold) var(--fs-label)/1 var(--font-sans);
+}

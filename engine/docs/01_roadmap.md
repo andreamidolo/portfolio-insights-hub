@@ -105,8 +105,15 @@ individual risk, validati su un portafoglio campione, con test verdi e CI passan
 - [x] Casi limite onesti: prezzi mancanti dichiarati, pesi ≠100% segnalati, CSV malformato → 400 leggibile
 - [x] Stato "dati utente vs backbone campione" persistente nella dashboard. Vedi `docs/validation/frontend_upload_results.md`
 
+**Profili configurabili (4 linee) + design system LFG ✅**
+- [x] Profili = DATI: `config/risk_profiles.json` (4 linee × bande min-max su 5 asset class + benchmark + valute), loader `aa_engine/profiles.py`
+- [x] Validazione feasibility delle griglie (messaggi chiari, niente crash); `PortfolioConstraints` applica le bande di gruppo
+- [x] Benchmark per profilo nel report/confronto; valuta estesa a EUR/USD/CHF; `GET /api/v1/profiles`
+- [x] Design system `lfg-zest` (burgundy/sand, Raleway) sulla dashboard: StatCard, tabelle editoriali, grafici recharts (donut/barre), tabella 41 modelli ordinabile. Vedi `docs/validation/risk_profiles_and_design_results.md`
+
 **Produzione (dopo) — "benzina vera"**
-- [ ] Backtest (equity line walk-forward) — prossima iterazione front-end
+- [ ] Backtest (equity line walk-forward + drawdown) — prossima iterazione front-end
+- [ ] Editor front-end delle bande profili (import/export) + valori reali LFG
 - [ ] `aa_engine.reporting` — report ricco (PDF/grafici) + Excel allocation
 - [ ] **Collegare i dati live**: `BloombergProvider`, `MorningstarProvider`
 - [ ] Confronto sistematico vs track record AlgoEagle

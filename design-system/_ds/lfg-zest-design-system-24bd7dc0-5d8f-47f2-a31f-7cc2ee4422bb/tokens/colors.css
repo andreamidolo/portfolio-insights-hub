@@ -1,0 +1,70 @@
+/* ============================================================
+   LFG+ZEST — COLOR SYSTEM
+   A Swiss wealth-management palette: a deep institutional
+   burgundy/crimson red anchored on warm sand/taupe accents,
+   rich near-black ink, and a quiet neutral grey scale on white.
+   ============================================================ */
+:root {
+  /* ---- Brand reds (the spine of the identity) ---- */
+  --lfgz-red:          #C72026; /* vivid logo crimson — the LFG+ZEST mark */
+  --lfgz-burgundy:     #83021A; /* PRIMARY brand red — dominant in all decks */
+  --lfgz-burgundy-700: #6E0A18; /* gradient mid / hover-darken */
+  --lfgz-maroon:       #590112; /* deep maroon — filled emphasis cards */
+  --lfgz-maroon-900:   #45000B; /* darkest oxblood — gradient floor */
+  --lfgz-red-accent:   #9E2A36; /* lighter brick — rules, secondary marks */
+  --lfgz-rose:         #CFA8AD; /* dusty rose — soft tint of brand red */
+
+  /* ---- Warm sand / taupe (the secondary, "Swiss alpine" warmth) ---- */
+  --lfgz-sand:         #D5C29A; /* gold-sand accent */
+  --lfgz-sand-200:     #E9DDC9; /* pale sand */
+  --lfgz-taupe:        #9A8463; /* muted brown — section tabs, duotone */
+  --lfgz-cream:        #F9F4EE; /* warm paper / section ground */
+
+  /* ---- Ink & neutrals ---- */
+  --lfgz-ink:          #231F20; /* primary text — rich near-black */
+  --lfgz-charcoal:     #1E2225; /* headings on light */
+  --lfgz-graphite:     #4A4A4C; /* secondary text */
+  --lfgz-slate:        #848788; /* muted captions / metadata */
+  --lfgz-silver:       #BDBCBD; /* big decorative numerals, disabled */
+  --lfgz-mist:         #E5EAEB; /* cool fill / track */
+  --lfgz-line:         #E5E2DE; /* hairline borders */
+  --lfgz-line-strong:  #D8D2CB; /* card borders */
+  --lfgz-paper:        #FFFFFF;
+
+  /* ---- Rare support (data viz only) ---- */
+  --lfgz-navy:         #002060;
+  --lfgz-teal:         #004A58;
+
+  /* ============================================================
+     SEMANTIC ALIASES — author UI against these
+     ============================================================ */
+  --color-bg:            var(--lfgz-paper);
+  --color-bg-cream:      var(--lfgz-cream);
+  --color-bg-brand:      var(--lfgz-burgundy);
+  --color-bg-brand-deep: var(--lfgz-maroon);
+
+  --surface-card:        var(--lfgz-paper);
+  --surface-card-cream:  var(--lfgz-cream);
+  --surface-emphasis:    var(--lfgz-maroon);   /* filled "active" cards */
+
+  --text-strong:         var(--lfgz-charcoal);
+  --text-body:           var(--lfgz-ink);
+  --text-muted:          var(--lfgz-slate);
+  --text-secondary:      var(--lfgz-graphite);
+  --text-on-brand:       var(--lfgz-paper);
+  --text-on-brand-muted: #E7C9CE;              /* legible muted on burgundy */
+
+  --color-primary:       var(--lfgz-burgundy);
+  --color-primary-hover: var(--lfgz-maroon);
+  --color-accent:        var(--lfgz-sand);
+
+  --border-hairline:     var(--lfgz-line);
+  --border-card:         var(--lfgz-line-strong);
+  --rule-brand:          var(--lfgz-burgundy);  /* the signature thin maroon rule */
+  --rule-accent:         var(--lfgz-red-accent);
+
+  --focus-ring:          var(--lfgz-burgundy);
+
+  /* Signature brand gradient (cover / hero grounds) */
+  --gradient-brand: radial-gradient(120% 140% at 75% 15%, #8B0A1F 0%, var(--lfgz-burgundy) 40%, var(--lfgz-maroon-900) 100%);
+}

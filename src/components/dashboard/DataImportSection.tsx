@@ -19,12 +19,14 @@ import {
   type UniverseResponse,
 } from "@/lib/api";
 
+import { CurrentVsProposed } from "./charts";
 import { fmtNum, fmtPct } from "./format";
 import { FileDrop } from "./FileDrop";
 import {
   Card,
   DirectionPill,
   ErrorBlock,
+  Eyebrow,
   LoadingBlock,
   MetricsTable,
   RegimeChips,
@@ -540,10 +542,22 @@ function ReoptCompare({ r }: { r: PortfolioReoptimizeResponse }) {
         })}
       </div>
 
+      {/* visual ATTUALE vs PROPOSTA */}
+      <Card className="p-4">
+        <Eyebrow className="mb-2">ATTUALE vs PROPOSTA (pesi per strumento)</Eyebrow>
+        <CurrentVsProposed
+          data={r.comparison.map((row) => ({
+            name: row.ticker,
+            current: row.current,
+            proposed: row.proposed,
+          }))}
+        />
+      </Card>
+
       {/* side-by-side weights */}
       <Card className="overflow-hidden">
-        <div className="border-b border-border px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          ATTUALE vs PROPOSTA
+        <div className="border-b border-border px-4 py-2">
+          <Eyebrow>ATTUALE vs PROPOSTA — dettaglio</Eyebrow>
         </div>
         <table className="w-full border-collapse text-sm">
           <thead>

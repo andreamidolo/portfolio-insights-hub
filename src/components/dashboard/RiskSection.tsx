@@ -12,8 +12,9 @@ import {
 } from "@/lib/api";
 import { useAsync } from "@/lib/use-async";
 
+import { HBars } from "./charts";
 import { fmtNum, fmtPct, statusOf } from "./format";
-import { AsyncView, Card, MetricsTable, RegimeChips, SectionHeader, WeightBar } from "./ui";
+import { AsyncView, Card, Eyebrow, MetricsTable, RegimeChips, SectionHeader, StatCard } from "./ui";
 
 export function RiskSection({ profile, currency }: { profile: Profile; currency: Currency }) {
   const panel = useAsync<RiskPanelResponse>(
@@ -69,14 +70,18 @@ function RiskPanelBody({ data }: { data: RiskPanelResponse }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Cumulative return" value={fmtPct(data.summary.cumulative_return, true)} />
-        <Stat label="Sharpe" value={fmtNum(data.summary.sharpe)} />
-        <Stat
+        <StatCard
+          label="Cumulative return"
+          value={fmtPct(data.summary.cumulative_return, true)}
+          tone={data.summary.cumulative_return >= 0 ? "pos" : "neg"}
+        />
+        <StatCard label="Sharpe" value={fmtNum(data.summary.sharpe)} tone="brand" />
+        <StatCard
           label="Max drawdown"
           value={fmtPct(-Math.abs(data.summary.max_drawdown))}
           tone="neg"
         />
-        <Stat label="Volatility (ann.)" value={fmtPct(data.summary.volatility)} />
+        <StatCard label="Volatility (ann.)" value={fmtPct(data.summary.volatility)} />
       </div>
 
       <div className="flex items-center justify-between text-[11px] text-muted-foreground">
@@ -98,48 +103,14 @@ function RiskPanelBody({ data }: { data: RiskPanelResponse }) {
 
 function ContributionsBody({ data }: { data: ContributionsResponse }) {
   const total = data.contributions.reduce((s, c) => s + Math.abs(c.risk_contribution), 0) || 1;
+  const rows = data.contributions
+    .slice()
+    .sort((a, b) => b.risk_contribution - a.risk_contribution)
+    .map((c) => ({ name: c.name, value: Math.abs(c.risk_contribution) / total }));
   return (
     <Card className="p-4">
-      <div className="space-y-2">
-        {data.contributions
-          .slice()
-          .sort((a, b) => b.risk_contribution - a.risk_contribution)
-          .map((c) => (
-            <WeightBar
-              key={c.name}
-              label={c.name}
-              value={Math.abs(c.risk_contribution) / total}
-              sub={`(w ${fmtPct(c.weight)})`}
-              tone="muted"
-            />
-          ))}
-      </div>
-    </Card>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  tone = "neutral",
-}: {
-  label: string;
-  value: string;
-  tone?: "neutral" | "neg";
-}) {
-  return (
-    <Card className="p-4">
-      <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      <div
-        className={
-          "mt-1.5 font-mono text-xl font-semibold tabular-nums " +
-          (tone === "neg" ? "text-destructive" : "text-foreground")
-        }
-      >
-        {value}
-      </div>
+      <Eyebrow className="mb-2">Chi porta il rischio (quota del totale)</Eyebrow>
+      <HBars data={rows} />
     </Card>
   );
 }

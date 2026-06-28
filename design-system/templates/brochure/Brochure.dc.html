@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="LFA Institutional Brochure" description="LFA institutional brochure — 16:9 editable slides (Group, Your Swiss Partner, Investment Process, Discretionary & Advisory Mandates, Contacts) with live LFA-themed charts; prints to A4 landscape." -->
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Mulish:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="./ds-base.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="../../charts/lfa-chart-engine.js"></script>
+<script src="../../charts/lfa-chart-studio.js"></script>
+<style>
+  *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; box-sizing:border-box; }
+  lfa-chart{ display:block; width:100%; height:100%; }
+  body{ margin:0; background:#e4e8ef; font-family:'Mulish',sans-serif; }
+  .br-doc{ --accent:#C24A5E; --navy:#23366E; --navy-deep:#1A2A55; --navy-500:#54618C; --navy-300:#8C95B2; --line:#E0E4EB; --paper:#F7F8FA; }
+  .slide{ position:relative; width:1280px; height:720px; margin:30px auto; background:#fff; box-shadow:0 24px 60px rgba(26,42,85,.18); overflow:hidden; color:var(--navy); }
+  .slide.dark{ background:var(--navy); color:#fff; }
+  .pad{ position:relative; padding:58px 76px; height:100%; display:flex; flex-direction:column; }
+  .eyebrow{ font-weight:700; font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); margin:0; }
+  .stitle{ font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500; font-size:46px; line-height:1.06; letter-spacing:-.01em; margin:12px 0 0; color:var(--navy); }
+  .slide.dark .stitle{ color:#fff; }
+  .rule{ width:56px; height:3px; background:var(--accent); border:0; margin:18px 0 0; }
+  .ftr{ position:absolute; left:76px; right:76px; bottom:28px; display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--navy-300); }
+  .slide.dark .ftr{ color:rgba(255,255,255,.55); }
+  .lead{ font-size:17px; line-height:1.66; color:var(--navy-500); }
+  .ghostnum{ position:absolute; font-family:'Cormorant Garamond',serif; font-weight:600; font-style:italic; line-height:.8; opacity:.10; }
+  @page{ size:A4 landscape; margin:0; }
+  @media print{
+    body{ background:#fff; }
+    .br-doc{ zoom:.876; }
+    .slide{ margin:0; box-shadow:none; break-after:page; page-break-after:always; }
+  }
+</style>
+</helmet>
+
+<div class="br-doc" ref="{{ setRoot }}">
+
+  <!-- ============ COVER ============ -->
+  <section class="slide" data-screen-label="Cover" style="padding:0;">
+    <div style="display:flex;height:100%;">
+      <div style="width:44%;flex:none;position:relative;overflow:hidden;"><img src="../../assets/cover-lfa-front-band.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 72px;">
+        <img src="../../assets/logo-lfa-full.png" alt="LFA" style="height:58px;align-self:flex-start;margin-bottom:52px;">
+        <div class="eyebrow">Lugano Financial Advisors SA · 2026</div>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;color:var(--navy);font-size:66px;line-height:1.02;letter-spacing:-.015em;margin:18px 0 0;">Your Swiss Partner in Wealth Management</h1>
+        <p style="color:var(--navy-500);font-size:18px;line-height:1.6;max-width:42ch;margin:24px 0 0;">Swiss-based, fee-based wealth management built exclusively for U.S. investors — at home or abroad.</p>
+        <div style="margin-top:48px;font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--navy-300);">Private &amp; Confidential · 2026</div>
+        <div style="margin-top:8px;font-size:14px;font-weight:700;color:var(--navy);letter-spacing:.03em;">www.lfa.ch · info@lfa.ch</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTENTS ============ -->
+  <section class="slide" data-screen-label="Contents">
+    <div class="pad">
+      <p class="eyebrow">Contents</p>
+      <h2 class="stitle">Inside this brochure</h2>
+      <hr class="rule">
+      <div style="margin-top:46px;display:grid;grid-template-columns:1fr 1fr;gap:28px 64px;">
+        <sc-for list="{{ toc }}" as="t" hint-placeholder-count="6">
+          <div style="display:flex;gap:22px;align-items:baseline;border-top:1px solid var(--line);padding-top:18px;">
+            <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:34px;color:var(--accent);min-width:48px;">{{ t.no }}</div>
+            <div>
+              <div style="font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);">{{ t.title }}</div>
+              <div style="font-size:14px;line-height:1.5;color:var(--navy-500);margin-top:5px;">{{ t.sub }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>Private &amp; Confidential</span><span>www.lfa.ch</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DIVIDER 01 ============ -->
+  <section class="slide dark" data-screen-label="01 Divider">
+    <div class="ghostnum" style="right:40px;bottom:-90px;font-size:520px;color:#fff;">01</div>
+    <div class="pad" style="justify-content:center;">
+      <p class="eyebrow" style="color:#E7A9B4;">Section 01</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:62px;line-height:1.05;color:#fff;margin:14px 0 0;max-width:14ch;">The Group</h2>
+      <hr class="rule" style="width:64px;">
+      <p style="color:rgba(255,255,255,.8);font-size:18px;line-height:1.6;max-width:50ch;margin:26px 0 0;">Part of LFG Holding — one of Switzerland's largest independent wealth managers.</p>
+    </div>
+    <div class="ftr"><span>Group</span><span>www.lfa.ch · 01</span></div>
+  </section>
+
+  <!-- ============ 01·1 PART OF LFG HOLDING ============ -->
+  <section class="slide" data-screen-label="LFA is part of LFG Holding">
+    <div class="pad">
+      <p class="eyebrow">Group</p>
+      <h2 class="stitle">LFA is part of LFG Holding</h2>
+      <hr class="rule">
+      <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:26px;line-height:1.4;color:var(--navy);max-width:30ch;margin:26px 0 0;">We want to be the Swiss wealth-management place where talents and clients feel proud to be partners — delivering a new paradigm in financial services.</p>
+      <div style="margin-top:34px;display:grid;grid-template-columns:1fr 1fr;gap:30px;flex:1;align-content:start;">
+        <div style="border-left:3px solid var(--accent);padding:4px 0 4px 22px;">
+          <div style="font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);">LFG + ZEST</div>
+          <p style="font-size:14.5px;line-height:1.62;color:var(--navy-500);margin:10px 0 0;">Authorised by FINMA to provide wealth- and fund-management services in Switzerland. A strong centre of competence in the LATAM market, and registered to provide advisory services to Canadian investors.</p>
+        </div>
+        <div style="border-left:3px solid var(--accent);padding:4px 0 4px 22px;">
+          <div style="font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);">LFA</div>
+          <p style="font-size:14.5px;line-height:1.62;color:var(--navy-500);margin:10px 0 0;">One of the main Swiss reference points for U.S. investors. Registered with the SEC as an Investment Adviser, authorised to serve American clients domiciled both in the U.S. and globally.</p>
+        </div>
+      </div>
+      <div class="ftr"><span>Group</span><span>www.lfa.ch · 01</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 01·2 FACTS & FIGURES ============ -->
+  <section class="slide" data-screen-label="Facts and Figures">
+    <div class="pad">
+      <p class="eyebrow">Group · LFG Group</p>
+      <h2 class="stitle">Facts &amp; Figures</h2>
+      <hr class="rule">
+      <div style="margin-top:38px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;flex:1;align-content:center;">
+        <sc-for list="{{ facts }}" as="f" hint-placeholder-count="6">
+          <div style="border-top:3px solid var(--accent);padding:22px 0 0;">
+            <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:48px;line-height:1;letter-spacing:-.01em;color:var(--navy);">{{ f.value }}</div>
+            <div style="font-weight:700;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--navy-500);line-height:1.45;margin-top:12px;">{{ f.label }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>Group</span><span>www.lfa.ch · 01</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 01·3 VALUES ============ -->
+  <section class="slide dark" data-screen-label="Values">
+    <img src="../../assets/illustration-swiss-flag.png" alt="" style="position:absolute;right:-40px;bottom:-40px;width:360px;opacity:.12;">
+    <div class="pad" style="justify-content:center;">
+      <p class="eyebrow" style="color:#E7A9B4;">Group</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:50px;color:#fff;margin:12px 0 0;">Our Values</h2>
+      <hr class="rule" style="width:64px;">
+      <div style="margin-top:48px;display:grid;grid-template-columns:repeat(3,1fr);gap:40px;max-width:980px;">
+        <sc-for list="{{ values }}" as="v" hint-placeholder-count="3">
+          <div>
+            <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:34px;color:#fff;">{{ v.k }}</div>
+            <div style="width:36px;height:2px;background:#E7A9B4;margin:14px 0 16px;"></div>
+            <p style="font-size:14.5px;line-height:1.6;color:rgba(255,255,255,.8);margin:0;">{{ v.v }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div class="ftr"><span>Group</span><span>www.lfa.ch · 01</span></div>
+  </section>
+
+  <!-- ============ 01·4 FOUNDERS ============ -->
+  <section class="slide" data-screen-label="Founders">
+    <div class="pad">
+      <p class="eyebrow">Group · A pioneering story</p>
+      <h2 class="stitle">Founded to serve U.S. clients from Switzerland</h2>
+      <hr class="rule">
+      <div style="margin-top:28px;display:grid;grid-template-columns:1.5fr 1fr;gap:48px;flex:1;">
+        <div style="font-size:14px;line-height:1.64;color:var(--navy-500);">
+          <p style="margin:0 0 13px;">After the global financial crisis of 2008, the situation became very difficult for U.S. clients worldwide. That was the moment when <b style="color:var(--navy);">Francesco Bernasconi</b> and <b style="color:var(--navy);">Siro Spellini</b> embarked on a journey to provide Swiss-quality global investment services exclusively to North American clients.</p>
+          <p style="margin:0 0 13px;">In 2009 they jointly founded LFA — Lugano Financial Advisors S.A. Their pioneering work led LFA to become one of the first Swiss companies registered with the SEC, in 2010.</p>
+          <p style="margin:0 0 13px;">LFA's long-term relationships with Swiss custodian banks ensure clients continuous access to, and security of, their assets. Dedicated Swiss-quality service and an unconditional compliance culture contributed to our success.</p>
+          <p style="margin:0;">A decade of growth, innovation and strong partnerships has strengthened our reputation — contributing to Switzerland's prominent position in cross-border wealth management.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px;justify-content:center;">
+          <div style="border:1px solid var(--line);border-radius:10px;padding:24px;background:var(--paper);">
+            <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:24px;color:var(--navy);">Francesco Bernasconi</div>
+            <div style="font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-top:5px;">Founding Partner</div>
+          </div>
+          <div style="border:1px solid var(--line);border-radius:10px;padding:24px;background:var(--paper);">
+            <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:24px;color:var(--navy);">Siro Spellini</div>
+            <div style="font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-top:5px;">Founding Partner</div>
+          </div>
+        </div>
+      </div>
+      <div class="ftr"><span>Group</span><span>www.lfa.ch · 01</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DIVIDER 02 ============ -->
+  <section class="slide dark" data-screen-label="02 Divider">
+    <div class="ghostnum" style="right:40px;bottom:-90px;font-size:520px;color:#fff;">02</div>
+    <div class="pad" style="justify-content:center;">
+      <p class="eyebrow" style="color:#E7A9B4;">Section 02</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:62px;line-height:1.05;color:#fff;margin:14px 0 0;max-width:16ch;">Your Swiss Partner</h2>
+      <hr class="rule" style="width:64px;">
+      <p style="color:rgba(255,255,255,.8);font-size:18px;line-height:1.6;max-width:50ch;margin:26px 0 0;">Why a U.S. investor chooses Switzerland — and what it means to have LFA by your side.</p>
+    </div>
+    <div class="ftr"><span>Your Swiss Partner</span><span>www.lfa.ch · 02</span></div>
+  </section>
+
+  <!-- ============ 02·1 THE PILLARS ============ -->
+  <section class="slide" data-screen-label="The Swiss Pillars">
+    <div class="pad">
+      <p class="eyebrow">Your Swiss Partner</p>
+      <h2 class="stitle">The Swiss pillars</h2>
+      <hr class="rule">
+      <div style="margin-top:34px;display:grid;grid-template-columns:repeat(3,1fr);gap:26px;flex:1;align-content:stretch;">
+        <sc-for list="{{ pillars }}" as="p" hint-placeholder-count="3">
+          <div style="border:1px solid var(--line);border-radius:10px;padding:30px;background:var(--paper);display:flex;flex-direction:column;">
+            <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:22px;color:var(--accent);">{{ p.no }}</div>
+            <div style="font-weight:800;font-size:15px;letter-spacing:.02em;color:var(--navy);margin:14px 0 0;line-height:1.35;">{{ p.title }}</div>
+            <div style="width:32px;height:2px;background:var(--accent);margin:16px 0;"></div>
+            <p style="font-size:14px;line-height:1.62;color:var(--navy-500);margin:0;">{{ p.body }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>Your Swiss Partner</span><span>www.lfa.ch · 02</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 02·2 SINGLE POINT OF CONTACT ============ -->
+  <section class="slide" data-screen-label="Single Point of Contact">
+    <div class="pad">
+      <p class="eyebrow">Your Swiss Partner</p>
+      <h2 class="stitle">You have a single point of contact at LFA</h2>
+      <hr class="rule">
+      <p class="lead" style="margin:14px 0 0;font-size:15px;max-width:92ch;">We are just a phone call or one click away — and happy to work alongside your U.S. advisor for a consolidated, no-overlaps global investment strategy.</p>
+      <div style="margin-top:26px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;flex:1;align-content:center;">
+        <sc-for list="{{ spoc }}" as="s" hint-placeholder-count="4">
+          <div style="border-top:3px solid var(--accent);padding:20px 0 0;">
+            <div style="font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);line-height:1.35;">{{ s.title }}</div>
+            <p style="font-size:13.5px;line-height:1.58;color:var(--navy-500);margin:12px 0 0;">{{ s.body }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>Your Swiss Partner</span><span>www.lfa.ch · 02</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 02·3 THREE-PARTY MODEL ============ -->
+  <section class="slide" data-screen-label="Three-Party Model">
+    <div class="pad">
+      <p class="eyebrow">Your Swiss Partner</p>
+      <h2 class="stitle">A three-party relationship</h2>
+      <hr class="rule">
+      <p class="lead" style="margin:14px 0 0;font-size:15px;max-width:92ch;">LFA's business model is based on a three-party set of relationships between the Client, the Bank and the Investment Advisor — LFA.</p>
+      <div style="margin-top:30px;display:grid;grid-template-columns:1fr 56px 1fr 56px 1fr;align-items:stretch;flex:1;align-content:center;">
+        <div style="border:1px solid var(--line);border-radius:10px;padding:28px;display:flex;flex-direction:column;background:var(--paper);">
+          <div style="font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">The Client</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;color:var(--navy);margin:6px 0 14px;">Chooses the bank</div>
+          <p style="font-size:13.5px;line-height:1.58;color:var(--navy-500);margin:0;">We assist in opening a bank account, leveraging our network to secure favourable terms and a smooth onboarding. The selection of the bank is entirely in the client's hands.</p>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:28px;">›</div>
+        <div style="border:1px solid var(--line);border-radius:10px;padding:28px;display:flex;flex-direction:column;background:var(--paper);">
+          <div style="font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);">The Bank</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;color:var(--navy);margin:6px 0 14px;">Safeguards the assets</div>
+          <p style="font-size:13.5px;line-height:1.58;color:var(--navy-500);margin:0;">Where the client's wealth is held in safekeeping. The bank's online service allows clients to view and check their assets 24/7.</p>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:28px;">›</div>
+        <div style="border-radius:10px;padding:28px;display:flex;flex-direction:column;background:var(--navy);color:#fff;">
+          <div style="font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#E7A9B4;">LFA · Advisor</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;color:#fff;margin:6px 0 14px;">Advises &amp; manages</div>
+          <p style="font-size:13px;line-height:1.55;color:rgba(255,255,255,.85);margin:0;">Holistically advising on goals and risk profile, implementing and actively managing the strategy, and regularly reviewing the portfolio with research and active investment advice.</p>
+        </div>
+      </div>
+      <div class="ftr"><span>Your Swiss Partner</span><span>www.lfa.ch · 02</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 02·4 SWISS BANKS ============ -->
+  <section class="slide" data-screen-label="Swiss Custodian Banks">
+    <div class="pad">
+      <p class="eyebrow">Your Swiss Partner · Custodian network</p>
+      <h2 class="stitle">Among Switzerland's most prestigious banks</h2>
+      <hr class="rule">
+      <div style="margin-top:24px;">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1.2fr 1fr 1fr;gap:0;padding:0 14px 12px;font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy-300);border-bottom:2px solid var(--navy);">
+          <div>Name of the bank</div><div style="text-align:right;">Active since</div><div style="text-align:right;">AuM / AuS</div><div style="text-align:right;">Tier 1</div><div style="text-align:right;">Moody's</div>
+        </div>
+        <sc-for list="{{ banks }}" as="b" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:2fr 1fr 1.2fr 1fr 1fr;gap:0;padding:15px 14px;border-bottom:1px solid var(--line);align-items:center;">
+            <div style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:21px;color:var(--navy);">{{ b.name }}</div>
+            <div style="text-align:right;font-size:14px;color:var(--navy-500);">{{ b.since }}</div>
+            <div style="text-align:right;font-size:14px;font-weight:700;color:var(--navy);">{{ b.aum }}</div>
+            <div style="text-align:right;font-size:14px;color:var(--navy-500);">{{ b.tier1 }}</div>
+            <div style="text-align:right;font-weight:800;font-size:13px;color:var(--accent);">{{ b.rating }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <p style="font-size:11px;line-height:1.5;color:var(--navy-300);margin:16px 0 0;max-width:104ch;">Included for informational purposes only and not comprehensive of the entire universe of Swiss banks. We are not authorised to recommend any specific bank, and are happy to open relationships with institutions outside our existing network.</p>
+      <div class="ftr"><span>Your Swiss Partner</span><span>www.lfa.ch · 02</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DIVIDER 03 ============ -->
+  <section class="slide dark" data-screen-label="03 Divider">
+    <div class="ghostnum" style="right:40px;bottom:-90px;font-size:520px;color:#fff;">03</div>
+    <div class="pad" style="justify-content:center;">
+      <p class="eyebrow" style="color:#E7A9B4;">Section 03</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:58px;line-height:1.05;color:#fff;margin:14px 0 0;max-width:18ch;">The LFA Investment Process</h2>
+      <hr class="rule" style="width:64px;">
+      <div style="margin-top:30px;border-left:3px solid #E7A9B4;padding:6px 0 6px 24px;max-width:62ch;">
+        <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:24px;line-height:1.4;color:#fff;margin:0;">"Our investment process encourages collective thinking rather than individual decision-making — combining quantitative methods and human talent to uncover long-term opportunities."</p>
+        <div style="font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#E7A9B4;margin-top:16px;">Edoardo Mango · CIO of LFA</div>
+      </div>
+    </div>
+    <div class="ftr"><span>LFA Investment Process</span><span>www.lfa.ch · 03</span></div>
+  </section>
+
+  <!-- ============ 03·1 CENTER STAGE ============ -->
+  <section class="slide" data-screen-label="Clients at the Center Stage">
+    <div class="pad">
+      <p class="eyebrow">LFA Investment Process</p>
+      <h2 class="stitle">Our clients take the center stage</h2>
+      <hr class="rule">
+      <div style="margin-top:28px;display:grid;grid-template-columns:1fr 1fr;gap:54px;flex:1;align-content:start;">
+        <div style="font-size:14.5px;line-height:1.64;color:var(--navy-500);">
+          <p style="margin:0 0 14px;">We, at LFA, believe that our clients — and the relationship we hold with them — are the most valuable assets we own. Our aim is to make them feel more like partners than clients. For this reason, our investment process is built and continuously upgraded to improve the service and experience delivered to them.</p>
+          <p style="margin:0;">Our success is based on the ability to customise our products and services, tailoring them to our partners' unique goals, concerns and values. In time, through our proximity, we aim to become a <b style="color:var(--navy);">safe harbor</b> in our clients' minds.</p>
+        </div>
+        <div style="font-size:14.5px;line-height:1.64;color:var(--navy-500);">
+          <p style="margin:0 0 14px;">Our decision-making process combines quantitative and qualitative analysis. We embrace technological innovation, yet remain strong supporters of the human touch. We invest while striking the proper balance between passive investments and active managers — keeping a close eye on costs, because markets can be volatile, but costs and taxes are forever.</p>
+          <p style="margin:0;">It is the fact that we invest with <b style="color:var(--navy);">prudence and care</b> that portrays LFA as a safe harbor. These principles will always be at the heart of our process.</p>
+        </div>
+      </div>
+      <div class="ftr"><span>LFA Investment Process</span><span>www.lfa.ch · 03</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 03·2 THE PROCESS ============ -->
+  <section class="slide" data-screen-label="The Investment Process — flow">
+    <div class="pad">
+      <p class="eyebrow">LFA Investment Process</p>
+      <h2 class="stitle">A systematic, rigorous approach</h2>
+      <hr class="rule">
+      <p class="lead" style="margin:12px 0 0;font-size:14px;max-width:104ch;">The disciplined approach we follow to build, advise and manage portfolios aligned with your financial objectives and risk tolerance.</p>
+      <div style="margin-top:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+        <sc-for list="{{ process }}" as="s" hint-placeholder-count="4">
+          <div style="border-top:3px solid var(--accent);padding:18px 0 0;">
+            <div style="display:flex;align-items:baseline;gap:10px;"><span style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:30px;color:var(--accent);line-height:.8;">{{ s.no }}</span><span style="font-weight:800;font-size:12.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);line-height:1.25;">{{ s.title }}</span></div>
+            <p style="font-size:12.5px;line-height:1.5;color:var(--navy-500);margin:12px 0 0;">{{ s.body }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top:22px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <span style="font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy-300);margin-right:6px;">Across asset classes:</span>
+        <sc-for list="{{ assetClasses }}" as="a" hint-placeholder-count="4">
+          <span style="border:1px solid var(--line);border-radius:20px;padding:7px 16px;font-weight:700;font-size:12.5px;color:var(--navy);background:var(--paper);">{{ a }}</span>
+        </sc-for>
+      </div>
+      <div style="margin-top:auto;background:var(--navy);color:#fff;border-radius:8px;padding:16px 24px;display:flex;align-items:center;gap:18px;">
+        <div style="font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#E7A9B4;white-space:nowrap;">Risk Management &amp; Oversight</div>
+        <div style="width:1px;height:24px;background:rgba(255,255,255,.25);"></div>
+        <p style="font-size:13px;line-height:1.5;color:rgba(255,255,255,.85);margin:0;">The Risk Manager assesses portfolios versus benchmark, concentration risks and outliers; recommended allocation changes are then voted upon by all committee members.</p>
+      </div>
+      <div class="ftr" style="bottom:18px;"><span>LFA Investment Process</span><span>www.lfa.ch · 03</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 03·3 TAX-EFFICIENT ============ -->
+  <section class="slide" data-screen-label="Tax-Efficient Investing">
+    <div class="pad">
+      <p class="eyebrow">LFA Investment Process</p>
+      <h2 class="stitle">Tax-efficient investing</h2>
+      <hr class="rule">
+      <p class="lead" style="margin:16px 0 0;font-size:15px;max-width:96ch;">Our discretionary and advisory services embed a deep analysis of the tax implications of the investments made or recommended during the year. Specific focus and dedicated reporting can be implemented on request.</p>
+      <div style="margin-top:34px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;flex:1;align-content:center;">
+        <sc-for list="{{ taxPoints }}" as="t" hint-placeholder-count="3">
+          <div style="border:1px solid var(--line);border-radius:10px;padding:30px;background:var(--paper);height:100%;">
+            <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:30px;color:var(--accent);">{{ t.no }}</div>
+            <div style="width:30px;height:2px;background:var(--accent);margin:14px 0 16px;"></div>
+            <p style="font-size:14.5px;line-height:1.6;color:var(--navy);font-weight:600;margin:0;">{{ t.body }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>LFA Investment Process</span><span>www.lfa.ch · 03</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DIVIDER 04 ============ -->
+  <section class="slide dark" data-screen-label="04 Divider">
+    <div class="ghostnum" style="right:40px;bottom:-90px;font-size:520px;color:#fff;">04</div>
+    <div class="pad" style="justify-content:center;">
+      <p class="eyebrow" style="color:#E7A9B4;">Section 04</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:62px;line-height:1.05;color:#fff;margin:14px 0 0;max-width:16ch;">Discretionary Mandates</h2>
+      <hr class="rule" style="width:64px;">
+      <p style="color:rgba(255,255,255,.8);font-size:18px;line-height:1.6;max-width:52ch;margin:26px 0 0;">A 'sleep-well' solution — your portfolio professionally managed, meticulously aligned to your goals.</p>
+    </div>
+    <div class="ftr"><span>Discretionary Mandates</span><span>www.lfa.ch · 04</span></div>
+  </section>
+
+  <!-- ============ 04·1 DISCRETIONARY INTRO ============ -->
+  <section class="slide" data-screen-label="Discretionary — Overview">
+    <div class="pad">
+      <p class="eyebrow">Discretionary Mandates</p>
+      <h2 class="stitle">Invested with confidence and peace of mind</h2>
+      <hr class="rule">
+      <div style="margin-top:28px;display:grid;grid-template-columns:1.1fr 1fr;gap:50px;flex:1;">
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <sc-for list="{{ discPoints }}" as="p" hint-placeholder-count="3">
+            <div style="display:flex;gap:16px;align-items:flex-start;">
+              <div style="width:9px;height:9px;border-radius:50%;background:var(--accent);margin-top:7px;flex:none;"></div>
+              <p style="font-size:15px;line-height:1.62;color:var(--navy-500);margin:0;">{{ p }}</p>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:22px;justify-content:center;">
+          <div>
+            <div style="font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-300);margin-bottom:10px;">Different exposures</div>
+            <div style="display:flex;flex-wrap:wrap;gap:9px;"><sc-for list="{{ exposures }}" as="e" hint-placeholder-count="4"><span style="border:1px solid var(--line);border-radius:20px;padding:7px 16px;font-weight:700;font-size:12.5px;color:var(--navy);background:var(--paper);">{{ e }}</span></sc-for></div>
+          </div>
+          <div>
+            <div style="font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-300);margin-bottom:10px;">Currencies</div>
+            <div style="display:flex;flex-wrap:wrap;gap:9px;"><sc-for list="{{ currencies }}" as="c" hint-placeholder-count="3"><span style="border:1px solid var(--line);border-radius:20px;padding:7px 16px;font-weight:700;font-size:12.5px;color:var(--navy);background:var(--paper);">{{ c }}</span></sc-for></div>
+          </div>
+          <div>
+            <div style="font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-300);margin-bottom:10px;">Risk profiles</div>
+            <div style="display:flex;flex-wrap:wrap;gap:9px;"><sc-for list="{{ riskProfiles }}" as="r" hint-placeholder-count="4"><span style="border:1px solid var(--accent);border-radius:20px;padding:7px 16px;font-weight:700;font-size:12.5px;color:var(--accent);">{{ r }}</span></sc-for></div>
+          </div>
+        </div>
+      </div>
+      <div class="ftr"><span>Discretionary Mandates</span><span>www.lfa.ch · 04</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 04·2 RISK / REWARD ============ -->
+  <section class="slide" data-screen-label="Discretionary — Risk & Reward">
+    <div class="pad">
+      <p class="eyebrow">Discretionary Mandates</p>
+      <h2 class="stitle">From capital preservation to growth</h2>
+      <hr class="rule">
+      <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1.1fr;gap:46px;flex:1;align-items:center;">
+        <div>
+          <p class="lead" style="font-size:15px;margin:0 0 20px;">Each mandate sits on a clear risk / reward trade-off. As the profile moves from <b style="color:var(--navy);">Low</b> to <b style="color:var(--navy);">High</b>, expected reward rises alongside the willingness to accept short-term volatility.</p>
+          <sc-for list="{{ riskLadder }}" as="r" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:14px;padding:11px 0;border-top:1px solid var(--line);">
+              <div style="width:10px;height:10px;border-radius:50%;background:var(--accent);flex:none;"></div>
+              <div style="font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);min-width:92px;">{{ r.k }}</div>
+              <div style="font-size:13.5px;color:var(--navy-500);">{{ r.v }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="border:1px solid var(--line);border-radius:10px;padding:20px;height:430px;display:flex;flex-direction:column;">
+          <div style="font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);">Risk / Reward by profile</div>
+          <lfa-chart chart-id="br-riskreward" theme="lfa" style="flex:1;min-height:0;margin-top:8px;"></lfa-chart>
+        </div>
+      </div>
+      <div class="ftr"><span>Discretionary Mandates</span><span>www.lfa.ch · 04</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 04·3 ALLOCATION RANGES ============ -->
+  <section class="slide" data-screen-label="Discretionary — Allocation Ranges">
+    <div class="pad">
+      <p class="eyebrow">Discretionary Mandates</p>
+      <h2 class="stitle">Indicative asset allocation by profile</h2>
+      <hr class="rule">
+      <p class="lead" style="margin:14px 0 0;font-size:14.5px;max-width:100ch;">Mandates are tailored to each investor's time horizon, risk preference and asset-allocation ranges. The breakdown below is indicative and fully customisable.</p>
+      <div style="margin-top:20px;display:grid;grid-template-columns:1.4fr 1fr;gap:40px;flex:1;align-items:stretch;">
+        <div style="display:flex;flex-direction:column;">
+          <lfa-chart chart-id="br-allocranges" theme="lfa" style="flex:1;min-height:0;"></lfa-chart>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center;gap:14px;">
+          <sc-for list="{{ horizons }}" as="h" hint-placeholder-count="4">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-top:1px solid var(--line);">
+              <div style="font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);">{{ h.k }}</div>
+              <div style="font-size:13.5px;color:var(--navy-500);">{{ h.v }}</div>
+            </div>
+          </sc-for>
+          <p style="font-size:11px;color:var(--navy-300);margin:6px 0 0;">Allocation figures are illustrative — edit the chart data to reflect each live mandate band.</p>
+        </div>
+      </div>
+      <div class="ftr"><span>Discretionary Mandates</span><span>www.lfa.ch · 04</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DIVIDER 05 ============ -->
+  <section class="slide dark" data-screen-label="05 Divider">
+    <div class="ghostnum" style="right:40px;bottom:-90px;font-size:520px;color:#fff;">05</div>
+    <div class="pad" style="justify-content:center;">
+      <p class="eyebrow" style="color:#E7A9B4;">Section 05</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:62px;line-height:1.05;color:#fff;margin:14px 0 0;max-width:16ch;">Advisory Mandates</h2>
+      <hr class="rule" style="width:64px;">
+      <p style="color:rgba(255,255,255,.8);font-size:18px;line-height:1.6;max-width:54ch;margin:26px 0 0;">For investors who prefer personal involvement — collaborative decisions, with the final say always yours.</p>
+    </div>
+    <div class="ftr"><span>Advisory Mandates</span><span>www.lfa.ch · 05</span></div>
+  </section>
+
+  <!-- ============ 05·1 ADVISORY CYCLE ============ -->
+  <section class="slide" data-screen-label="Advisory — The Cycle">
+    <div class="pad">
+      <p class="eyebrow">Advisory Mandates</p>
+      <h2 class="stitle">We listen to you</h2>
+      <hr class="rule">
+      <p class="lead" style="margin:14px 0 0;font-size:14.5px;max-width:104ch;">Our advisory approach involves active collaboration to define objectives, craft proposals and ensure you have the final say — with continuous support, tailored communication and access to independent research.</p>
+      <div style="margin-top:30px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;flex:1;align-content:center;">
+        <sc-for list="{{ advisoryCycle }}" as="s" hint-placeholder-count="4">
+          <div style="padding:0 22px 0 0;margin-right:18px;border-top:3px solid var(--accent);padding-top:22px;">
+            <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:36px;color:var(--accent);line-height:.8;">{{ s.no }}</div>
+            <div style="font-weight:800;font-size:13.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);margin:16px 0 12px;">{{ s.title }}</div>
+            <ul style="margin:0;padding-left:16px;font-size:13px;line-height:1.5;color:var(--navy-500);">
+              <sc-for list="{{ s.points }}" as="p" hint-placeholder-count="2"><li style="margin-bottom:7px;">{{ p }}</li></sc-for>
+            </ul>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>Advisory Mandates</span><span>www.lfa.ch · 05</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 05·2 COMMUNICATION ECOSYSTEM ============ -->
+  <section class="slide" data-screen-label="Advisory — Communication">
+    <div class="pad">
+      <p class="eyebrow">Advisory Mandates</p>
+      <h2 class="stitle">A dynamic communication ecosystem</h2>
+      <hr class="rule">
+      <p class="lead" style="margin:14px 0 0;font-size:14.5px;max-width:104ch;">Personalised interactions with advisors and strategic market insight keep you informed and engaged. Define the frequency and channels that suit you — and we customise the type and cadence of reporting around your needs.</p>
+      <div style="margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:14px 44px;flex:1;align-content:center;">
+        <sc-for list="{{ commChannels }}" as="c" hint-placeholder-count="7">
+          <div style="display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);">
+            <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:18px;color:var(--accent);min-width:30px;">{{ c.no }}</div>
+            <div style="font-size:14px;font-weight:600;line-height:1.45;color:var(--navy);">{{ c.label }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div class="ftr"><span>Advisory Mandates</span><span>www.lfa.ch · 05</span></div>
+    </div>
+  </section>
+
+  <!-- ============ DIVIDER 06 ============ -->
+  <section class="slide dark" data-screen-label="06 Divider">
+    <div class="ghostnum" style="right:40px;bottom:-90px;font-size:520px;color:#fff;">06</div>
+    <div class="pad" style="justify-content:center;">
+      <p class="eyebrow" style="color:#E7A9B4;">Section 06</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:62px;line-height:1.05;color:#fff;margin:14px 0 0;max-width:16ch;">Contacts &amp; Disclaimer</h2>
+      <hr class="rule" style="width:64px;">
+      <p style="color:rgba(255,255,255,.8);font-size:18px;line-height:1.6;max-width:50ch;margin:26px 0 0;">Three Swiss offices, one point of contact — and the important information.</p>
+    </div>
+    <div class="ftr"><span>Contacts &amp; Disclaimer</span><span>www.lfa.ch · 06</span></div>
+  </section>
+
+  <!-- ============ DISCLAIMER ============ -->
+  <section class="slide" data-screen-label="Disclaimer">
+    <div class="pad">
+      <p class="eyebrow">Disclaimer</p>
+      <h2 class="stitle">Important information</h2>
+      <hr class="rule">
+      <div style="margin-top:28px;display:flex;flex-direction:column;gap:18px;max-width:108ch;font-size:13.5px;line-height:1.7;color:var(--navy-500);">
+        <p style="margin:0;">The information contained in this presentation is the opinion of LFA and does not reflect the view of any other person or entity. Further information regarding LFA — Lugano Financial Advisors SA is provided in the ADV Part 1 and Part 2 (Brochure and Supplement).</p>
+        <p style="margin:0;">The information provided is believed to be from reliable, accurate and complete sources, but no liability is accepted for any inaccuracies. This is for information purposes and should not be construed as an investment recommendation.</p>
+        <p style="margin:0;">Past performance is no guarantee of future performance. LFA is an investment adviser registered with the U.S. Securities and Exchange Commission and only transacts business in States where it is properly registered or is excluded or exempted from registration requirements.</p>
+        <p style="margin:0;"><b style="color:var(--navy);">Copyright.</b> Unless otherwise provided, all content of this document is covered by Copyright. All rights pertain to LFA. The material has been prepared in a private and confidential perspective, with the sole purpose of consultation. Every reproduction, even if only partial, in any form, is solely allowed upon prior explicit consent granted by LFA.</p>
+      </div>
+      <div class="ftr"><span>Private &amp; Confidential</span><span>www.lfa.ch</span></div>
+    </div>
+  </section>
+
+  <!-- ============ BACK COVER · CONTACTS ============ -->
+  <section class="slide" data-screen-label="Contacts" style="padding:0;">
+    <div style="display:flex;height:100%;">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 72px;">
+        <img src="../../assets/logo-lfa-full.png" alt="LFA" style="height:54px;align-self:flex-start;margin-bottom:34px;">
+        <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:54px;color:var(--navy);margin:0;line-height:1;">Let's talk.</h2>
+        <hr class="rule" style="width:64px;">
+        <div style="margin-top:34px;display:grid;grid-template-columns:repeat(3,1fr);gap:26px;">
+          <div>
+            <div style="font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);">Lugano</div>
+            <div style="font-size:13.5px;line-height:1.7;color:var(--navy-500);margin-top:9px;">Via F. Pelli 3<br>6900 Lugano<br>T +41 91 921 37 52</div>
+          </div>
+          <div>
+            <div style="font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);">Zurich</div>
+            <div style="font-size:13.5px;line-height:1.7;color:var(--navy-500);margin-top:9px;">Talstrasse 65<br>8001 Zurich<br>T +41 43 497 22 83</div>
+          </div>
+          <div>
+            <div style="font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);">Sion</div>
+            <div style="font-size:13.5px;line-height:1.7;color:var(--navy-500);margin-top:9px;">25 Rue de Lausanne<br>1950 Sion<br>T +41 79 208 02 84</div>
+          </div>
+        </div>
+        <div style="margin-top:34px;font-size:14px;font-weight:700;color:var(--navy);letter-spacing:.04em;">www.lfa.ch · info@lfa.ch</div>
+      </div>
+      <div style="width:44%;flex:none;position:relative;overflow:hidden;"><img src="../../assets/cover-lfa-back-band.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></div>
+    </div>
+  </section>
+
+  <!--SLOT-->
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1280, &quot;height&quot;: 720}, &quot;accentColor&quot;: {&quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#C24A5E&quot;, &quot;tsType&quot;: &quot;string&quot;}}">
+class Component extends DCLogic {
+  setRootEl(el){ this.root = el; this.applyTweaks(); }
+  applyTweaks(){
+    if(!this.root) return;
+    this.root.style.setProperty('--accent', this.props.accentColor || '#C24A5E');
+  }
+  componentDidMount(){ this.applyTweaks(); this.publishSpecs(); }
+  componentDidUpdate(){ this.applyTweaks(); this.publishSpecs(); }
+
+  // Publish charts as editable specs into the shared registry that <lfa-chart>
+  // reads. Edit via the Chart Studio popup (pencil on hover); edits persist.
+  publishSpecs(){
+    const reg = (window.LFA_CHART_SPECS = window.LFA_CHART_SPECS || {});
+    const profiles = ['Low','Moderate','Medium','High'];
+    const pts = (xs, ys) => xs.map((x,i)=>({ x, y: ys[i] }));
+    // Risk / Reward — one labelled point per profile
+    const rr = this.props.riskReward || { Low:[1,1.2], Moderate:[2.3,2.6], Medium:[3.6,4.1], High:[5,5.6] };
+    reg['br-riskreward'] = { type:'scatter', meta:{ title:'', xLabel:'Risk', yLabel:'Reward' },
+      series: profiles.map(p=>({ name:p, points:[{ x: rr[p][0], y: rr[p][1] }] })) };
+    // Allocation ranges — stacked horizontal per profile
+    const a = this.props.allocRanges || { mm:[40,12,5,2], fi:[52,53,40,18], eq:[5,30,50,72], oth:[3,5,5,8] };
+    reg['br-allocranges'] = { type:'stackedh', meta:{ title:'', xLabel:'%' }, series:[
+      { name:'Money Market', points: pts(profiles, a.mm) },
+      { name:'Fixed Income', points: pts(profiles, a.fi) },
+      { name:'Equity',       points: pts(profiles, a.eq) },
+      { name:'Other (Alt. / Comm.)', points: pts(profiles, a.oth) }
+    ]};
+    if(window.LFAChart) window.LFAChart.redrawAll();
+  }
+
+  renderVals(){
+    return {
+      setRoot: (el)=>{ if(el) this.setRootEl(el); },
+      pillars: [
+        { no:'01', title:'High regard for privacy & confidentiality', body:'A rich history of wealth-management services lays the groundwork for excellence and expertise in safeguarding wealth.' },
+        { no:'02', title:'Political & economic stability', body:'Switzerland has a long history of political and economic stability. The Swiss Franc reflects the rigour of Swiss public finances — one of the world\u2019s strongest currencies and a great store of value.' },
+        { no:'03', title:'International diversification', body:'Diversifying investments across geographies and markets helps spread risk and opens doors to a broader range of opportunities.' }
+      ],
+      spoc: [
+        { title:'Multi-currency strategies', body:'We run investment strategies in U.S. Dollars, Euros, Swiss Francs and more — or a mix of them all.' },
+        { title:'A strategy as unique as you', body:'Your goals and needs are unique; your investment strategy should be too.' },
+        { title:'Comprehensive tax reporting', body:'Timely, comprehensive tax reporting prepared for your U.S. tax filing.' },
+        { title:'Your choice of private bank', body:'Dedicated, friendly conditions with the most prestigious Swiss private banks — and we are happy to open new relationships on your preferences.' }
+      ],
+      banks: [
+        { name:'Bank Julius Bär', since:'1890', aum:'440 bn CHF', tier1:'14.1%', rating:'Aa3' },
+        { name:'Pictet', since:'1805', aum:'610 bn CHF', tier1:'27.1%', rating:'Aa2' },
+        { name:'Vontobel', since:'1936', aum:'61.5 bn CHF', tier1:'23.8%', rating:'Aa3' },
+        { name:'EFG International', since:'1995', aum:'146 bn CHF', tier1:'14.8%', rating:'A3' },
+        { name:'UBS', since:'1856', aum:'3.1 tn CHF', tier1:'14.2%', rating:'A-' },
+        { name:'Edmond de Rothschild', since:'1953', aum:'158 bn CHF', tier1:'21.3%', rating:'A+' }
+      ],
+      process: [
+        { no:'1', title:'Research & Screening', body:'Extensive assessment of the macroeconomic backdrop and market dynamics; quantitative tools broaden the analysis, with synergies across internal and external managers.' },
+        { no:'2', title:'Qualitative Filtering', body:'Independent research providers ensure an unbiased result; companies and issuers are filtered on durable, long-term merit.' },
+        { no:'3', title:'Investment Advice / Decision', body:'Monthly tactical and quarterly strategic market outlooks feed the committee, which decides the asset allocation.' },
+        { no:'4', title:'Construction → Monitoring', body:'Strategies are implemented per client profile, then continuously monitored and rebalanced as conditions change.' }
+      ],
+      assetClasses: ['Equities','Bonds','Funds','Alternative Assets'],
+      taxPoints: [
+        { no:'01', body:'Gain & loss analysis to implement the most tax-efficient strategy, offsetting capital gains.' },
+        { no:'02', body:'Selection of tax-efficient investments — ETFs, Qualified Dividend Income, preferred and muni bonds, and more.' },
+        { no:'03', body:'Annual and ad-interim reporting, tailored to your filing needs.' }
+      ],
+      discPoints: [
+        'Through Discretionary Mandates, you delegate the everyday management of your investment portfolio to LFA.',
+        'LFA manages the portfolio based on your individual goals and needs, through multi-asset and multi-currency mandates.',
+        'Portfolios are continuously monitored to ensure they remain in line with your preferences and risk profile.'
+      ],
+      exposures: ['US','European','Swiss','Global'],
+      currencies: ['USD','EUR','CHF'],
+      riskProfiles: ['Low','Moderate','Medium','High'],
+      riskLadder: [
+        { k:'Low', v:'Capital preservation; horizon 1\u20133 years.' },
+        { k:'Moderate', v:'Income with measured growth; horizon 3\u20135 years.' },
+        { k:'Medium', v:'Balanced growth; horizon 5+ years.' },
+        { k:'High', v:'Growth-oriented; horizon 5+ years.' }
+      ],
+      horizons: [
+        { k:'Low', v:'Horizon 1\u20133 years' },
+        { k:'Moderate', v:'Horizon 3\u20135 years' },
+        { k:'Medium', v:'Horizon 5+ years' },
+        { k:'High', v:'Horizon 5+ years' }
+      ],
+      advisoryCycle: [
+        { no:'1', title:'We listen — definition', points:['Goals and objectives','Risk tolerance','Investment horizon'] },
+        { no:'2', title:'Our proposal', points:['A tailor-made investment proposal','Shared and discussed with you'] },
+        { no:'3', title:'Shared decision', points:['Implementation of the revised proposal','You always have the final say'] },
+        { no:'4', title:'Follow-up & review', points:['Ongoing monitoring and communication','Management reporting'] }
+      ],
+      commChannels: [
+        { no:'01', label:'Define the frequency of regular video calls' },
+        { no:'02', label:'Monthly tactical market outlook' },
+        { no:'03', label:'Quarterly strategic market outlook' },
+        { no:'04', label:'Quarterly equity and bond recommendation lists' },
+        { no:'05', label:'Customised research' },
+        { no:'06', label:'Investment suggestions tailored to your goals' },
+        { no:'07', label:'Online access to your portfolio via e-banking and a dedicated app connected to our PMS' }
+      ],
+      toc: [
+        { no:'01', title:'Group', sub:'LFG Holding, facts & figures, values, founders' },
+        { no:'02', title:'Your Swiss Partner', sub:'The Swiss pillars, your single point of contact' },
+        { no:'03', title:'LFA Investment Process', sub:'How we build, advise and manage portfolios' },
+        { no:'04', title:'Discretionary Mandates', sub:'A delegated, \u2018sleep-well\u2019 solution' },
+        { no:'05', title:'Advisory Mandates', sub:'Collaborative decisions, on your terms' },
+        { no:'06', title:'Contacts & Disclaimer', sub:'Offices, channels, important information' }
+      ],
+      facts: [
+        { value:'CHF 8.8bn', label:'of assets under management (30.06.25)' },
+        { value:'20+', label:'fund & portfolio managers' },
+        { value:'2009', label:'date of establishment' },
+        { value:'4', label:'countries · USA, EU, Switzerland, Mexico' },
+        { value:'SEC + FINMA', label:'registered adviser & licensed portfolio manager' },
+        { value:'+2', label:'operative companies in the group' }
+      ],
+      values: [
+        { k:'Accountability', v:'We take ownership of our advice and stand behind the outcomes we help create.' },
+        { k:'Respect', v:'For our clients, our partners and the discretion their wealth deserves.' },
+        { k:'Courage', v:'To act with independence and conviction, free from product or third-party influence.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+/* LFA webfonts — loaded from Google Fonts.
+   SUBSTITUTION NOTE: the live lfa.ch site uses a licensed elegant old-style
+   serif for display and a humanist sans for body. Exact licensed families
+   were not provided, so we substitute the closest high-quality Google Fonts:
+     - Display serif  -> Cormorant Garamond  (elegant, calligraphic italics)
+     - Body / UI sans -> Mulish              (clean humanist grotesque)
+   Replace these with the licensed brand fonts when available. */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Mulish:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');

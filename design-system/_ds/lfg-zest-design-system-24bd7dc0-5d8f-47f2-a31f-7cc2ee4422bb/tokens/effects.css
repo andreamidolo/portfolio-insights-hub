@@ -1,0 +1,39 @@
+/* ============================================================
+   LFG+ZEST — EFFECTS
+   Shadows are quiet and warm (never blue-grey). Cards favour a
+   hairline border + barely-there shadow over heavy elevation.
+   The brand gradient and the faint Alpine mountain watermark
+   are the two signature "texture" devices.
+   ============================================================ */
+:root {
+  /* ---- Elevation (soft, warm-neutral) ---- */
+  --shadow-xs: 0 1px 2px rgba(35, 31, 32, 0.05);
+  --shadow-sm: 0 2px 6px rgba(35, 31, 32, 0.06);
+  --shadow-md: 0 6px 20px rgba(35, 31, 32, 0.08);
+  --shadow-lg: 0 16px 40px rgba(35, 31, 32, 0.10);
+  --shadow-card: 0 1px 3px rgba(35, 31, 32, 0.05), 0 8px 24px rgba(35, 31, 32, 0.05);
+  /* tint for emphasis (burgundy) cards */
+  --shadow-brand: 0 10px 30px rgba(89, 1, 18, 0.22);
+
+  /* ---- Grounds / textures ---- */
+  --gradient-brand-linear: linear-gradient(135deg, #8B0A1F 0%, var(--lfgz-burgundy) 45%, var(--lfgz-maroon-900) 100%);
+  --gradient-sand:  linear-gradient(135deg, #F4ECDE 0%, var(--lfgz-sand-200) 100%);
+  --overlay-scrim:  linear-gradient(180deg, rgba(69,0,11,0) 0%, rgba(69,0,11,0.55) 100%); /* @kind other */
+
+  /* Mountain watermark — faint Swiss-Alps photo, used bottom-anchored.
+     Reference as: background-image: var(--watermark-mountain);
+     (path is relative to the consuming HTML — override if needed) */
+  --watermark-opacity: 0.5; /* @kind other */
+}
+
+/* Faint mountain watermark utility (expects assets/ alongside) */
+.lfgz-watermark {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 60%;
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  background-size: cover;
+  pointer-events: none;
+  opacity: var(--watermark-opacity);
+}

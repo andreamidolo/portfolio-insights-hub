@@ -1,0 +1,33 @@
+<!-- @dsCard group="Components" viewport="700x420" name="Layout — SectionHeading & RoseSection" -->
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;background:var(--lfa-white);font-family:var(--font-sans)}
+  .pad{padding:30px 34px}
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="../../_ds_bundle.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { SectionHeading, RoseSection } = window.LFADesignSystem_f7f6ac;
+    function Demo(){
+      return (<div>
+        <div className="pad">
+          <SectionHeading eyebrow="Why LFA"
+            title="Why would a U.S. investor work with a Swiss-based firm?"
+            lead="LFA is headquartered in Switzerland and works exclusively with U.S. investors who want a thoughtful, independent approach to global wealth management." />
+        </div>
+        <RoseSection padding="44px">
+          <SectionHeading tone="white"
+            title="How can U.S. investors diversify beyond U.S. markets while staying consistent with U.S. tax rules?"
+            lead="That question sits at the center of what LFA does." />
+        </RoseSection>
+      </div>);
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+  </script>
+</body></html>
