@@ -22,10 +22,12 @@ from .schemas import (
     AllocationRunRequest,
     ContributionsResponse,
     HealthResponse,
+    OptimizationModelsResponse,
     PortfolioResponse,
     RegimesResponse,
     RiskPanelRequest,
     RiskPanelResponse,
+    SignalsResponse,
 )
 
 try:  # versione del pacchetto installato
@@ -117,6 +119,32 @@ def create_app() -> FastAPI:
 
         res = run_allocation(req.profile, req.currency, req.as_of)
         return AllocationResponse(**res.to_payload())
+
+    @app.get(f"{API_PREFIX}/signals", response_model=SignalsResponse, tags=["signals"])
+    def signals(as_of: str | None = Query(default=None)) -> SignalsResponse:
+        # "Finestra di lettura" sullo Stadio 1: regime + segnali tecnici + SUMMARY.
+        # Veloce (niente ottimizzazione). Profilo-indipendente.
+        from aa_engine.pipeline.run import compute_signals
+
+        return SignalsResponse(**compute_signals(as_of))
+
+    @app.get(
+        f"{API_PREFIX}/optimization/models",
+        response_model=OptimizationModelsResponse,
+        tags=["optimization"],
+    )
+    def optimization_models(
+        profile: Profile = Query(default="balanced"),
+        currency: Currency = Query(default="EUR"),
+        as_of: str | None = Query(default=None),
+    ) -> OptimizationModelsResponse:
+        # "Apri il cofano" sullo Stadio 2: i 41 modelli, score, 4 scelti, 1/N.
+        # Gira lo STESSO ensemble di /allocation/run → può richiedere decine di secondi.
+        from aa_engine.pipeline.run import compute_optimization_models
+
+        return OptimizationModelsResponse(
+            **compute_optimization_models(profile, currency, as_of)
+        )
 
     return app
 

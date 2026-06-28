@@ -74,18 +74,28 @@ uvicorn aa_engine.api.main:app --reload --port 8000
 ```
 Endpoint (prefisso `/api/v1`, vedi `engine/docs/05_api_contract.md`):
 `GET /health`, `GET /regimes`, `GET /portfolio`, `POST /risk/panel`,
-`GET /risk/contributions`. I dati provengono da un backbone campione
-deterministico (`aa_engine.api.sample`) — stessa forma, domani, con dati live.
+`GET /risk/contributions`, `POST /allocation/run` ("il bottone"),
+`GET /signals` (Stadio 1) e `GET /optimization/models` (Stadio 2 — i 41 modelli).
+I dati provengono da un backbone campione deterministico (`aa_engine.api.sample`)
+— stessa forma, domani, con dati live.
 
-### Front-end (React/Vite)
+### Front-end (React/Vite) — dashboard a 6 sezioni
 ```bash
 bun install
 bun run dev          # Vite dev server
 ```
-Il front-end chiama l'API e, **se non è raggiungibile, ricade sui mock**
-(`src/lib/risk-data.ts`) mostrando un badge `MOCK`/`LIVE` nell'header. La base URL
-dell'API è configurabile con la variabile d'ambiente `VITE_API_BASE_URL`
+La **dashboard "apri il cofano"** rispecchia il flusso del motore con 6 sezioni
+navigabili: Dati/Import → Segnali → Ottimizzazione → Backtest → Rischio →
+Esegui/Report. Un unico *data service* tipizzato (`src/lib/api.ts`) parla con
+l'API; la base URL è configurabile con `VITE_API_BASE_URL`
 (default `http://localhost:8000/api/v1`).
+
+> **Regola d'oro:** o è un dato VERO dall'API, o è un segnaposto DICHIARATO
+> ("in arrivo"). Nessun mock travestito da dato reale. Le sezioni collegate
+> (Segnali, Ottimizzazione, Rischio, Esegui/Report) mostrano dati del motore con
+> badge `LIVE`; Dati/Import e Backtest sono segnaposto dichiarati finché i loro
+> endpoint non esistono. Se il motore non è raggiungibile, la sezione lo dice
+> chiaramente invece di mostrare numeri finti.
 
 ---
 
