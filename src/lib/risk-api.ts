@@ -47,6 +47,7 @@ interface RiskPanelResponse {
     name: string;
     value: number;
     ret_over_risk: number | null;
+    approx?: boolean; // valore da un'approssimazione documentata (RLVaR/RLDaR/TG)
   }[];
 }
 
@@ -110,7 +111,8 @@ function toSections(metrics: RiskPanelResponse["metrics"]): MetricSection[] {
     rows: metrics
       .filter((m) => m.family === fam)
       .map((m) => ({
-        name: m.name,
+        // "≈" segnala una metrica approssimata (vedi flag `approx` del contratto)
+        name: m.approx ? `${m.name} ≈` : m.name,
         value: DIMENSIONLESS.has(m.code) ? num(m.value) : pct(m.value),
         returnRisk: m.ret_over_risk == null ? "—" : num(m.ret_over_risk),
       })),

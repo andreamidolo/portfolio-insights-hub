@@ -102,3 +102,10 @@ def test_invalid_measure_returns_error_contract():
 def test_invalid_profile_rejected():
     r = client.get(f"{BASE}/portfolio", params={"profile": "wild"})
     assert r.status_code == 422  # validazione FastAPI sul Literal
+
+
+def test_panel_flags_approximate_metrics():
+    """Le metriche approssimate (RLVaR/RLDaR/TG) sono segnalate al client."""
+    body = client.post(f"{BASE}/risk/panel", json={"profile": "balanced"}).json()
+    approx = {m["code"] for m in body["metrics"] if m.get("approx")}
+    assert approx == {"RLVaR", "RLDaR", "TG"}
