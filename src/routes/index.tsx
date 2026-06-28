@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { API_BASE_URL, type Currency, type DataSource, type Profile } from "@/lib/api";
 
+import { ApiHealthPanel } from "@/components/dashboard/ApiHealthPanel";
 import { DataImportSection } from "@/components/dashboard/DataImportSection";
 import { BacktestSection } from "@/components/dashboard/PlaceholderSections";
 import { OptimizationSection } from "@/components/dashboard/OptimizationSection";
@@ -67,7 +68,8 @@ function DashboardPage() {
 
       <div className="mx-auto flex max-w-[1500px] gap-6 px-6 py-6">
         <Sidebar active={section} onSelect={setSection} />
-        <main className="min-w-0 flex-1">
+        <main className="min-w-0 flex-1 space-y-6">
+          <ApiHealthPanel />
           {section === "data" && (
             <DataImportSection
               profile={profile}
