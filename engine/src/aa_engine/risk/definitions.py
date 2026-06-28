@@ -34,6 +34,9 @@ class RiskMeasure:
     family: RiskFamily
     riskfolio_key: str | None = None   # chiave corrispondente in Riskfolio-Lib, se nota
     higher_is_riskier: bool = True
+    # True = calcolata con un'APPROSSIMAZIONE documentata (non l'algoritmo esatto).
+    # Vedi measures.py; usato dall'API per segnalare i campi al front-end/cliente.
+    approximate: bool = False
 
 
 # --------------------------------------------------------------------------- #
@@ -47,7 +50,7 @@ RETURN_BASED: tuple[RiskMeasure, ...] = (
     RiskMeasure("FLPM", "First Lower Partial Moment (Omega)", RiskFamily.RETURN_BASED, "FLPM"),
     RiskMeasure("SLPM", "Second Lower Partial Moment (Sortino)", RiskFamily.RETURN_BASED, "SLPM"),
     RiskMeasure("GMD", "Gini Mean Difference", RiskFamily.RETURN_BASED, "GMD"),
-    RiskMeasure("TG", "Tail Gini of Losses", RiskFamily.RETURN_BASED, "TG"),
+    RiskMeasure("TG", "Tail Gini of Losses", RiskFamily.RETURN_BASED, "TG", approximate=True),
     RiskMeasure("KT", "Kurtosis", RiskFamily.RETURN_BASED, "KT", higher_is_riskier=True),
     RiskMeasure("SKEW", "Skewness", RiskFamily.RETURN_BASED, "SKEW", higher_is_riskier=False),
 )
@@ -56,7 +59,7 @@ TAIL: tuple[RiskMeasure, ...] = (
     RiskMeasure("VaR", "Value at Risk", RiskFamily.TAIL, "VaR"),
     RiskMeasure("CVaR", "Conditional Value at Risk", RiskFamily.TAIL, "CVaR"),
     RiskMeasure("EVaR", "Entropic Value at Risk", RiskFamily.TAIL, "EVaR"),
-    RiskMeasure("RLVaR", "Relativistic Value at Risk", RiskFamily.TAIL, "RLVaR"),
+    RiskMeasure("RLVaR", "Relativistic Value at Risk", RiskFamily.TAIL, "RLVaR", approximate=True),
     RiskMeasure("WR", "Worst Realization", RiskFamily.TAIL, "WR"),
 )
 
@@ -66,7 +69,7 @@ DRAWDOWN_BASED: tuple[RiskMeasure, ...] = (
     RiskMeasure("DaR", "Drawdown at Risk", RiskFamily.DRAWDOWN_BASED, "DaR"),
     RiskMeasure("CDaR", "Conditional Drawdown at Risk", RiskFamily.DRAWDOWN_BASED, "CDaR"),
     RiskMeasure("EDaR", "Entropic Drawdown at Risk", RiskFamily.DRAWDOWN_BASED, "EDaR"),
-    RiskMeasure("RLDaR", "Relativistic Drawdown at Risk", RiskFamily.DRAWDOWN_BASED, "RLDaR"),
+    RiskMeasure("RLDaR", "Relativistic Drawdown at Risk", RiskFamily.DRAWDOWN_BASED, "RLDaR", approximate=True),
     RiskMeasure("MDD", "Max Drawdown", RiskFamily.DRAWDOWN_BASED, "MDD"),
 )
 

@@ -85,6 +85,9 @@ class RiskMetricItem(BaseModel):
     name: str
     value: float
     ret_over_risk: float | None = None
+    # True = valore da un'APPROSSIMAZIONE documentata (RLVaR/RLDaR bridge, TG
+    # tail-GMD). Il front-end può segnalarlo all'utente/cliente.
+    approx: bool = False
 
 
 class RiskPanelResponse(BaseModel):

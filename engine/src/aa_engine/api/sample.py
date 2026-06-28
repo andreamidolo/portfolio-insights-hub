@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 
 from aa_engine.data import Regime
-from aa_engine.risk import compute_measure, risk_contribution, risk_panel
+from aa_engine.risk import BY_CODE, compute_measure, risk_contribution, risk_panel
 from aa_engine.risk.measures import _portfolio_returns
 
 # Ancoraggio deterministico (niente "oggi" runtime: test riproducibili).
@@ -245,6 +245,7 @@ def get_risk_panel(
                 "family": row["family"], "code": row["measure"], "name": row["name"],
                 "value": round(float(row["value"]), 6),
                 "ret_over_risk": None if pd.isna(ratio) else round(float(ratio), 4),
+                "approx": BY_CODE[row["measure"]].approximate,
             }
         )
     return {

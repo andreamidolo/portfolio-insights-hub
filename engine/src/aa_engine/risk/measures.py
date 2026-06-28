@@ -136,7 +136,7 @@ def _evar(losses: np.ndarray, alpha: float) -> float:
 
 
 def _relativistic_bridge(entropic: float, worst: float, kappa: float) -> float:
-    """Approssimazione documentata di RLVaR/RLDaR pendente il solver esatto.
+    """RLVaR/RLDaR — APPROSSIMAZIONE: bridge lineare, non power-cone.
 
     La misura relativistica (Cajas 2023) richiede coni di potenza
     (cvxpy / Riskfolio-Lib) e degenera all'EVaR per κ→0⁺ e alla Worst
@@ -181,7 +181,8 @@ def _measure_value(
     if code == "GMD":                      # Gini Mean Difference
         return _gmd(x)
     if code == "TG":                       # Tail Gini of Losses (dispersione di coda)
-        # GMD calcolata sulle perdite della coda α (le k osservazioni peggiori).
+        # APPROSSIMAZIONE: tail-GMD (GMD sulle k perdite peggiori della coda α),
+        # non la Tail-Gini esatta di Riskfolio. Non inseguire il match coi target.
         k = max(2, int(np.ceil(alpha * n)))
         worst = np.sort(x)[:k]             # k rendimenti più negativi
         return _gmd(-worst)                # perdite positive
