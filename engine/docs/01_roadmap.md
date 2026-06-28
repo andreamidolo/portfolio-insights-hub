@@ -49,21 +49,25 @@ individual risk, validati su un portafoglio campione, con test verdi e CI passan
 
 ---
 
-## Fase 3 — Optimization + Signals
+## Fase 3 — Optimization + Signals 🚧
 
-**Optimization (Stadio 2)**
-- [ ] Interfaccia `OptModel` + orchestratore multi-modello
-- [ ] Set 1 (Classics) e Set 5 (HRP/HERC/NCO) via Riskfolio-Lib
-- [ ] Set 2 (Bayesiani: Black-Litterman, Meucci)
-- [ ] Set 3 (Online PO) e Set 4 (Robust) — selezione di modelli prioritari
-- [ ] Meccanismo "40 modelli → nested walk-forward → media dei 4 migliori"
+**Optimization (Stadio 2)** — impalcatura completa, riempita con 9 modelli + baseline
+- [x] Interfaccia `OptModel` + orchestratore multi-modello (`OptimizationEnsemble`)
+- [x] Set 1 (Classics: MinVol, MaxSharpe, RiskParity, MinCVaR, MinCDaR) e Set 5 (HRP/HERC/NCO) via Riskfolio-Lib
+- [x] Set 2 (Bayesiano: Black-Litterman, con `views` = ponte verso i segnali)
+- [ ] Set 3 (Online PO) e Set 4 (Robust) — dopo, quando l'impalcatura è provata
+- [x] Meccanismo "N modelli → walk-forward OOS → media dei 4 migliori" (`n_best`, `Scorer` pluggable)
+- [x] `PortfolioConstraints` (profili come *range* di equity: cap + floor)
 
 **Signals (Stadio 1, parte non-opzioni)**
-- [ ] Regole di **security selection** (slide 36-38 AlgoEagle) — deterministiche
+- [x] Regole di **security selection** (slide 36-38 AlgoEagle) — deterministiche
 - [ ] Trend scanner + oscillatori
 - [ ] A.I. forecast (ensemble SVM) — la parte ML
 - [ ] Alpha crash (stagionalità × momentum)
-- [ ] Integrazione del `RegimeProvider` (proxy oggi, opzioni domani)
+- [x] Integrazione del `RegimeProvider` (proxy/`StaticRegimeProvider` oggi, opzioni domani)
+
+> Nota Riskfolio-Lib: pin a `>=7.2,<7.3` (la 7.3.0 ha un bug nella bisection di
+> HERC). Aggiungere un modello = una classe in più (drop-in nei runner).
 
 ---
 
