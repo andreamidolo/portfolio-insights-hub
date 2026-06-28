@@ -1,0 +1,20 @@
+measure,value,note
+Mean Return,4.01,annualized pct - from AlgoEagle Analysis of Coherence slide
+CAGR,2.67,annualized pct
+Standard Deviation,7.53,annualized pct
+Mean Absolute Deviation,4.90,annualized pct
+Semi Standard Deviation,5.80,annualized pct
+Value at Risk,11.33,annualized pct
+Conditional Value at Risk,19.19,annualized pct
+Entropic Value at Risk,23.80,annualized pct
+Tail Gini of Losses,43.67,annualized pct
+Worst Realization,82.50,annualized pct
+Skewness,-1.43,dimensionless
+Kurtosis,16.55,dimensionless
+Ulcer Index,6.37,pct
+Average Drawdown,4.48,pct
+Drawdown at Risk,12.51,pct
+Conditional Drawdown at Risk,14.40,pct
+Entropic Drawdown at Risk,15.85,pct
+Relativistic Drawdown at Risk,17.45,pct
+Max Drawdown,20.10,pct
