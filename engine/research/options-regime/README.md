@@ -13,14 +13,35 @@ non bloccante** rispetto al motore.
   asset class e finestre, hit ratio confrontabile a ~0.77), si "promuove":
   si implementa `OptionsRegimeProvider(RegimeProvider)` in `aa_engine/data/`.
 
-## Punto di partenza suggerito
+## Stato — iterazione 1 (dati gratuiti) ✅ conclusa
 
-1. `00_literature_notes.md` — appunti sulla scomposizione IV short/long, term
-   structure, skew, variance risk premium.
-2. `01_volatility_indices.ipynb` — caricare VIX/MOVE/VVIX, esplorare livello vs
-   variazione, prime soglie di regime.
-3. `02_term_structure_signal.ipynb` — segnale da term structure IV (1M vs 3M/6M);
-   backtest isolato (hit ratio per asset class).
+**Esito: i segnali-vol gratuiti NON battono il proxy** (né hit ratio né Calmar).
+Vedi **`FINDINGS.md`** per i numeri e la decisione. Nessuna promozione: non è
+stato scritto `OptionsRegimeProvider`.
+
+## Come riprodurre
+
+```bash
+cd engine && pip install -e ".[dev]"      # serve aa_engine (il proxy = giudice)
+cd research/options-regime
+python fetch_data.py                       # scarica VIX/MOVE/SPY/TLT/GLD/DBC in data_local/
+python _make_notebooks.py                  # (ri)genera i notebook 01–05
+jupyter nbconvert --to notebook --execute --inplace 0*_*.ipynb
+```
+
+## Struttura
+
+- `fetch_data.py` — download dati gratuiti (CBOE VIX, Yahoo per il resto).
+- `vol_regime.py` — utility di ricerca: segnali (soglia / momentum / term-structure),
+  il proxy del motore come giudice, hit ratio e overlay di protezione. **Non** è
+  production code.
+- `01_load_vol_indices.ipynb` — esplorazione VIX/MOVE, percentili, relazione coi drawdown.
+- `02_signal_threshold.ipynb` — ipotesi 1 (livello con soglia) vs proxy.
+- `03_signal_vol_momentum.ipynb` — ipotesi 2 (momentum della vol) vs proxy.
+- `04_signal_term_structure.ipynb` — ipotesi 3 (scomposizione short/long) vs proxy.
+- `05_vs_proxy_pipeline.ipynb` — livello C: protezione (Calmar/MaxDD) vs proxy.
+- `data_local/` — dati grezzi, **non versionati**.
+- `FINDINGS.md` — risultati e decisione.
 
 ## Interfaccia target
 
