@@ -92,7 +92,15 @@ individual risk, validati su un portafoglio campione, con test verdi e CI passan
 - [x] **API REST** (FastAPI) secondo `docs/05_api_contract.md` — endpoint per il front-end
 - [x] Report dimostrativo (md/HTML) con le 6 sezioni stile AlgoEagle
 
+**Front-end — dashboard a 6 sezioni ("apri il cofano") ✅**
+- [x] Impalcatura a 6 sezioni navigabili (Dati/Import → Segnali → Ottimizzazione → Backtest → Rischio → Esegui/Report)
+- [x] Data service tipizzato unico (`src/lib/api.ts`), base URL configurabile
+- [x] Sezioni collegate al motore reale: Segnali, Ottimizzazione (41 modelli), Rischio, Esegui/Report
+- [x] 2 endpoint read-only aggiunti: `GET /signals`, `GET /optimization/models` ("finestre di lettura")
+- [x] Regola d'oro: dato reale o segnaposto dichiarato — mock Lovable rimossi. Vedi `docs/validation/frontend_dashboard_results.md`
+
 **Produzione (dopo) — "benzina vera"**
+- [ ] Dati/Import (upload CSV) + Backtest (equity line) — prossime iterazioni front-end
 - [ ] `aa_engine.reporting` — report ricco (PDF/grafici) + Excel allocation
 - [ ] **Collegare i dati live**: `BloombergProvider`, `MorningstarProvider`
 - [ ] Confronto sistematico vs track record AlgoEagle

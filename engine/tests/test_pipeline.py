@@ -20,7 +20,11 @@ from aa_engine.optimization import (  # noqa: E402
 )
 from aa_engine.optimization.sample import ASSET_CLASS_MAP, sample_returns  # noqa: E402
 from aa_engine.pipeline.report import render_html, render_markdown  # noqa: E402
-from aa_engine.pipeline.run import run_allocation  # noqa: E402
+from aa_engine.pipeline.run import (  # noqa: E402
+    compute_optimization_models,
+    compute_signals,
+    run_allocation,
+)
 from aa_engine.risk import compute_measure  # noqa: E402
 
 
@@ -112,3 +116,64 @@ def test_cli_equals_api(monkeypatch):
     assert api["final_weights"] == cli.final_weights
     assert api["selected_models"] == cli.selected_models
     assert api["regimes"] == cli.regimes
+
+
+# --------------------------------------------------------------------------- #
+# Finestre di lettura: GET /signals e GET /optimization/models
+# --------------------------------------------------------------------------- #
+def test_signals_window():
+    s = compute_signals()
+    # SVM dichiaratamente disattivato (onestà: non batte il baseline)
+    assert s["svm_enabled"] is False and s["svm_note"]
+    universe = list(sample_returns().columns)
+    assert {row["ticker"] for row in s["signals"]} == set(universe)
+    assert all(v in ("bull", "bear") for v in s["regimes"].values())
+    # ogni riga ha le 4 colonne segnale con direzione/probabilità
+    row = s["signals"][0]
+    for col in ("trend", "oscillator", "alpha_crash", "summary"):
+        assert set(row[col]) == {"direction", "probability"}
+        assert row[col]["direction"] in (-1, 0, 1)
+    assert set(s["selected"]) | set(s["discarded"]) == set(universe)
+
+
+def test_optimization_models_window():
+    r = compute_optimization_models("balanced", "EUR", ensemble=_small())
+    assert r["scorer"] and r["n_models_active"] == len(r["models"])
+    # i modelli "selected" coincidono con selected_models
+    sel = [m["name"] for m in r["models"] if m["selected"]]
+    assert set(sel) == set(r["selected_models"])
+    # ogni modello ha pesi che sommano ~1 (i ≈0 sono omessi)
+    for m in r["models"]:
+        assert sum(m["weights"].values()) == pytest.approx(1.0, abs=1e-2)
+    # allocazione finale coerente con run_allocation (stesso ensemble/flusso)
+    assert sum(r["final_weights"].values()) == pytest.approx(1.0, abs=1e-3)
+    # baseline 1/N presente sugli strumenti selezionati
+    assert set(r["baseline_equal_weight"]) == set(r["selected"])
+
+
+def test_signals_endpoint():
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from aa_engine.api.main import app
+
+    r = TestClient(app).get("/api/v1/signals")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["svm_enabled"] is False
+    assert len(body["signals"]) == len(list(sample_returns().columns))
+
+
+def test_optimization_models_endpoint(monkeypatch):
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    import aa_engine.pipeline.run as run_mod
+    from aa_engine.api.main import app
+
+    monkeypatch.setattr(run_mod, "default_ensemble", lambda n_best=4: _small())
+    r = TestClient(app).get("/api/v1/optimization/models", params={"profile": "balanced"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["profile"] == "balanced"
+    assert body["models"] and "baseline_equal_weight" in body

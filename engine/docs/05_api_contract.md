@@ -169,16 +169,88 @@ Query params: `profile`, `currency`, `measure=MV` (default).
 
 ---
 
+### 2.6 `POST /api/v1/allocation/run`  ⭐ (Fase 4 — "il bottone")
+Esegue il flusso unico end-to-end (regime → segnali → selezione → ottimizzazione
+→ rischio) e ritorna il risultato completo. Stesso `run_allocation` della CLI.
+
+**Request**: `{ "profile": "balanced", "currency": "EUR", "as_of": null }`
+**Response** (estratto): `profile`, `currency`, `as_of`, `n_models_active`,
+`regimes` (mappa asset-class → regime), `signals` (tabella, vedi 2.7),
+`selected`/`discarded`, `selected_models` (i 4 scelti), `final_weights`,
+`asset_class_weights`, `risk` (std_dev/var_95/cvar_95/max_drawdown/calmar/sharpe/
+cagr), `excluded_models`. ⚠️ gira ~41 modelli → decine di secondi.
+
+---
+
+### 2.7 `GET /api/v1/signals`  (Stadio 1 — "finestra di lettura")
+Tabella segnali per strumento. Veloce (niente ottimizzazione), profilo-indipendente.
+
+Query params (opzionali): `as_of=YYYY-MM-DD`.
+
+**Response**
+```json
+{
+  "as_of": "2026-06-26",
+  "svm_enabled": false,
+  "svm_note": "A.I. (SVM) disattivato — validato walk-forward, non batte il baseline.",
+  "regimes": { "Equity": "bull", "Fixed Income": "bear" },
+  "selected": ["EQ_DM", "BOND"],
+  "discarded": [],
+  "signals": [
+    {
+      "ticker": "EQ_DM", "asset_class": "Equity",
+      "trend":       { "direction": 1,  "probability": 0.66 },
+      "oscillator":  { "direction": 0,  "probability": 0.00 },
+      "alpha_crash": { "direction": -1, "probability": 0.26 },
+      "summary":     { "direction": 1,  "probability": 0.31 }
+    }
+  ]
+}
+```
+Note: `direction` ∈ {−1, 0, +1}; `svm_enabled` è sempre `false` (l'A.I. è
+disattivato finché non batte il baseline — onestà, vedi `svm_note`).
+
+---
+
+### 2.8 `GET /api/v1/optimization/models`  (Stadio 2 — "apri il cofano")
+I 41 modelli con i pesi che propongono e il loro score walk-forward, i 4 scelti,
+l'allocazione finale (media dei 4) e il confronto col baseline 1/N.
+
+Query params: `profile=balanced`, `currency=EUR`, `as_of` (opzionali).
+
+**Response** (estratto)
+```json
+{
+  "profile": "balanced", "currency": "EUR", "as_of": "2026-06-26",
+  "scorer": "calmar", "n_best": 4, "n_models_active": 41,
+  "selected_models": ["RobustEllipsoidal", "MaxSortino", "MaxSharpe", "MaxRatioCVaR"],
+  "universe": ["EQ_DM", "EQ_EM", "HY", "BOND", "GOLD", "CASH"],
+  "selected": ["EQ_DM", "BOND", "GOLD"], "discarded": [],
+  "models": [
+    { "name": "MaxSharpe", "family": "classics", "score": 0.25, "selected": true,
+      "weights": { "EQ_DM": 0.30, "BOND": 0.40, "GOLD": 0.30 } }
+  ],
+  "excluded_models": {},
+  "final_weights": { "EQ_DM": 0.27, "BOND": 0.40, "GOLD": 0.15 },
+  "asset_class_weights": { "Equity": 0.30, "Fixed Income": 0.40, "Gold": 0.15 },
+  "baseline_equal_weight": { "EQ_DM": 0.1667, "BOND": 0.1667 },
+  "baseline_score": 0.01
+}
+```
+Note: `family` ∈ {`classics`, `bayesian`, `ai`, `online`, `robust`, `baseline`};
+`score` è `null` per un modello non valutabile; i pesi ≈0 sono omessi.
+⚠️ gira l'ensemble completo → decine di secondi.
+
+---
+
 ## 3. Endpoint futuri (placeholder — non implementare ora)
 
 Definiti qui solo per dare alla UI la mappa delle pagine successive.
 
-- `POST /api/v1/optimization/run` → lancia l'ottimizzazione multi-modello,
-  ritorna le allocazioni candidate e la media dei 4 migliori. (Fase 3)
-- `POST /api/v1/backtest/run` → backtest di una strategia, ritorna equity curve e
-  metriche di performance. (Fase 2.5/3)
-- `GET /api/v1/signals` → tabella segnali per strumento
-  (A.I. | Alpha Crash | Trend | Oscillators | SUMMARY). (Fase 3)
+- `GET /api/v1/backtest` → equity line walk-forward (ensemble vs 1/N) + metriche
+  storiche (CAGR, Sharpe, Sortino, MaxDD, Calmar). (iterazione successiva)
+- `POST /api/v1/data/upload` + `GET /api/v1/data/universe` → upload CSV prezzi e
+  vista dell'universo caricato. (iterazione successiva)
 
 ---
 

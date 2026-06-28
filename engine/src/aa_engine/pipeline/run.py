@@ -16,6 +16,8 @@ from dataclasses import dataclass, field
 
 import pandas as pd
 
+import numpy as np
+
 from aa_engine.backtest.performance import performance_summary
 from aa_engine.data import Regime
 from aa_engine.optimization import OptimizationEnsemble, default_ensemble
@@ -34,6 +36,9 @@ from aa_engine.signals import (
 
 # Segnali tecnici usati nel SUMMARY (SVM escluso: disattivato finché non vince).
 _SIGNALS = {"trend": TrendSignal, "oscillator": OscillatorSignal, "alpha_crash": AlphaCrashSignal}
+
+# Motivo per cui l'A.I. (SVM) non compare nel SUMMARY (vedi signals/ai_forecast).
+SVM_DISABLED_NOTE = "A.I. (SVM) disattivato — validato walk-forward, non batte il baseline."
 
 
 @dataclass
@@ -112,18 +117,45 @@ def _risk_summary(returns: pd.DataFrame, weights: pd.Series) -> dict[str, float]
     }
 
 
-def run_allocation(
+@dataclass
+class _Context:
+    """Lo stato condiviso "a monte" dell'ottimizzazione: regime, segnali, selezione.
+
+    Calcolato da ``_build_context`` e riusato dal flusso completo
+    (``run_allocation``) e dalle "finestre di lettura" dell'API (segnali,
+    breakdown dei modelli). Nessun ensemble qui dentro: è la parte veloce.
+    """
+
+    profile: str
+    currency: str
+    as_of: str
+    universe: list[str]
+    returns: pd.DataFrame
+    acmap: dict[str, str]
+    regimes: dict[str, Regime]
+    regime_provider: StaticRegimeProvider
+    views: dict
+    selected: list[str]
+    discarded: list[str]
+    signals_table: list[dict]
+
+    @property
+    def regime_labels(self) -> dict[str, str]:
+        return {ac: ("bull" if r == Regime.BULL else "bear") for ac, r in self.regimes.items()}
+
+
+def _build_context(
     profile: str = "balanced",
     currency: str = "EUR",
     as_of: str | None = None,
     *,
     universe: list[str] | None = None,
-    ensemble: OptimizationEnsemble | None = None,
-) -> AllocationResult:
-    """Esegue l'intera pipeline end-to-end e ritorna un ``AllocationResult``.
+) -> _Context:
+    """Stadi 1–1.5 del flusso: regime → segnali → SUMMARY → views → selezione.
 
-    Questo è IL flusso: CLI e API lo chiamano entrambi. ``ensemble`` può essere
-    iniettato (test/tuning); default = i ~38 modelli.
+    È la "parte veloce" e profilo-indipendente nei segnali (il profilo entra solo
+    nei vincoli dell'ottimizzazione, a valle). La estraiamo così l'API può
+    esporre i segnali senza far girare i 41 modelli.
     """
     if profile not in ("moderate", "balanced", "aggressive"):
         raise ValueError(f"Profilo sconosciuto: {profile!r}")
@@ -152,22 +184,6 @@ def run_allocation(
     selected = select_securities(universe, acmap, regime_provider, risk_by_sec)
     discarded = [t for t in universe if t not in selected]
 
-    # 4. OTTIMIZZAZIONE: ~38 modelli → 4 migliori → media, con le views BL
-    ens = ensemble or default_ensemble(n_best=4)
-    constraints = PortfolioConstraints.for_profile(profile, acmap)
-    sel_views = {t: v for t, v in views.items() if t in selected}
-    with _quiet():
-        result = ens.run(returns_all[selected], views=sel_views, constraints=constraints)
-    final = result.final_weights
-
-    # 5. RISCHIO sull'allocazione finale
-    risk = _risk_summary(returns_all[selected], final)
-
-    # --- impacchetta il risultato ----------------------------------------- #
-    ac_weights: dict[str, float] = {}
-    for t, w in final.items():
-        ac_weights[acmap[t]] = round(ac_weights.get(acmap[t], 0.0) + float(w), 4)
-
     signals_table = [
         {
             "ticker": t,
@@ -181,18 +197,148 @@ def run_allocation(
         for t in universe
     ]
 
-    return AllocationResult(
+    return _Context(
         profile=profile, currency=currency, as_of=as_of_str,
+        universe=universe, returns=returns_all, acmap=acmap,
+        regimes=regimes, regime_provider=regime_provider,
+        views=views, selected=selected, discarded=discarded,
+        signals_table=signals_table,
+    )
+
+
+def run_allocation(
+    profile: str = "balanced",
+    currency: str = "EUR",
+    as_of: str | None = None,
+    *,
+    universe: list[str] | None = None,
+    ensemble: OptimizationEnsemble | None = None,
+) -> AllocationResult:
+    """Esegue l'intera pipeline end-to-end e ritorna un ``AllocationResult``.
+
+    Questo è IL flusso: CLI e API lo chiamano entrambi. ``ensemble`` può essere
+    iniettato (test/tuning); default = i ~38 modelli.
+    """
+    ctx = _build_context(profile, currency, as_of, universe=universe)
+
+    # 4. OTTIMIZZAZIONE: ~38 modelli → 4 migliori → media, con le views BL
+    ens = ensemble or default_ensemble(n_best=4)
+    constraints = PortfolioConstraints.for_profile(profile, ctx.acmap)
+    sel_views = {t: v for t, v in ctx.views.items() if t in ctx.selected}
+    with _quiet():
+        result = ens.run(ctx.returns[ctx.selected], views=sel_views, constraints=constraints)
+    final = result.final_weights
+
+    # 5. RISCHIO sull'allocazione finale
+    risk = _risk_summary(ctx.returns[ctx.selected], final)
+
+    # --- impacchetta il risultato ----------------------------------------- #
+    ac_weights: dict[str, float] = {}
+    for t, w in final.items():
+        ac_weights[ctx.acmap[t]] = round(ac_weights.get(ctx.acmap[t], 0.0) + float(w), 4)
+
+    return AllocationResult(
+        profile=profile, currency=currency, as_of=ctx.as_of,
         n_models_active=result.n_active,
-        regimes={ac: ("bull" if r == Regime.BULL else "bear") for ac, r in regimes.items()},
-        signals=signals_table,
-        selected=selected, discarded=discarded,
+        regimes=ctx.regime_labels,
+        signals=ctx.signals_table,
+        selected=ctx.selected, discarded=ctx.discarded,
         selected_models=list(result.selected),
         final_weights={t: round(float(w), 4) for t, w in final.items()},
         asset_class_weights=ac_weights,
         risk=risk,
         excluded_models=result.excluded,
     )
+
+
+# --------------------------------------------------------------------------- #
+# "Finestre di lettura" per l'API (non nuova logica: espongono dati già calcolati)
+# --------------------------------------------------------------------------- #
+def compute_signals(as_of: str | None = None) -> dict:
+    """Tabella segnali stile AlgoEagle — la parte veloce, senza ensemble.
+
+    Profilo-indipendente: i segnali e il regime non dipendono dal profilo di
+    rischio (che entra solo nei vincoli dell'ottimizzazione). Espone
+    ``GET /api/v1/signals``.
+    """
+    ctx = _build_context("balanced", "EUR", as_of)
+    return {
+        "as_of": ctx.as_of,
+        "svm_enabled": False,
+        "svm_note": SVM_DISABLED_NOTE,
+        "regimes": ctx.regime_labels,
+        "selected": ctx.selected,
+        "discarded": ctx.discarded,
+        "signals": ctx.signals_table,
+    }
+
+
+def _finite_or_none(x: float) -> float | None:
+    """Punteggio JSON-safe: ``-inf``/``nan`` (modello non valutabile) → ``None``."""
+    return round(float(x), 4) if x is not None and np.isfinite(x) else None
+
+
+def compute_optimization_models(
+    profile: str = "balanced",
+    currency: str = "EUR",
+    as_of: str | None = None,
+    *,
+    ensemble: OptimizationEnsemble | None = None,
+) -> dict:
+    """"Apre il cofano" sullo Stadio 2: i 41 modelli, i loro pesi e score, i 4 scelti.
+
+    Fa girare lo STESSO ensemble di ``run_allocation`` (nessuna logica nuova) ed
+    espone il breakdown per-modello che il flusso normale scarta. Espone
+    ``GET /api/v1/optimization/models``. ⚠️ gira i 41 modelli → lento come
+    ``/allocation/run``.
+    """
+    ctx = _build_context(profile, currency, as_of)
+    ens = ensemble or default_ensemble(n_best=4)
+    constraints = PortfolioConstraints.for_profile(profile, ctx.acmap)
+    sel_views = {t: v for t, v in ctx.views.items() if t in ctx.selected}
+    with _quiet():
+        result = ens.run(ctx.returns[ctx.selected], views=sel_views, constraints=constraints)
+
+    family_by_name = {m.name: m.family for m in ens.models}
+    selected_set = set(result.selected)
+    models = [
+        {
+            "name": name,
+            "family": family_by_name.get(name, "base"),
+            "score": _finite_or_none(result.scores.get(name, float("-inf"))),
+            "selected": name in selected_set,
+            "weights": {t: round(float(w), 4) for t, w in weights.items() if abs(float(w)) > 5e-5},
+        }
+        for name, weights in result.weights_by_model.items()
+    ]
+    # ordina per score decrescente (i non valutabili in fondo)
+    models.sort(key=lambda m: (m["score"] is not None, m["score"] or 0.0), reverse=True)
+
+    final = result.final_weights
+    ac_weights: dict[str, float] = {}
+    for t, w in final.items():
+        ac_weights[ctx.acmap[t]] = round(ac_weights.get(ctx.acmap[t], 0.0) + float(w), 4)
+
+    # baseline 1/N sull'universo selezionato (il confronto "onesto" di sempre)
+    n_sel = len(ctx.selected)
+    equal = {t: round(1.0 / n_sel, 4) for t in ctx.selected} if n_sel else {}
+    baseline_name = "EqualWeight"
+
+    return {
+        "profile": profile, "currency": currency, "as_of": ctx.as_of,
+        "scorer": result.scorer, "n_best": result.n_best,
+        "n_models_active": result.n_active,
+        "selected_models": list(result.selected),
+        "universe": ctx.universe,
+        "selected": ctx.selected,
+        "discarded": ctx.discarded,
+        "models": models,
+        "excluded_models": result.excluded,
+        "final_weights": {t: round(float(w), 4) for t, w in final.items()},
+        "asset_class_weights": ac_weights,
+        "baseline_equal_weight": equal,
+        "baseline_score": _finite_or_none(result.scores.get(baseline_name, float("-inf"))),
+    }
 
 
 # --------------------------------------------------------------------------- #

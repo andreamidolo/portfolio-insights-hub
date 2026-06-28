@@ -162,3 +162,47 @@ class AllocationResponse(BaseModel):
     asset_class_weights: dict[str, float]
     risk: dict[str, float]
     excluded_models: dict[str, str] = {}
+
+
+# --------------------------------------------------------------------------- #
+# GET /signals  (Stadio 1 — finestra di lettura sui segnali)
+# --------------------------------------------------------------------------- #
+class SignalsResponse(BaseModel):
+    as_of: str
+    # A.I. (SVM) disattivato: validato walk-forward ma non batte il baseline.
+    svm_enabled: bool = False
+    svm_note: str
+    regimes: dict[str, RegimeLabel]
+    selected: list[str]
+    discarded: list[str]
+    signals: list[SignalRow]
+
+
+# --------------------------------------------------------------------------- #
+# GET /optimization/models  (Stadio 2 — "apri il cofano" sui 41 modelli)
+# --------------------------------------------------------------------------- #
+class OptModelRow(BaseModel):
+    name: str
+    family: str                       # classics|bayesian|ai|online|robust|baseline
+    score: float | None               # score walk-forward (None = non valutabile)
+    selected: bool                    # fra i n_best scelti
+    weights: dict[str, float]         # pesi proposti (≈0 omessi)
+
+
+class OptimizationModelsResponse(BaseModel):
+    profile: Profile
+    currency: Currency
+    as_of: str
+    scorer: str                       # es. "calmar"
+    n_best: int
+    n_models_active: int
+    selected_models: list[str]
+    universe: list[str]
+    selected: list[str]
+    discarded: list[str]
+    models: list[OptModelRow]
+    excluded_models: dict[str, str] = {}
+    final_weights: dict[str, float]
+    asset_class_weights: dict[str, float]
+    baseline_equal_weight: dict[str, float]   # 1/N sugli strumenti selezionati
+    baseline_score: float | None = None
