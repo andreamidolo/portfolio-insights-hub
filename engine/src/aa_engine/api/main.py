@@ -59,6 +59,18 @@ def _default_origins() -> list[str]:
     return [o.strip() for o in raw.split(",") if o.strip()]
 
 
+def _origin_regex() -> str:
+    """Regex di origini sempre ammesse (oltre alla lista esatta).
+
+    Di default copre QUALSIASI sottodominio ``*.lovable.app`` (preview, app
+    pubblicata, id-preview…) così il front-end ospitato su Lovable non viene
+    bloccato dal CORS al cambiare del sottodominio. Override via
+    ``AA_API_CORS_ORIGIN_REGEX``. NB: con ``allow_credentials`` l'origine viene
+    riflessa puntualmente (mai ``*``), quindi resta conforme allo standard.
+    """
+    return os.getenv("AA_API_CORS_ORIGIN_REGEX", r"https://([a-z0-9-]+\.)*lovable\.app")
+
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title="AA Engine API",
@@ -68,6 +80,7 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=_default_origins(),
+        allow_origin_regex=_origin_regex(),
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
