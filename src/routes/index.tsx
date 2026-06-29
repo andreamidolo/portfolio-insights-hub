@@ -4,8 +4,8 @@ import { useState } from "react";
 import { API_BASE_URL, type Currency, type DataSource, type Profile } from "@/lib/api";
 
 import { ApiHealthPanel } from "@/components/dashboard/ApiHealthPanel";
+import { BacktestSection } from "@/components/dashboard/BacktestSection";
 import { DataImportSection } from "@/components/dashboard/DataImportSection";
-import { BacktestSection } from "@/components/dashboard/PlaceholderSections";
 import { ModelsBenchmarkSection } from "@/components/dashboard/ModelsBenchmarkSection";
 import { OptimizationSection } from "@/components/dashboard/OptimizationSection";
 import { RiskSection } from "@/components/dashboard/RiskSection";
@@ -40,7 +40,7 @@ const NAV: NavItem[] = [
   { id: "data", label: "Dati / Import", step: "Ingresso", live: false },
   { id: "signals", label: "Segnali", step: "Stadio 1", live: true },
   { id: "optimization", label: "Ottimizzazione", step: "Stadio 2", live: true },
-  { id: "backtest", label: "Backtest", step: "Stadio 3", live: false },
+  { id: "backtest", label: "Backtest", step: "Stadio 3", live: true },
   { id: "risk", label: "Rischio", step: "Stadio 4", live: true },
   { id: "models", label: "Modelli & Benchmark", step: "Config", live: true },
   { id: "run", label: "Esegui / Report", step: "Output", live: true },
