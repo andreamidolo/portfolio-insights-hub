@@ -1,6 +1,6 @@
 # AssetAllocation_AA
 
-Motore interno di asset allocation quantitativa per **LFG**.
+Motore interno di asset allocation quantitativa interno.
 
 Ricostruzione modulare di un processo d'investimento quantitativo multi-asset, ispirato all'architettura a quattro stadi analizzata nella fase 0 del progetto (vedi `docs/00_analisi_sistema.md`). L'obiettivo è un tool **interno**, alimentato in produzione da Bloomberg / Morningstar Direct, ma sviluppato per fasi: prima il motore, poi i dati live.
 

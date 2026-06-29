@@ -120,7 +120,7 @@ def test_analyze_no_prices_raises():
 
 def test_reoptimize_current_vs_proposed():
     holdings = _load_and_holdings()
-    res = portfolio.reoptimize(holdings, "balanced", "EUR", ensemble=_small())
+    res = portfolio.reoptimize(holdings, "moderate", "EUR", ensemble=_small())
     assert res["selected_models"]
     # ATTUALE e PROPOSTA sommano ~1 sugli strumenti analizzati
     assert sum(r["current"] for r in res["comparison"]) == pytest.approx(1.0, abs=1e-2)
@@ -162,7 +162,7 @@ def test_upload_endpoints(monkeypatch):
 
     ro = client.post(
         "/api/v1/portfolio/reoptimize",
-        json={"holdings": holdings, "profile": "balanced", "currency": "EUR"},
+        json={"holdings": holdings, "profile": "moderate", "currency": "EUR"},
     )
     assert ro.status_code == 200 and ro.json()["comparison"]
 

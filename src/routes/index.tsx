@@ -44,12 +44,12 @@ const NAV: NavItem[] = [
   { id: "run", label: "Esegui / Report", step: "Output", live: true },
 ];
 
-const PROFILES: Profile[] = ["conservative", "moderate", "balanced", "aggressive"];
+const PROFILES: Profile[] = ["low", "moderate", "medium", "high"];
 const CURRENCIES: Currency[] = ["EUR", "USD", "CHF"];
 
 function DashboardPage() {
   const [section, setSection] = useState<SectionId>("run");
-  const [profile, setProfile] = useState<Profile>("balanced");
+  const [profile, setProfile] = useState<Profile>("moderate");
   const [currency, setCurrency] = useState<Currency>("EUR");
   // Data source persists across the dashboard: "user" once prices are uploaded.
   const [dataSource, setDataSource] = useState<DataSource>("sample");

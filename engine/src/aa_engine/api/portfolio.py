@@ -129,7 +129,7 @@ def analyze(holdings: list[dict], *, alpha: float = 0.05, mar: float = 0.0) -> d
 
 def reoptimize(
     holdings: list[dict],
-    profile: str = "balanced",
+    profile: str = "moderate",
     currency: str = "EUR",
     *,
     ensemble=None,
@@ -146,7 +146,7 @@ def reoptimize(
     _, summary = compute_signal_outputs(returns, acmap, regimes_obj)
     views = summary_to_bl_views(summary)
     ens = ensemble or default_ensemble(n_best=4)
-    constraints = constraints_for(profile, acmap)
+    constraints = constraints_for(profile, currency, acmap)
     with _quiet():
         result = ens.run(returns, views=views, constraints=constraints)
     proposed_w = result.final_weights.reindex(returns.columns).fillna(0.0)

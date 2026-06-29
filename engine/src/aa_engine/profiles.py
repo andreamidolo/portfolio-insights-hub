@@ -1,14 +1,15 @@
-"""Profili di rischio CONFIGURABILI (spec docs/14).
+"""Profili di rischio CONFIGURABILI dai dati reali (modelli + benchmark + bande).
 
-Principio guida: **i profili sono DATI, non codice**. Vivono in una configurazione
-esterna (``config/risk_profiles.json``) che il motore legge a ogni esecuzione:
-4 linee, ognuna con una griglia min-max per 5 asset class, più un benchmark, in
-3 valute. Cambiare le bande NON richiede di toccare il codice.
+Principio guida: **i profili sono DATI, non codice**. La configurazione
+(``config/risk_profiles.json``, generata dal foglio Portfolio_Models_Benchmarks)
+definisce 4 profili (Low / Moderate / Medium / High) × 3 valute (EUR/USD/CHF),
+ognuno con una **griglia min-max per 5 asset class** e un **benchmark** (target +
+bande). Le bande dipendono ANCHE dalla valuta: cambiando valuta cambiano i vincoli
+e quindi l'allocazione.
 
-Le 5 asset class della config ("equity", "fixed_income", "commodities", "cash",
-"alternatives") sono *gruppi* che aggregano le asset class dell'universo
-(es. Fixed Income + HY → fixed_income). Le bande si applicano alla SOMMA del
-gruppo, tradotte in ``PortfolioConstraints`` (cap + floor per gruppo) — riusa la
+Le 5 asset class della config ("equity", "fixed_income", "alternatives",
+"commodities", "cash") sono *gruppi* che aggregano le asset class dell'universo;
+le bande diventano cap+floor di gruppo in ``PortfolioConstraints`` — riusa la
 macchina di vincoli esistente, senza nuova logica nell'ottimizzatore.
 """
 
@@ -23,24 +24,25 @@ from pathlib import Path
 from aa_engine.optimization.base import PortfolioConstraints
 
 # I 5 gruppi della config (ordine canonico).
-GROUPS: tuple[str, ...] = ("equity", "fixed_income", "commodities", "cash", "alternatives")
+GROUPS: tuple[str, ...] = ("equity", "fixed_income", "alternatives", "commodities", "cash")
 
 # Mappa asset class dell'universo → gruppo della config.
 GROUP_OF_ASSET_CLASS: dict[str, str] = {
     "Equity": "equity",
     "Fixed Income": "fixed_income",
     "HY": "fixed_income",
+    "Bond": "fixed_income",
+    "Alternatives": "alternatives",
+    "Alternative": "alternatives",
     "Commodities": "commodities",
     "Gold": "commodities",
     "Money Market": "cash",
     "Cash": "cash",
-    "Alternative": "alternatives",
-    "Alternatives": "alternatives",
+    "Liquidity": "cash",
 }
 
-CURRENCIES: tuple[str, ...] = ("EUR", "USD", "CHF")
-
-_DEFAULT_W_MAX = 0.40  # cap per-strumento (rete di sicurezza, come prima)
+DEFAULT_CURRENCY = "EUR"
+_DEFAULT_W_MAX = 0.40  # cap per-strumento (rete di sicurezza)
 
 
 class ProfileConfigError(ValueError):
@@ -57,22 +59,21 @@ class Band:
 class ProfileConfig:
     id: str
     label: str
-    bands: dict[str, Band]          # gruppo → banda (tutti e 5 i gruppi)
     benchmark: str
-
-
-@dataclass(frozen=True)
-class Benchmark:
-    label: str
-    composition: dict[str, float]   # gruppo → peso (somma ~1)
 
 
 @dataclass(frozen=True)
 class ProfilesConfig:
     profiles: dict[str, ProfileConfig]
-    benchmarks: dict[str, Benchmark]
-    placeholder: bool
+    # models[profile_id][currency] = {"target": {group: w}, "bands": {group: Band}}
+    models: dict[str, dict[str, dict]]
+    # benchmarks[bm_id][currency] = {"target": {group: w}, "bands": {group: Band}}
+    benchmarks: dict[str, dict[str, dict]]
     currencies: tuple[str, ...]
+    asset_classes: tuple[str, ...]
+    index_map: dict[str, dict[str, str]]
+    placeholder: bool
+    default_currency: str
     source: str
 
     def profile(self, profile_id: str) -> ProfileConfig:
@@ -86,21 +87,38 @@ class ProfilesConfig:
     def profile_ids(self) -> list[str]:
         return list(self.profiles)
 
+    def _pick_currency(self, currency: str | None) -> str:
+        if currency and currency in self.currencies:
+            return currency
+        return self.default_currency
+
+    def bands_for(self, profile_id: str, currency: str | None) -> dict[str, Band]:
+        self.profile(profile_id)
+        cur = self._pick_currency(currency)
+        return self.models[profile_id][cur]["bands"]
+
+    def benchmark_target(self, profile_id: str, currency: str | None) -> dict[str, float]:
+        bm_id = self.profile(profile_id).benchmark
+        cur = self._pick_currency(currency)
+        return self.benchmarks.get(bm_id, {}).get(cur, {}).get("target", {})
+
+    def benchmark_label(self, profile_id: str) -> str:
+        bm_id = self.profile(profile_id).benchmark
+        return self.benchmarks.get(bm_id, {}).get("label", bm_id)
+
 
 # --------------------------------------------------------------------------- #
-# Caricamento
+# Caricamento + validazione
 # --------------------------------------------------------------------------- #
 def default_config_path() -> Path:
-    """``config/risk_profiles.json`` nella root del motore (override: env var)."""
     env = os.getenv("AA_RISK_PROFILES_CONFIG")
     if env:
         return Path(env)
-    # profiles.py = src/aa_engine/profiles.py → parents[2] = engine/
     return Path(__file__).resolve().parents[2] / "config" / "risk_profiles.json"
 
 
-def _validate_grid(profile_id: str, bands: dict[str, Band]) -> None:
-    """Feasibility di una griglia (spec §2): messaggi chiari, niente crash."""
+def _validate_grid(profile_id: str, currency: str, bands: dict[str, Band]) -> None:
+    """Feasibility di una griglia (per profilo+valuta): messaggi chiari, niente crash."""
     issues: list[str] = []
     for g in GROUPS:
         if g not in bands:
@@ -114,41 +132,56 @@ def _validate_grid(profile_id: str, bands: dict[str, Band]) -> None:
     sum_min = sum(b.min for b in bands.values())
     sum_max = sum(b.max for b in bands.values())
     if sum_min > 1.0 + 1e-9:
-        issues.append(f"somma dei minimi {sum_min:.2f} > 100% (i minimi da soli sforano)")
+        issues.append(f"somma dei minimi {sum_min:.2f} > 100%")
     if sum_max < 1.0 - 1e-9:
-        issues.append(f"somma dei massimi {sum_max:.2f} < 100% (non si arriva a investire tutto)")
+        issues.append(f"somma dei massimi {sum_max:.2f} < 100%")
     if issues:
         raise ProfileConfigError(
-            f"Profilo '{profile_id}' infeasibile: " + "; ".join(issues) + "."
+            f"Profilo '{profile_id}' ({currency}) infeasibile: " + "; ".join(issues) + "."
         )
+
+
+def _bands(raw: dict) -> dict[str, Band]:
+    return {g: Band(float(raw[g]["min"]), float(raw[g]["max"])) for g in raw}
 
 
 def _parse(raw: dict, source: str) -> ProfilesConfig:
-    if "profiles" not in raw:
-        raise ProfileConfigError("Config profili: manca la chiave 'profiles'.")
-    profiles: dict[str, ProfileConfig] = {}
-    for p in raw["profiles"]:
-        try:
-            pid = p["id"]
-            bands = {g: Band(float(p["bands"][g]["min"]), float(p["bands"][g]["max"]))
-                     for g in p["bands"]}
-        except (KeyError, TypeError, ValueError) as exc:
-            raise ProfileConfigError(f"Profilo malformato: {exc}") from exc
-        _validate_grid(pid, bands)
-        profiles[pid] = ProfileConfig(
-            id=pid, label=p.get("label", pid), bands=bands,
-            benchmark=p.get("benchmark", ""),
-        )
-    benchmarks = {
-        bid: Benchmark(label=b.get("label", bid),
-                       composition={k: float(v) for k, v in b.get("composition", {}).items()})
-        for bid, b in raw.get("benchmarks", {}).items()
+    if "profiles" not in raw or "models" not in raw:
+        raise ProfileConfigError("Config profili: mancano 'profiles' o 'models'.")
+    currencies = tuple(raw.get("currencies", (DEFAULT_CURRENCY,)))
+    profiles = {
+        p["id"]: ProfileConfig(id=p["id"], label=p.get("label", p["id"]),
+                               benchmark=p.get("benchmark", ""))
+        for p in raw["profiles"]
     }
+    models: dict[str, dict[str, dict]] = {}
+    for pid, by_cur in raw["models"].items():
+        models[pid] = {}
+        for cur, entry in by_cur.items():
+            bands = _bands(entry["bands"])
+            _validate_grid(pid, cur, bands)
+            models[pid][cur] = {
+                "target": {g: float(v) for g, v in entry.get("target", {}).items()},
+                "bands": bands,
+            }
+    benchmarks: dict[str, dict[str, dict]] = {}
+    for bid, by_cur in raw.get("benchmarks", {}).items():
+        benchmarks[bid] = {}
+        for cur, entry in by_cur.items():
+            if cur == "label":
+                benchmarks[bid]["label"] = entry
+                continue
+            benchmarks[bid][cur] = {
+                "target": {g: float(v) for g, v in entry.get("target", {}).items()},
+                "bands": _bands(entry.get("bands", {})),
+            }
     return ProfilesConfig(
-        profiles=profiles, benchmarks=benchmarks,
+        profiles=profiles, models=models, benchmarks=benchmarks,
+        currencies=currencies, asset_classes=tuple(raw.get("asset_classes", GROUPS)),
+        index_map=raw.get("index_map", {}),
         placeholder=bool(raw.get("_placeholder", False)),
-        currencies=tuple(raw.get("currencies", CURRENCIES)),
-        source=source,
+        default_currency=raw.get("default_currency", DEFAULT_CURRENCY),
+        source=str(raw.get("_source", Path(source).name)),
     )
 
 
@@ -170,7 +203,7 @@ def load_profiles(path: str | Path | None = None) -> ProfilesConfig:
 
 
 # --------------------------------------------------------------------------- #
-# Da config → vincoli di ottimizzazione (gruppi)
+# Da config → vincoli di ottimizzazione (gruppi), per profilo + valuta
 # --------------------------------------------------------------------------- #
 def group_map(acmap: dict[str, str]) -> dict[str, str]:
     """ticker → gruppo (a partire da ticker → asset class dell'universo)."""
@@ -179,28 +212,27 @@ def group_map(acmap: dict[str, str]) -> dict[str, str]:
 
 def constraints_for(
     profile_id: str,
+    currency: str | None,
     acmap: dict[str, str],
     *,
     config: ProfilesConfig | None = None,
     w_max: float = _DEFAULT_W_MAX,
 ) -> PortfolioConstraints:
-    """``PortfolioConstraints`` con bande di gruppo dalla config del profilo.
+    """``PortfolioConstraints`` con bande di gruppo dalla config (profilo + valuta).
 
     Le bande diventano cap+floor per gruppo; ``asset_class_map`` mappa i ticker
-    sui gruppi così la macchina di vincoli esistente (Riskfolio + enforce_caps)
-    le applica senza modifiche. I floor di gruppi assenti dall'universo vengono
-    ignorati a valle (vedi ``enforce_caps``).
+    sui gruppi così la macchina di vincoli esistente le applica senza modifiche.
     """
     cfg = config or load_profiles()
-    prof = cfg.profile(profile_id)
+    bands = cfg.bands_for(profile_id, currency)
     gmap = group_map(acmap)
     present = set(gmap.values())
-    caps = {g: prof.bands[g].max for g in GROUPS if g in prof.bands}
-    floors = {g: prof.bands[g].min for g in GROUPS if g in prof.bands and prof.bands[g].min > 0}
+    caps = {g: bands[g].max for g in GROUPS if g in bands}
+    floors = {g: bands[g].min for g in GROUPS if g in bands and bands[g].min > 0 and g in present}
     return PortfolioConstraints(
         w_max=w_max,
         asset_class_caps=caps,
-        asset_class_floors={g: v for g, v in floors.items() if g in present},
+        asset_class_floors=floors,
         long_only=True,
         asset_class_map=gmap,
     )
@@ -208,33 +240,33 @@ def constraints_for(
 
 def benchmark_weights(
     profile_id: str,
+    currency: str | None,
     acmap: dict[str, str],
     *,
     config: ProfilesConfig | None = None,
 ) -> dict[str, float]:
-    """Pesi del benchmark a livello di strumento (peso del gruppo / # membri).
+    """Pesi del benchmark a livello di strumento (target del gruppo / # membri).
 
     I gruppi del benchmark senza strumenti nell'universo vengono ridistribuiti
     pro-quota sui gruppi presenti (il benchmark resta investito al 100%).
     """
     cfg = config or load_profiles()
-    prof = cfg.profile(profile_id)
-    bm = cfg.benchmarks.get(prof.benchmark)
-    if bm is None:
+    target = cfg.benchmark_target(profile_id, currency)
+    if not target:
         return {}
     gmap = group_map(acmap)
     members: dict[str, list[str]] = {}
     for t, g in gmap.items():
         members.setdefault(g, []).append(t)
 
-    comp = {g: w for g, w in bm.composition.items() if members.get(g)}
+    comp = {g: w for g, w in target.items() if members.get(g) and w > 0}
     total = sum(comp.values())
     if total <= 0:
         n = len(acmap)
         return {t: round(1.0 / n, 6) for t in acmap} if n else {}
     weights: dict[str, float] = {}
     for g, w in comp.items():
-        share = (w / total)
+        share = w / total
         for t in members[g]:
             weights[t] = round(share / len(members[g]), 6)
     return weights

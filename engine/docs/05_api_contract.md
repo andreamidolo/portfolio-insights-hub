@@ -308,7 +308,7 @@ l'editor delle bande.
   "benchmarks": [ { "id": "bm_balanced", "label": "...", "composition": { "equity": 0.45, "...": 0 } } ]
 }
 ```
-Note: `placeholder: true` ⇒ valori d'esempio, da sostituire con quelli LFG.
+Note: `placeholder: true` ⇒ valori d'esempio, da sostituire con quelli del cliente.
 `POST /allocation/run` ora include anche un blocco `benchmark` (pesi + rischio del
 benchmark del profilo) per il confronto allocazione-vs-benchmark, e accetta
 profilo ∈ {conservative, moderate, balanced, aggressive} e valuta ∈ {EUR, USD, CHF}.

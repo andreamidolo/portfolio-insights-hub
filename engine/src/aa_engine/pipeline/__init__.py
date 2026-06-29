@@ -5,7 +5,7 @@ regime → segnali → selezione → ottimizzazione → rischio — e produce un
 strutturato (``AllocationResult``) + un report leggibile. CLI e API lo chiamano
 entrambi: nessuna logica duplicata.
 
-    python -m aa_engine.pipeline.run --profile balanced --currency EUR
+    python -m aa_engine.pipeline.run --profile moderate --currency EUR
     POST /api/v1/allocation/run
 """
 
