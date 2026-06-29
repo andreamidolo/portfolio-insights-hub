@@ -368,6 +368,47 @@ async function request<T>(path: string, init?: RequestInit, opts: RequestOptions
   throw lastError ?? new ApiError(`API ${path} failed`);
 }
 
+// ---- in-memory cache -----------------------------------------------------
+//
+// Lightweight module-level cache so repeated reads (e.g. switching back to a
+// section, or re-selecting a profile/currency already computed) are instant.
+// Keyed on path + serialized params. Errors are NEVER cached. In-flight
+// requests are deduped so concurrent callers share a single fetch.
+
+const responseCache = new Map<string, unknown>();
+const inflight = new Map<string, Promise<unknown>>();
+
+function cacheKey(path: string, params?: unknown): string {
+  return params === undefined ? path : `${path}::${JSON.stringify(params)}`;
+}
+
+function cached<T>(path: string, params: unknown, fetcher: () => Promise<T>): Promise<T> {
+  const key = cacheKey(path, params);
+  if (responseCache.has(key)) {
+    return Promise.resolve(responseCache.get(key) as T);
+  }
+  const existing = inflight.get(key);
+  if (existing) return existing as Promise<T>;
+  const p = fetcher()
+    .then((data) => {
+      responseCache.set(key, data);
+      inflight.delete(key);
+      return data;
+    })
+    .catch((err) => {
+      inflight.delete(key);
+      throw err;
+    });
+  inflight.set(key, p);
+  return p;
+}
+
+/** Invalidate the entire client-side cache. Call after data uploads/mutations. */
+export function clearApiCache(): void {
+  responseCache.clear();
+  inflight.clear();
+}
+
 // ---- endpoint fetchers ---------------------------------------------------
 
 export const api = {
@@ -375,83 +416,105 @@ export const api = {
 
   health: () => request<HealthResponse>("/health"),
 
-  profiles: () => request<ProfilesConfigResponse>("/profiles"),
+  profiles: () =>
+    cached("/profiles", null, () => request<ProfilesConfigResponse>("/profiles")),
 
-  regimes: (asOf?: string) => request<RegimesResponse>(`/regimes${asOf ? `?as_of=${asOf}` : ""}`),
-
-  riskPanel: (profile: Profile, currency: Currency, opts: RiskPanelOptions = {}) =>
-    request<RiskPanelResponse>(
-      "/risk/panel",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          profile,
-          currency,
-          alpha: opts.alpha ?? 0.05,
-          mar: opts.mar ?? 0,
-          regime_conditional: opts.regimeConditional ?? true,
-        }),
-      },
-      HEAVY_OPTS,
+  regimes: (asOf?: string) =>
+    cached("/regimes", { asOf: asOf ?? null }, () =>
+      request<RegimesResponse>(`/regimes${asOf ? `?as_of=${asOf}` : ""}`),
     ),
+
+  riskPanel: (profile: Profile, currency: Currency, opts: RiskPanelOptions = {}) => {
+    const body = {
+      profile,
+      currency,
+      alpha: opts.alpha ?? 0.05,
+      mar: opts.mar ?? 0,
+      regime_conditional: opts.regimeConditional ?? true,
+    };
+    return cached("/risk/panel", body, () =>
+      request<RiskPanelResponse>(
+        "/risk/panel",
+        { method: "POST", body: JSON.stringify(body) },
+        HEAVY_OPTS,
+      ),
+    );
+  },
 
   contributions: (profile: Profile, currency: Currency, measure = "MV") =>
-    request<ContributionsResponse>(
-      `/risk/contributions?profile=${profile}&currency=${currency}&measure=${measure}`,
-      undefined,
-      HEAVY_OPTS,
+    cached("/risk/contributions", { profile, currency, measure }, () =>
+      request<ContributionsResponse>(
+        `/risk/contributions?profile=${profile}&currency=${currency}&measure=${measure}`,
+        undefined,
+        HEAVY_OPTS,
+      ),
     ),
 
-  runAllocation: (profile: Profile, currency: Currency, asOf?: string | null) =>
-    request<AllocationResponse>(
-      "/allocation/run",
-      {
-        method: "POST",
-        body: JSON.stringify({ profile, currency, as_of: asOf ?? null }),
-      },
-      HEAVY_OPTS,
-    ),
+  runAllocation: (profile: Profile, currency: Currency, asOf?: string | null) => {
+    const body = { profile, currency, as_of: asOf ?? null };
+    return cached("/allocation/run", body, () =>
+      request<AllocationResponse>(
+        "/allocation/run",
+        { method: "POST", body: JSON.stringify(body) },
+        HEAVY_OPTS,
+      ),
+    );
+  },
 
-  signals: (asOf?: string) => request<SignalsResponse>(`/signals${asOf ? `?as_of=${asOf}` : ""}`),
+  signals: (asOf?: string) =>
+    cached("/signals", { asOf: asOf ?? null }, () =>
+      request<SignalsResponse>(`/signals${asOf ? `?as_of=${asOf}` : ""}`),
+    ),
 
   optimizationModels: (profile: Profile, currency: Currency, asOf?: string | null) =>
-    request<OptimizationModelsResponse>(
-      `/optimization/models?profile=${profile}&currency=${currency}${asOf ? `&as_of=${asOf}` : ""}`,
-      undefined,
-      HEAVY_OPTS,
+    cached("/optimization/models", { profile, currency, asOf: asOf ?? null }, () =>
+      request<OptimizationModelsResponse>(
+        `/optimization/models?profile=${profile}&currency=${currency}${asOf ? `&as_of=${asOf}` : ""}`,
+        undefined,
+        HEAVY_OPTS,
+      ),
     ),
 
-  uploadPrices: (csv: string, filename?: string) =>
-    request<UniverseResponse>("/data/upload", {
+  uploadPrices: async (csv: string, filename?: string) => {
+    const res = await request<UniverseResponse>("/data/upload", {
       method: "POST",
       body: JSON.stringify({ csv, filename: filename ?? null }),
-    }),
+    });
+    clearApiCache();
+    return res;
+  },
 
-  universe: () => request<UniverseResponse>("/data/universe"),
+  universe: () => cached("/data/universe", null, () => request<UniverseResponse>("/data/universe")),
 
-  uploadMandate: (csv: string, filename?: string) =>
-    request<MandateResponse>("/portfolio/upload", {
+  uploadMandate: async (csv: string, filename?: string) => {
+    const res = await request<MandateResponse>("/portfolio/upload", {
       method: "POST",
       body: JSON.stringify({ csv, filename: filename ?? null }),
-    }),
+    });
+    clearApiCache();
+    return res;
+  },
 
-  analyzePortfolio: (holdings: HoldingInput[], opts: { alpha?: number; mar?: number } = {}) =>
-    request<PortfolioAnalyzeResponse>(
-      "/portfolio/analyze",
-      {
-        method: "POST",
-        body: JSON.stringify({ holdings, alpha: opts.alpha ?? 0.05, mar: opts.mar ?? 0 }),
-      },
-      HEAVY_OPTS,
-    ),
+  analyzePortfolio: (holdings: HoldingInput[], opts: { alpha?: number; mar?: number } = {}) => {
+    const body = { holdings, alpha: opts.alpha ?? 0.05, mar: opts.mar ?? 0 };
+    return cached("/portfolio/analyze", body, () =>
+      request<PortfolioAnalyzeResponse>(
+        "/portfolio/analyze",
+        { method: "POST", body: JSON.stringify(body) },
+        HEAVY_OPTS,
+      ),
+    );
+  },
 
-  reoptimizePortfolio: (holdings: HoldingInput[], profile: Profile, currency: Currency) =>
-    request<PortfolioReoptimizeResponse>(
-      "/portfolio/reoptimize",
-      {
-        method: "POST",
-        body: JSON.stringify({ holdings, profile, currency }),
-      },
-      HEAVY_OPTS,
-    ),
+  reoptimizePortfolio: (holdings: HoldingInput[], profile: Profile, currency: Currency) => {
+    const body = { holdings, profile, currency };
+    return cached("/portfolio/reoptimize", body, () =>
+      request<PortfolioReoptimizeResponse>(
+        "/portfolio/reoptimize",
+        { method: "POST", body: JSON.stringify(body) },
+        HEAVY_OPTS,
+      ),
+    );
+  },
 };
+
