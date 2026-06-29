@@ -24,6 +24,8 @@ interface Result {
   status: number | null;
   ms: number;
   note: string;
+  lite?: boolean;
+  nModels?: number;
 }
 
 const CHECKS: Check[] = [
@@ -66,6 +68,22 @@ async function ping(check: Check): Promise<Result> {
       signal: controller.signal,
     });
     const ms = Math.round(performance.now() - t0);
+    let lite: boolean | undefined;
+    let nModels: number | undefined;
+    if (res.ok) {
+      try {
+        const data = (await res.clone().json()) as {
+          lite?: boolean;
+          models?: unknown[];
+          selected?: unknown[];
+        };
+        if (typeof data?.lite === "boolean") lite = data.lite;
+        if (Array.isArray(data?.models)) nModels = data.models.length;
+        else if (Array.isArray(data?.selected)) nModels = data.selected.length;
+      } catch {
+        /* non-JSON response, ignore */
+      }
+    }
     return {
       label: check.label,
       path: check.path,
@@ -74,6 +92,8 @@ async function ping(check: Check): Promise<Result> {
       status: res.status,
       ms,
       note: res.ok ? "OK" : `HTTP ${res.status}`,
+      lite,
+      nModels,
     };
   } catch (err) {
     const ms = Math.round(performance.now() - t0);
