@@ -21,7 +21,7 @@ import numpy as np
 from aa_engine.backtest.performance import performance_summary
 from aa_engine.data import Regime
 from aa_engine.optimization import OptimizationEnsemble, default_ensemble, lite_enabled
-from aa_engine.optimization.sample import ASSET_CLASS_MAP, sample_returns
+from aa_engine.optimization.sample import ASSET_CLASS_MAP
 from aa_engine.profiles import benchmark_weights, constraints_for, load_profiles
 from aa_engine.risk import compute_measure
 from aa_engine.signals import (
@@ -39,6 +39,48 @@ _SIGNALS = {"trend": TrendSignal, "oscillator": OscillatorSignal, "alpha_crash":
 
 # Motivo per cui l'A.I. (SVM) non compare nel SUMMARY (vedi signals/ai_forecast).
 SVM_DISABLED_NOTE = "A.I. (SVM) disattivato — validato walk-forward, non batte il baseline."
+
+# Finestra trailing (giorni di trading) data in pasto agli ottimizzatori. Il
+# motore è tarato su ~36 mesi (cfr. api/sample.py:N_DAYS=756, "trailing 36 months"):
+# oltre, i modelli online/timing (O(T·n²)) diventano non-interattivi. La storia
+# completa resta per grafici/ispezione; qui si passa solo la coda di `LOOKBACK_DAYS`.
+LOOKBACK_DAYS = 756
+
+# --------------------------------------------------------------------------- #
+# Cache (memoization) dei calcoli pesanti — l'ensemble è DETERMINISTICO a parità
+# di input, quindi cachare è corretto (verificato). La chiave include un
+# fingerprint dei dati attivi: caricare nuovi prezzi via /data/upload invalida
+# automaticamente la cache. In-process, bounded (FIFO).
+# --------------------------------------------------------------------------- #
+import hashlib
+
+_CACHE: "dict[tuple, object]" = {}
+_CACHE_MAX = 128
+
+
+def _data_fingerprint() -> str:
+    """Hash dei rendimenti attivi (sorgente + shape + colonne + valori)."""
+    from aa_engine.api.store import STORE
+
+    r, src = STORE.active_returns()
+    h = hashlib.md5()
+    h.update(str(r.shape).encode())
+    h.update(",".join(map(str, r.columns)).encode())
+    h.update(f"{r.index[0]}|{r.index[-1]}".encode())
+    h.update(r.to_numpy(dtype="float64").tobytes())
+    return f"{src}:{h.hexdigest()}"
+
+
+def _cache_put(key: tuple, value: object) -> object:
+    if len(_CACHE) >= _CACHE_MAX:
+        _CACHE.pop(next(iter(_CACHE)))  # FIFO: sfratta il più vecchio
+    _CACHE[key] = value
+    return value
+
+
+def clear_cache() -> None:
+    """Svuota la cache (es. dopo un cambio di config a runtime)."""
+    _CACHE.clear()
 
 
 @dataclass
@@ -189,6 +231,7 @@ def _build_context(
     as_of: str | None = None,
     *,
     universe: list[str] | None = None,
+    lookback: int | None = LOOKBACK_DAYS,
 ) -> _Context:
     """Stadi 1–1.5 del flusso: regime → segnali → SUMMARY → views → selezione.
 
@@ -200,9 +243,21 @@ def _build_context(
     if profile not in load_profiles().profile_ids:
         raise ValueError(f"Profilo sconosciuto: {profile!r}")
 
-    returns_all = sample_returns()
+    # Carburante dati: rendimenti REALI caricati via /data/upload (store in
+    # memoria) se presenti, altrimenti backbone sintetico. Stesso shape
+    # (date × ticker): il resto della pipeline non cambia. Import locale per
+    # evitare cicli (api -> pipeline -> api).
+    from aa_engine.api.store import STORE
+
+    returns_all, _data_source = STORE.active_returns()
     if as_of is not None:
         returns_all = returns_all.loc[: pd.Timestamp(as_of)]
+    # Cap a FINESTRA TRAILING: gli ottimizzatori (specie online/timing, costo
+    # ~O(T·n²)) sono pensati per ~36 mesi. La storia piena resta disponibile per
+    # grafici/ispezione, ma qui passiamo solo le ultime `lookback` osservazioni —
+    # interattività + rilevanza del regime recente. `None` = nessun cap.
+    if lookback is not None and len(returns_all) > lookback:
+        returns_all = returns_all.iloc[-lookback:]
     as_of_str = returns_all.index[-1].date().isoformat()
     universe = universe or list(returns_all.columns)
     returns_all = returns_all[universe]
@@ -243,6 +298,14 @@ def run_allocation(
     Questo è IL flusso: CLI e API lo chiamano entrambi. ``ensemble`` può essere
     iniettato (test/tuning); default = i ~38 modelli.
     """
+    # Cache solo sul percorso "standard" (ensemble/universe di default).
+    cache_key = None
+    if ensemble is None and universe is None:
+        cache_key = ("alloc", profile, currency, as_of, LOOKBACK_DAYS, _data_fingerprint())
+        hit = _CACHE.get(cache_key)
+        if hit is not None:
+            return hit  # type: ignore[return-value]
+
     ctx = _build_context(profile, currency, as_of, universe=universe)
 
     # 4. OTTIMIZZAZIONE: ~38 modelli → 4 migliori → media, con le views BL.
@@ -264,7 +327,7 @@ def run_allocation(
 
     benchmark = _benchmark_block(profile, ctx)
 
-    return AllocationResult(
+    out = AllocationResult(
         profile=profile, currency=currency, as_of=ctx.as_of,
         n_models_active=result.n_active,
         regimes=ctx.regime_labels,
@@ -278,6 +341,7 @@ def run_allocation(
         benchmark=benchmark,
         lite=lite_enabled() and ensemble is None,
     )
+    return _cache_put(cache_key, out) if cache_key else out  # type: ignore[return-value]
 
 
 def _benchmark_block(profile: str, ctx: _Context) -> dict:
@@ -348,6 +412,13 @@ def compute_optimization_models(
     ``GET /api/v1/optimization/models``. ⚠️ gira i 41 modelli → lento come
     ``/allocation/run``.
     """
+    cache_key = None
+    if ensemble is None:
+        cache_key = ("optmodels", profile, currency, as_of, LOOKBACK_DAYS, _data_fingerprint())
+        hit = _CACHE.get(cache_key)
+        if hit is not None:
+            return hit  # type: ignore[return-value]
+
     ctx = _build_context(profile, currency, as_of)
     ens = ensemble or default_ensemble(n_best=4)
     constraints = constraints_for(profile, currency, ctx.acmap)
@@ -380,7 +451,7 @@ def compute_optimization_models(
     equal = {t: round(1.0 / n_sel, 4) for t in ctx.selected} if n_sel else {}
     baseline_name = "EqualWeight"
 
-    return {
+    payload = {
         "profile": profile, "currency": currency, "as_of": ctx.as_of,
         "lite": lite_enabled() and ensemble is None,
         "scorer": result.scorer, "n_best": result.n_best,
@@ -396,6 +467,151 @@ def compute_optimization_models(
         "baseline_equal_weight": equal,
         "baseline_score": _finite_or_none(result.scores.get(baseline_name, float("-inf"))),
     }
+    return _cache_put(cache_key, payload) if cache_key else payload  # type: ignore[return-value]
+
+
+# --------------------------------------------------------------------------- #
+# Backtest (Stadio 3) — walk-forward OOS su strategie baseline veloci
+# --------------------------------------------------------------------------- #
+_BT_STRATEGIES = ("equal_weight", "inverse_volatility")
+
+
+def _bt_safe(x: float) -> float | None:
+    return round(float(x), 6) if x is not None and np.isfinite(x) else None
+
+
+def _equity_curve(oos: "pd.Series") -> "pd.Series":
+    """Curva di capitale ribasata a 100 dai rendimenti OOS concatenati."""
+    return (1.0 + oos).cumprod() * 100.0
+
+
+def _assemble_backtest_payload(strategy, res, base, src, train_size, test_size) -> dict:
+    """Costruisce il payload comune (curve downsampled + stats) per i backtest."""
+    eq_s = _equity_curve(res.oos_returns)
+    eq_b = _equity_curve(base.oos_returns)
+    idx = list(eq_s.index)
+    step = max(1, len(idx) // 200)  # ~200 punti, estremi inclusi
+    keep = list(range(0, len(idx), step))
+    if keep and keep[-1] != len(idx) - 1:
+        keep.append(len(idx) - 1)
+    curve = []
+    for i in keep:
+        d = idx[i]
+        b = eq_b.loc[d] if d in eq_b.index else None
+        curve.append({
+            "date": d.date().isoformat(),
+            "strategy": round(float(eq_s.iloc[i]), 2),
+            "baseline": round(float(b), 2) if b is not None else None,
+        })
+
+    def _stats(s) -> dict:
+        return {k: (v if k == "n_obs" else _bt_safe(v)) for k, v in s.as_dict().items()}
+
+    return {
+        "method": "walk_forward",
+        "strategy": strategy,
+        "source": src,
+        "train_size": train_size,
+        "test_size": test_size,
+        "n_folds": res.n_folds,
+        "date_start": idx[0].date().isoformat(),
+        "date_end": idx[-1].date().isoformat(),
+        "stats": _stats(res.stats),
+        "baseline_stats": _stats(base.stats),
+        "equity_curve": curve,
+    }
+
+
+def compute_backtest(
+    strategy: str = "inverse_volatility",
+    train_size: int = 252,
+    test_size: int = 63,
+) -> dict:
+    """Backtest walk-forward OOS della strategia scelta vs baseline 1/N.
+
+    Usa i rendimenti ATTIVI (dati reali caricati se presenti, altrimenti
+    sintetico) sull'intera storia disponibile — le strategie baseline sono
+    leggere, quindi resta interattivo. Espone ``POST /api/v1/backtest/run``.
+    """
+    from aa_engine.api.store import STORE
+    from aa_engine.backtest import WalkForwardSplitter, walk_forward_backtest
+    from aa_engine.backtest.strategies import equal_weight, inverse_volatility
+
+    strat_map = {"equal_weight": equal_weight, "inverse_volatility": inverse_volatility}
+    if strategy not in strat_map:
+        raise ValueError(f"Strategia sconosciuta: {strategy!r}. Valide: {_BT_STRATEGIES}.")
+
+    returns, src = STORE.active_returns()
+
+    cache_key = (
+        "backtest", strategy, train_size, test_size, _data_fingerprint(),
+    )
+    hit = _CACHE.get(cache_key)
+    if hit is not None:
+        return hit  # type: ignore[return-value]
+
+    splitter = WalkForwardSplitter(train_size=train_size, test_size=test_size)
+    res = walk_forward_backtest(returns, strat_map[strategy], splitter)
+    base = walk_forward_backtest(returns, equal_weight, splitter)
+    payload = _assemble_backtest_payload(strategy, res, base, src, train_size, test_size)
+    return _cache_put(cache_key, payload)  # type: ignore[return-value]
+
+
+def _make_ensemble_strategy(profile: str, currency: str, pstate: dict):
+    """Strategia = l'ensemble dei 41 modelli col vincoli del profilo: train→pesi.
+
+    Stessa firma delle baseline (``train_returns -> pesi``), quindi è un drop-in
+    per ``walk_forward_backtest``. Aggiorna il progresso ad ogni fold.
+    """
+    import pandas as pd
+
+    ens = default_ensemble(n_best=4)
+
+    def strat(train_returns: "pd.DataFrame") -> "pd.Series":
+        acmap = {t: ASSET_CLASS_MAP.get(t, "Other") for t in train_returns.columns}
+        constraints = constraints_for(profile, currency, acmap)
+        with _quiet():
+            res = ens.run(train_returns, constraints=constraints)
+        pstate["done"] += 1
+        if pstate.get("cb"):
+            pstate["cb"](pstate["done"], pstate["total"])
+        return pd.Series(res.final_weights, dtype=float).reindex(train_returns.columns).fillna(0.0)
+
+    return strat
+
+
+def compute_ensemble_backtest(
+    profile: str = "medium",
+    currency: str = "USD",
+    train_size: int = 756,
+    test_size: int = 126,
+    progress=None,
+) -> dict:
+    """Backtest walk-forward OOS dell'ENSEMBLE (41 modelli) vs baseline 1/N.
+
+    LENTO (decine di fold × secondi): va eseguito come job in background
+    (``POST /api/v1/backtest/ensemble``), non in una richiesta sincrona.
+    ``progress(done, total)`` è chiamato ad ogni fold.
+    """
+    from aa_engine.api.store import STORE
+    from aa_engine.backtest import WalkForwardSplitter, walk_forward_backtest
+    from aa_engine.backtest.strategies import equal_weight
+
+    returns, src = STORE.active_returns()
+    splitter = WalkForwardSplitter(train_size=train_size, test_size=test_size)
+    total = splitter.n_splits(returns)
+    if total == 0:
+        raise ValueError("Nessun fold: train_size+test_size eccede la storia disponibile.")
+
+    pstate = {"done": 0, "total": total, "cb": progress}
+    strat = _make_ensemble_strategy(profile, currency, pstate)
+    res = walk_forward_backtest(returns, strat, splitter)
+    base = walk_forward_backtest(returns, equal_weight, splitter)
+
+    payload = _assemble_backtest_payload("ensemble", res, base, src, train_size, test_size)
+    payload["profile"] = profile
+    payload["currency"] = currency
+    return payload
 
 
 # --------------------------------------------------------------------------- #

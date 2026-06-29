@@ -15,20 +15,37 @@ ASSET_CLASS_MAP: dict[str, str] = {
     "EQ_EM": "Equity",
     "HY": "HY",
     "BOND": "Fixed Income",
+    "ALT": "Alternative",
     "GOLD": "Gold",
     "COMMOD": "Commodities",
     "CASH": "Money Market",
+}
+
+# Roll-up dalle 5 MACRO-CLASSI canoniche (allineate a config/risk_profiles.json):
+# i blocchi fini del motore confluiscono qui per il confronto model↔benchmark e
+# per il reporting. Unica fonte di verità della categorizzazione.
+MACRO_CLASS: dict[str, str] = {
+    "Equity": "equity",
+    "Fixed Income": "fixed_income",
+    "HY": "fixed_income",
+    "Alternative": "alternatives",
+    "Commodities": "commodities",
+    "Gold": "commodities",
+    "Money Market": "cash",
 }
 
 # (beta sul fattore di mercato, drift giornaliero, vol idiosincratica annua)
 # Equity: alto rendimento E alto rischio → i cap di profilo mordono (check #2) e
 # la selezione in BEAR la scarta (check #3). Money market ~ rendimento in eccesso
 # nullo (niente Sharpe artificiale che fa collassare l'ottimizzazione su CASH).
+# ALT (alternativi/hedge): beta bassa, vol contenuta → diversificatore, profilo
+# coerente con un indice hedge multi-strategy (proxy reale: HFRX / Yahoo QAI).
 _SPECS = {
     "EQ_DM": (1.0, 0.00055, 0.10),
     "EQ_EM": (1.2, 0.00060, 0.14),
     "HY": (0.5, 0.00026, 0.07),
     "BOND": (-0.2, 0.00010, 0.045),
+    "ALT": (0.3, 0.00018, 0.06),
     "GOLD": (0.1, 0.00022, 0.13),
     "COMMOD": (0.5, 0.00014, 0.17),
     "CASH": (0.0, 0.00002, 0.003),

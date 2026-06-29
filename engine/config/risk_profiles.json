@@ -1,7 +1,7 @@
 {
-  "_source": "Portfolio_Models_Benchmarks.xlsx — modelli, benchmark e bande min/max reali",
+  "_source": "Benchmark.xlsx + Model.xlsx (Medium USD reali) — ri-ancorati e propagati a profili/valute via delta globale. Vedi generatore.",
   "_placeholder": false,
-  "version": 2,
+  "version": 3,
   "asset_classes": [
     "equity",
     "fixed_income",
@@ -41,78 +41,47 @@
     "low": {
       "USD": {
         "target": {
-          "equity": 0.15,
-          "fixed_income": 0.6,
-          "alternatives": 0.08,
-          "commodities": 0.04,
-          "cash": 0.13
-        },
-        "bands": {
-          "equity": {
-            "min": 0.05,
-            "max": 0.25
-          },
-          "fixed_income": {
-            "min": 0.5,
-            "max": 0.7
-          },
-          "alternatives": {
-            "min": 0.04,
-            "max": 0.12
-          },
-          "commodities": {
-            "min": 0.01,
-            "max": 0.07
-          },
-          "cash": {
-            "min": 0.08,
-            "max": 0.21
-          }
-        }
-      },
-      "EUR": {
-        "target": {
-          "equity": 0.14,
+          "equity": 0.17,
           "fixed_income": 0.61,
-          "alternatives": 0.08,
+          "alternatives": 0.07,
           "commodities": 0.04,
-          "cash": 0.13
+          "cash": 0.11
         },
         "bands": {
           "equity": {
-            "min": 0.04,
-            "max": 0.24
+            "min": 0.07,
+            "max": 0.27
           },
           "fixed_income": {
             "min": 0.51,
             "max": 0.71
           },
           "alternatives": {
-            "min": 0.04,
-            "max": 0.12
+            "min": 0.03,
+            "max": 0.11
           },
           "commodities": {
             "min": 0.01,
             "max": 0.07
           },
           "cash": {
-            "min": 0.08,
-            "max": 0.21
+            "min": 0.03,
+            "max": 0.19
           }
         }
       },
-      "CHF": {
+      "EUR": {
         "target": {
-          "equity": 0.12,
+          "equity": 0.16,
           "fixed_income": 0.62,
           "alternatives": 0.07,
-          "commodities": 0.03,
-          "cash": 0.16
+          "commodities": 0.04,
+          "cash": 0.11
         },
         "bands": {
           "equity": {
-            "min": 0.02,
-            "max": 0.22
+            "min": 0.06,
+            "max": 0.26
           },
           "fixed_income": {
             "min": 0.52,
@@ -123,12 +92,43 @@
             "max": 0.11
           },
           "commodities": {
+            "min": 0.01,
+            "max": 0.07
+          },
+          "cash": {
+            "min": 0.03,
+            "max": 0.19
+          }
+        }
+      },
+      "CHF": {
+        "target": {
+          "equity": 0.14,
+          "fixed_income": 0.63,
+          "alternatives": 0.06,
+          "commodities": 0.03,
+          "cash": 0.14
+        },
+        "bands": {
+          "equity": {
+            "min": 0.04,
+            "max": 0.24
+          },
+          "fixed_income": {
+            "min": 0.53,
+            "max": 0.73
+          },
+          "alternatives": {
+            "min": 0.02,
+            "max": 0.1
+          },
+          "commodities": {
             "min": 0.0,
             "max": 0.06
           },
           "cash": {
-            "min": 0.11,
-            "max": 0.24
+            "min": 0.06,
+            "max": 0.22
           }
         }
       }
@@ -136,11 +136,42 @@
     "moderate": {
       "USD": {
         "target": {
-          "equity": 0.32,
-          "fixed_income": 0.45,
-          "alternatives": 0.11,
+          "equity": 0.34,
+          "fixed_income": 0.46,
+          "alternatives": 0.1,
           "commodities": 0.05,
-          "cash": 0.07
+          "cash": 0.05
+        },
+        "bands": {
+          "equity": {
+            "min": 0.24,
+            "max": 0.44
+          },
+          "fixed_income": {
+            "min": 0.36,
+            "max": 0.56
+          },
+          "alternatives": {
+            "min": 0.06,
+            "max": 0.14
+          },
+          "commodities": {
+            "min": 0.02,
+            "max": 0.08
+          },
+          "cash": {
+            "min": 0.0,
+            "max": 0.13
+          }
+        }
+      },
+      "EUR": {
+        "target": {
+          "equity": 0.32,
+          "fixed_income": 0.48,
+          "alternatives": 0.1,
+          "commodities": 0.05,
+          "cash": 0.05
         },
         "bands": {
           "equity": {
@@ -148,29 +179,29 @@
             "max": 0.42
           },
           "fixed_income": {
-            "min": 0.35,
-            "max": 0.55
+            "min": 0.38,
+            "max": 0.58
           },
           "alternatives": {
-            "min": 0.07,
-            "max": 0.15
+            "min": 0.06,
+            "max": 0.14
           },
           "commodities": {
             "min": 0.02,
             "max": 0.08
           },
           "cash": {
-            "min": 0.02,
-            "max": 0.15
+            "min": 0.0,
+            "max": 0.13
           }
         }
       },
-      "EUR": {
+      "CHF": {
         "target": {
           "equity": 0.3,
-          "fixed_income": 0.47,
-          "alternatives": 0.11,
-          "commodities": 0.05,
+          "fixed_income": 0.5,
+          "alternatives": 0.09,
+          "commodities": 0.04,
           "cash": 0.07
         },
         "bands": {
@@ -179,51 +210,20 @@
             "max": 0.4
           },
           "fixed_income": {
-            "min": 0.37,
-            "max": 0.57
+            "min": 0.4,
+            "max": 0.6
           },
           "alternatives": {
-            "min": 0.07,
-            "max": 0.15
-          },
-          "commodities": {
-            "min": 0.02,
-            "max": 0.08
-          },
-          "cash": {
-            "min": 0.02,
-            "max": 0.15
-          }
-        }
-      },
-      "CHF": {
-        "target": {
-          "equity": 0.28,
-          "fixed_income": 0.49,
-          "alternatives": 0.1,
-          "commodities": 0.04,
-          "cash": 0.09
-        },
-        "bands": {
-          "equity": {
-            "min": 0.18,
-            "max": 0.38
-          },
-          "fixed_income": {
-            "min": 0.39,
-            "max": 0.59
-          },
-          "alternatives": {
-            "min": 0.06,
-            "max": 0.14
+            "min": 0.05,
+            "max": 0.13
           },
           "commodities": {
             "min": 0.01,
             "max": 0.07
           },
           "cash": {
-            "min": 0.04,
-            "max": 0.17
+            "min": 0.0,
+            "max": 0.15
           }
         }
       }
@@ -231,11 +231,42 @@
     "medium": {
       "USD": {
         "target": {
-          "equity": 0.5,
-          "fixed_income": 0.3,
-          "alternatives": 0.12,
+          "equity": 0.52,
+          "fixed_income": 0.31,
+          "alternatives": 0.11,
           "commodities": 0.05,
-          "cash": 0.03
+          "cash": 0.01
+        },
+        "bands": {
+          "equity": {
+            "min": 0.42,
+            "max": 0.62
+          },
+          "fixed_income": {
+            "min": 0.21,
+            "max": 0.41
+          },
+          "alternatives": {
+            "min": 0.07,
+            "max": 0.15
+          },
+          "commodities": {
+            "min": 0.02,
+            "max": 0.08
+          },
+          "cash": {
+            "min": 0.0,
+            "max": 0.09
+          }
+        }
+      },
+      "EUR": {
+        "target": {
+          "equity": 0.5,
+          "fixed_income": 0.33,
+          "alternatives": 0.11,
+          "commodities": 0.05,
+          "cash": 0.01
         },
         "bands": {
           "equity": {
@@ -243,12 +274,12 @@
             "max": 0.6
           },
           "fixed_income": {
-            "min": 0.2,
-            "max": 0.4
+            "min": 0.23,
+            "max": 0.43
           },
           "alternatives": {
-            "min": 0.08,
-            "max": 0.16
+            "min": 0.07,
+            "max": 0.15
           },
           "commodities": {
             "min": 0.02,
@@ -256,61 +287,30 @@
           },
           "cash": {
             "min": 0.0,
-            "max": 0.11
-          }
-        }
-      },
-      "EUR": {
-        "target": {
-          "equity": 0.48,
-          "fixed_income": 0.32,
-          "alternatives": 0.12,
-          "commodities": 0.05,
-          "cash": 0.03
-        },
-        "bands": {
-          "equity": {
-            "min": 0.38,
-            "max": 0.58
-          },
-          "fixed_income": {
-            "min": 0.22,
-            "max": 0.42
-          },
-          "alternatives": {
-            "min": 0.08,
-            "max": 0.16
-          },
-          "commodities": {
-            "min": 0.02,
-            "max": 0.08
-          },
-          "cash": {
-            "min": 0.0,
-            "max": 0.11
+            "max": 0.09
           }
         }
       },
       "CHF": {
         "target": {
-          "equity": 0.45,
-          "fixed_income": 0.34,
-          "alternatives": 0.12,
+          "equity": 0.47,
+          "fixed_income": 0.35,
+          "alternatives": 0.11,
           "commodities": 0.05,
-          "cash": 0.04
+          "cash": 0.02
         },
         "bands": {
           "equity": {
-            "min": 0.35,
-            "max": 0.55
+            "min": 0.37,
+            "max": 0.57
           },
           "fixed_income": {
-            "min": 0.24,
-            "max": 0.44
+            "min": 0.25,
+            "max": 0.45
           },
           "alternatives": {
-            "min": 0.08,
-            "max": 0.16
+            "min": 0.07,
+            "max": 0.15
           },
           "commodities": {
             "min": 0.02,
@@ -318,7 +318,7 @@
           },
           "cash": {
             "min": 0.0,
-            "max": 0.12
+            "max": 0.1
           }
         }
       }
@@ -326,11 +326,42 @@
     "high": {
       "USD": {
         "target": {
-          "equity": 0.7,
-          "fixed_income": 0.12,
-          "alternatives": 0.11,
+          "equity": 0.72,
+          "fixed_income": 0.13,
+          "alternatives": 0.1,
           "commodities": 0.05,
-          "cash": 0.02
+          "cash": 0.0
+        },
+        "bands": {
+          "equity": {
+            "min": 0.62,
+            "max": 0.82
+          },
+          "fixed_income": {
+            "min": 0.03,
+            "max": 0.23
+          },
+          "alternatives": {
+            "min": 0.06,
+            "max": 0.14
+          },
+          "commodities": {
+            "min": 0.02,
+            "max": 0.08
+          },
+          "cash": {
+            "min": 0.0,
+            "max": 0.08
+          }
+        }
+      },
+      "EUR": {
+        "target": {
+          "equity": 0.7,
+          "fixed_income": 0.15,
+          "alternatives": 0.1,
+          "commodities": 0.05,
+          "cash": 0.0
         },
         "bands": {
           "equity": {
@@ -338,12 +369,12 @@
             "max": 0.8
           },
           "fixed_income": {
-            "min": 0.02,
-            "max": 0.22
+            "min": 0.05,
+            "max": 0.25
           },
           "alternatives": {
-            "min": 0.07,
-            "max": 0.15
+            "min": 0.06,
+            "max": 0.14
           },
           "commodities": {
             "min": 0.02,
@@ -351,61 +382,30 @@
           },
           "cash": {
             "min": 0.0,
-            "max": 0.1
-          }
-        }
-      },
-      "EUR": {
-        "target": {
-          "equity": 0.68,
-          "fixed_income": 0.14,
-          "alternatives": 0.11,
-          "commodities": 0.05,
-          "cash": 0.02
-        },
-        "bands": {
-          "equity": {
-            "min": 0.58,
-            "max": 0.78
-          },
-          "fixed_income": {
-            "min": 0.04,
-            "max": 0.24
-          },
-          "alternatives": {
-            "min": 0.07,
-            "max": 0.15
-          },
-          "commodities": {
-            "min": 0.02,
             "max": 0.08
-          },
-          "cash": {
-            "min": 0.0,
-            "max": 0.1
           }
         }
       },
       "CHF": {
         "target": {
-          "equity": 0.65,
-          "fixed_income": 0.16,
-          "alternatives": 0.11,
+          "equity": 0.67,
+          "fixed_income": 0.17,
+          "alternatives": 0.1,
           "commodities": 0.05,
-          "cash": 0.03
+          "cash": 0.01
         },
         "bands": {
           "equity": {
-            "min": 0.55,
-            "max": 0.75
+            "min": 0.57,
+            "max": 0.77
           },
           "fixed_income": {
-            "min": 0.06,
-            "max": 0.26
+            "min": 0.07,
+            "max": 0.27
           },
           "alternatives": {
-            "min": 0.07,
-            "max": 0.15
+            "min": 0.06,
+            "max": 0.14
           },
           "commodities": {
             "min": 0.02,
@@ -413,7 +413,7 @@
           },
           "cash": {
             "min": 0.0,
-            "max": 0.11
+            "max": 0.09
           }
         }
       }
@@ -424,28 +424,28 @@
       "label": "Low risk benchmark",
       "USD": {
         "target": {
-          "equity": 0.2,
-          "fixed_income": 0.75,
-          "alternatives": 0.0,
-          "commodities": 0.0,
+          "equity": 0.14,
+          "fixed_income": 0.72,
+          "alternatives": 0.08,
+          "commodities": 0.01,
           "cash": 0.05
         },
         "bands": {
           "equity": {
-            "min": 0.1,
-            "max": 0.3
+            "min": 0.04,
+            "max": 0.24
           },
           "fixed_income": {
-            "min": 0.65,
-            "max": 0.85
+            "min": 0.62,
+            "max": 0.82
           },
           "alternatives": {
-            "min": 0.0,
-            "max": 0.04
+            "min": 0.04,
+            "max": 0.12
           },
           "commodities": {
             "min": 0.0,
-            "max": 0.03
+            "max": 0.04
           },
           "cash": {
             "min": 0.0,
@@ -455,28 +455,28 @@
       },
       "EUR": {
         "target": {
-          "equity": 0.2,
-          "fixed_income": 0.75,
-          "alternatives": 0.0,
-          "commodities": 0.0,
+          "equity": 0.14,
+          "fixed_income": 0.72,
+          "alternatives": 0.08,
+          "commodities": 0.01,
           "cash": 0.05
         },
         "bands": {
           "equity": {
-            "min": 0.1,
-            "max": 0.3
+            "min": 0.04,
+            "max": 0.24
           },
           "fixed_income": {
-            "min": 0.65,
-            "max": 0.85
+            "min": 0.62,
+            "max": 0.82
           },
           "alternatives": {
-            "min": 0.0,
-            "max": 0.04
+            "min": 0.04,
+            "max": 0.12
           },
           "commodities": {
             "min": 0.0,
-            "max": 0.03
+            "max": 0.04
           },
           "cash": {
             "min": 0.0,
@@ -486,31 +486,31 @@
       },
       "CHF": {
         "target": {
-          "equity": 0.18,
-          "fixed_income": 0.76,
-          "alternatives": 0.0,
-          "commodities": 0.0,
+          "equity": 0.12,
+          "fixed_income": 0.73,
+          "alternatives": 0.08,
+          "commodities": 0.01,
           "cash": 0.06
         },
         "bands": {
           "equity": {
-            "min": 0.08,
-            "max": 0.28
+            "min": 0.02,
+            "max": 0.22
           },
           "fixed_income": {
-            "min": 0.66,
-            "max": 0.86
+            "min": 0.63,
+            "max": 0.83
           },
           "alternatives": {
-            "min": 0.0,
-            "max": 0.04
+            "min": 0.04,
+            "max": 0.12
           },
           "commodities": {
             "min": 0.0,
-            "max": 0.03
+            "max": 0.04
           },
           "cash": {
-            "min": 0.01,
+            "min": 0.0,
             "max": 0.14
           }
         }
@@ -520,28 +520,28 @@
       "label": "Moderate risk benchmark",
       "USD": {
         "target": {
-          "equity": 0.4,
-          "fixed_income": 0.57,
-          "alternatives": 0.0,
-          "commodities": 0.0,
+          "equity": 0.34,
+          "fixed_income": 0.49,
+          "alternatives": 0.12,
+          "commodities": 0.02,
           "cash": 0.03
         },
         "bands": {
           "equity": {
-            "min": 0.3,
-            "max": 0.5
+            "min": 0.24,
+            "max": 0.44
           },
           "fixed_income": {
-            "min": 0.47,
-            "max": 0.67
+            "min": 0.39,
+            "max": 0.59
           },
           "alternatives": {
-            "min": 0.0,
-            "max": 0.04
+            "min": 0.08,
+            "max": 0.16
           },
           "commodities": {
             "min": 0.0,
-            "max": 0.03
+            "max": 0.05
           },
           "cash": {
             "min": 0.0,
@@ -551,28 +551,28 @@
       },
       "EUR": {
         "target": {
-          "equity": 0.4,
-          "fixed_income": 0.57,
-          "alternatives": 0.0,
-          "commodities": 0.0,
+          "equity": 0.34,
+          "fixed_income": 0.49,
+          "alternatives": 0.12,
+          "commodities": 0.02,
           "cash": 0.03
         },
         "bands": {
           "equity": {
-            "min": 0.3,
-            "max": 0.5
+            "min": 0.24,
+            "max": 0.44
           },
           "fixed_income": {
-            "min": 0.47,
-            "max": 0.67
+            "min": 0.39,
+            "max": 0.59
           },
           "alternatives": {
-            "min": 0.0,
-            "max": 0.04
+            "min": 0.08,
+            "max": 0.16
           },
           "commodities": {
             "min": 0.0,
-            "max": 0.03
+            "max": 0.05
           },
           "cash": {
             "min": 0.0,
@@ -582,28 +582,28 @@
       },
       "CHF": {
         "target": {
-          "equity": 0.37,
-          "fixed_income": 0.59,
-          "alternatives": 0.0,
-          "commodities": 0.0,
+          "equity": 0.31,
+          "fixed_income": 0.51,
+          "alternatives": 0.12,
+          "commodities": 0.02,
           "cash": 0.04
         },
         "bands": {
           "equity": {
-            "min": 0.27,
-            "max": 0.47
+            "min": 0.21,
+            "max": 0.41
           },
           "fixed_income": {
-            "min": 0.49,
-            "max": 0.69
+            "min": 0.41,
+            "max": 0.61
           },
           "alternatives": {
-            "min": 0.0,
-            "max": 0.04
+            "min": 0.08,
+            "max": 0.16
           },
           "commodities": {
             "min": 0.0,
-            "max": 0.03
+            "max": 0.05
           },
           "cash": {
             "min": 0.0,
@@ -616,28 +616,28 @@
       "label": "Medium risk benchmark",
       "USD": {
         "target": {
-          "equity": 0.6,
-          "fixed_income": 0.38,
-          "alternatives": 0.0,
-          "commodities": 0.0,
+          "equity": 0.53,
+          "fixed_income": 0.28,
+          "alternatives": 0.15,
+          "commodities": 0.02,
           "cash": 0.02
         },
         "bands": {
           "equity": {
-            "min": 0.5,
-            "max": 0.7
+            "min": 0.43,
+            "max": 0.63
           },
           "fixed_income": {
-            "min": 0.28,
-            "max": 0.48
+            "min": 0.18,
+            "max": 0.38
           },
           "alternatives": {
-            "min": 0.0,
-            "max": 0.04
+            "min": 0.11,
+            "max": 0.19
           },
           "commodities": {
             "min": 0.0,
-            "max": 0.03
+            "max": 0.05
           },
           "cash": {
             "min": 0.0,
@@ -647,28 +647,28 @@
       },
       "EUR": {
         "target": {
-          "equity": 0.6,
-          "fixed_income": 0.38,
-          "alternatives": 0.0,
-          "commodities": 0.0,
+          "equity": 0.53,
+          "fixed_income": 0.28,
+          "alternatives": 0.15,
+          "commodities": 0.02,
           "cash": 0.02
         },
         "bands": {
           "equity": {
-            "min": 0.5,
-            "max": 0.7
+            "min": 0.43,
+            "max": 0.63
           },
           "fixed_income": {
-            "min": 0.28,
-            "max": 0.48
+            "min": 0.18,
+            "max": 0.38
           },
           "alternatives": {
-            "min": 0.0,
-            "max": 0.04
+            "min": 0.11,
+            "max": 0.19
           },
           "commodities": {
             "min": 0.0,
-            "max": 0.03
+            "max": 0.05
           },
           "cash": {
             "min": 0.0,
@@ -678,28 +678,28 @@
       },
       "CHF": {
         "target": {
-          "equity": 0.57,
-          "fixed_income": 0.41,
-          "alternatives": 0.0,
-          "commodities": 0.0,
+          "equity": 0.5,
+          "fixed_income": 0.31,
+          "alternatives": 0.15,
+          "commodities": 0.02,
           "cash": 0.02
         },
         "bands": {
           "equity": {
-            "min": 0.47,
-            "max": 0.67
+            "min": 0.4,
+            "max": 0.6
           },
           "fixed_income": {
-            "min": 0.31,
-            "max": 0.51
+            "min": 0.21,
+            "max": 0.41
           },
           "alternatives": {
-            "min": 0.0,
-            "max": 0.04
+            "min": 0.11,
+            "max": 0.19
           },
           "commodities": {
             "min": 0.0,
-            "max": 0.03
+            "max": 0.05
           },
           "cash": {
             "min": 0.0,
@@ -712,28 +712,28 @@
       "label": "High risk benchmark",
       "USD": {
         "target": {
-          "equity": 0.85,
-          "fixed_income": 0.14,
-          "alternatives": 0.0,
-          "commodities": 0.0,
+          "equity": 0.78,
+          "fixed_income": 0.04,
+          "alternatives": 0.15,
+          "commodities": 0.02,
           "cash": 0.01
         },
         "bands": {
           "equity": {
-            "min": 0.75,
-            "max": 0.95
+            "min": 0.68,
+            "max": 0.88
           },
           "fixed_income": {
-            "min": 0.04,
-            "max": 0.24
+            "min": 0.0,
+            "max": 0.14
           },
           "alternatives": {
-            "min": 0.0,
-            "max": 0.04
+            "min": 0.11,
+            "max": 0.19
           },
           "commodities": {
             "min": 0.0,
-            "max": 0.03
+            "max": 0.05
           },
           "cash": {
             "min": 0.0,
@@ -743,28 +743,28 @@
       },
       "EUR": {
         "target": {
-          "equity": 0.85,
-          "fixed_income": 0.14,
-          "alternatives": 0.0,
-          "commodities": 0.0,
+          "equity": 0.78,
+          "fixed_income": 0.04,
+          "alternatives": 0.15,
+          "commodities": 0.02,
           "cash": 0.01
         },
         "bands": {
           "equity": {
-            "min": 0.75,
-            "max": 0.95
+            "min": 0.68,
+            "max": 0.88
           },
           "fixed_income": {
-            "min": 0.04,
-            "max": 0.24
+            "min": 0.0,
+            "max": 0.14
           },
           "alternatives": {
-            "min": 0.0,
-            "max": 0.04
+            "min": 0.11,
+            "max": 0.19
           },
           "commodities": {
             "min": 0.0,
-            "max": 0.03
+            "max": 0.05
           },
           "cash": {
             "min": 0.0,
@@ -774,28 +774,28 @@
       },
       "CHF": {
         "target": {
-          "equity": 0.82,
-          "fixed_income": 0.17,
-          "alternatives": 0.0,
-          "commodities": 0.0,
+          "equity": 0.75,
+          "fixed_income": 0.07,
+          "alternatives": 0.15,
+          "commodities": 0.02,
           "cash": 0.01
         },
         "bands": {
           "equity": {
-            "min": 0.72,
-            "max": 0.92
+            "min": 0.65,
+            "max": 0.85
           },
           "fixed_income": {
-            "min": 0.07,
-            "max": 0.27
+            "min": 0.0,
+            "max": 0.17
           },
           "alternatives": {
-            "min": 0.0,
-            "max": 0.04
+            "min": 0.11,
+            "max": 0.19
           },
           "commodities": {
             "min": 0.0,
-            "max": 0.03
+            "max": 0.05
           },
           "cash": {
             "min": 0.0,
@@ -809,17 +809,23 @@
     "USD": {
       "equity": "MSCI World NR USD",
       "fixed_income": "Bloomberg Global Agg USD H",
-      "cash": "US 3M T-Bill"
+      "cash": "US 3M T-Bill",
+      "alternatives": "HFRX Global Hedge Fund (HFRXGL)",
+      "commodities": "Bloomberg Commodity TR (BCOMTR)"
     },
     "EUR": {
       "equity": "MSCI World NR EUR",
       "fixed_income": "Bloomberg Euro Agg",
-      "cash": "€STR"
+      "cash": "€STR",
+      "alternatives": "HFRX Global Hedge Fund (EUR H)",
+      "commodities": "Bloomberg Commodity TR (EUR H)"
     },
     "CHF": {
       "equity": "MSCI World NR CHF H",
       "fixed_income": "SBI AAA-BBB / Global Agg CHF H",
-      "cash": "SARON"
+      "cash": "SARON",
+      "alternatives": "HFRX Global Hedge Fund (CHF H)",
+      "commodities": "Bloomberg Commodity TR (CHF H)"
     }
   }
 }

@@ -20,7 +20,12 @@ from . import sample
 from .schemas import (
     AllocationResponse,
     AllocationRunRequest,
+    BacktestResponse,
+    BacktestRunRequest,
     ContributionsResponse,
+    EnsembleBacktestRequest,
+    JobStartResponse,
+    JobStatusResponse,
     CsvUploadRequest,
     HealthResponse,
     MandateResponse,
@@ -216,6 +221,70 @@ def create_app() -> FastAPI:
             **compute_optimization_models(profile, currency, as_of)
         )
 
+    @app.post(f"{API_PREFIX}/backtest/run", response_model=BacktestResponse, tags=["backtest"])
+    def backtest_run(req: BacktestRunRequest) -> JSONResponse | BacktestResponse:
+        # Stadio 3: walk-forward OOS della strategia scelta vs baseline 1/N, sui
+        # dati attivi. Strategie baseline leggere → veloce. (L'ensemble dei 41
+        # modelli come strategia sarà un job in background, non questo endpoint.)
+        from aa_engine.pipeline.run import compute_backtest
+
+        try:
+            data = compute_backtest(req.strategy, req.train_size, req.test_size)
+        except ValueError as exc:
+            return JSONResponse(
+                status_code=400,
+                content={"error": {"code": "backtest_failed", "message": str(exc)}},
+            )
+        return BacktestResponse(**data)
+
+    @app.post(
+        f"{API_PREFIX}/backtest/ensemble",
+        response_model=JobStartResponse,
+        tags=["backtest"],
+    )
+    def backtest_ensemble(req: EnsembleBacktestRequest) -> JobStartResponse:
+        # Avvia in BACKGROUND il backtest dell'ensemble (41 modelli) — lento.
+        # Ritorna subito un job_id; il client fa polling su /backtest/jobs/{id}.
+        import threading
+
+        from aa_engine.api.jobs import JOBS
+        from aa_engine.pipeline.run import compute_ensemble_backtest
+
+        job = JOBS.create("ensemble_backtest")
+
+        def _work() -> None:
+            try:
+                payload = compute_ensemble_backtest(
+                    req.profile, req.currency, req.train_size, req.test_size,
+                    progress=lambda d, t: JOBS.set_progress(job.id, d, t),
+                )
+                JOBS.update(job.id, status="done", result=payload)
+            except Exception as exc:  # noqa: BLE001 — riportato al client come errore job
+                JOBS.update(job.id, status="error", error=str(exc))
+
+        threading.Thread(target=_work, daemon=True).start()
+        return JobStartResponse(job_id=job.id, status="running")
+
+    @app.get(
+        f"{API_PREFIX}/backtest/jobs/{{job_id}}",
+        response_model=JobStatusResponse,
+        tags=["backtest"],
+    )
+    def backtest_job(job_id: str) -> JSONResponse | JobStatusResponse:
+        from aa_engine.api.jobs import JOBS
+
+        job = JOBS.get(job_id)
+        if job is None:
+            return JSONResponse(
+                status_code=404,
+                content={"error": {"code": "job_not_found", "message": f"Job {job_id} sconosciuto."}},
+            )
+        return JobStatusResponse(
+            job_id=job.id, status=job.status,
+            progress_done=job.progress_done, progress_total=job.progress_total,
+            result=job.result, error=job.error,
+        )
+
     # ----------------------------------------------------------------------- #
     # Upload dati + analisi mandato (iterazione 2)
     # ----------------------------------------------------------------------- #
@@ -292,4 +361,35 @@ def create_app() -> FastAPI:
     return app
 
 
+def _autoload_market_data() -> None:
+    """All'avvio: se esiste un file prezzi su disco, caricalo nello STORE.
+
+    Lo store è in memoria e si azzera ad ogni riavvio del daemon: questo hook fa
+    sì che i dati reali sopravvivano ai riavvii senza ricaricare il CSV a mano.
+    Override del percorso via env ``AA_MARKET_DATA``. Non blocca l'avvio in caso
+    di errore: senza dati validi il motore usa il backbone sintetico.
+    """
+    import os
+    from pathlib import Path
+
+    from . import store
+
+    default = Path(__file__).resolve().parents[3] / "data" / "real" / "prices_real.csv"
+    path = Path(os.getenv("AA_MARKET_DATA", str(default)))
+    if not path.exists():
+        print(f"[aa_engine] auto-load dati: nessun file in {path} — uso il sintetico.")
+        return
+    try:
+        returns, summary = store.parse_prices(path.read_text())
+        store.STORE.set_market(returns, path.name)
+        print(
+            f"[aa_engine] auto-load dati OK: {summary['n_instruments']} strumenti, "
+            f"{summary['n_observations']} osservazioni ({summary['date_start']} → "
+            f"{summary['date_end']}) da {path.name}"
+        )
+    except Exception as exc:  # noqa: BLE001 — l'avvio non deve fallire per il file
+        print(f"[aa_engine] auto-load dati FALLITO ({exc}); uso il sintetico.")
+
+
 app = create_app()
+_autoload_market_data()

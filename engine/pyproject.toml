@@ -28,6 +28,7 @@ api = [
     "fastapi>=0.110",
     "uvicorn[standard]>=0.29",
     "pydantic>=2.6",
+    "openpyxl>=3.1",   # import modelli/benchmark da Excel (aa_engine.config_tools)
 ]
 dev = [
     "pytest>=8.0",

@@ -350,3 +350,68 @@ class PortfolioReoptimizeResponse(BaseModel):
     risk_current: dict[str, float]
     risk_proposed: dict[str, float]
     risk_delta: dict[str, float]
+
+
+# ---- /backtest/run -------------------------------------------------------
+
+
+class BacktestRunRequest(BaseModel):
+    strategy: Literal["equal_weight", "inverse_volatility"] = "inverse_volatility"
+    train_size: int = Field(252, ge=30, le=2000)
+    test_size: int = Field(63, ge=5, le=750)
+
+
+class BacktestStats(BaseModel):
+    n_obs: int
+    total_return: float | None = None
+    cagr: float | None = None
+    volatility: float | None = None
+    sharpe: float | None = None
+    sortino: float | None = None
+    max_drawdown: float | None = None
+    calmar: float | None = None
+    hit_ratio: float | None = None
+
+
+class EquityPoint(BaseModel):
+    date: str
+    strategy: float
+    baseline: float | None = None
+
+
+class BacktestResponse(BaseModel):
+    method: str
+    strategy: str
+    source: str
+    train_size: int
+    test_size: int
+    n_folds: int
+    date_start: str
+    date_end: str
+    stats: BacktestStats
+    baseline_stats: BacktestStats
+    equity_curve: list[EquityPoint]
+
+
+# ---- /backtest/ensemble (job asincrono) ----------------------------------
+
+
+class EnsembleBacktestRequest(BaseModel):
+    profile: Literal["low", "moderate", "medium", "high"] = "medium"
+    currency: Literal["EUR", "USD", "CHF"] = "USD"
+    train_size: int = Field(252, ge=120, le=1000)
+    test_size: int = Field(126, ge=21, le=3500)
+
+
+class JobStartResponse(BaseModel):
+    job_id: str
+    status: str
+
+
+class JobStatusResponse(BaseModel):
+    job_id: str
+    status: str                       # running | done | error
+    progress_done: int = 0
+    progress_total: int = 0
+    result: BacktestResponse | None = None
+    error: str | None = None
