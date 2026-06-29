@@ -287,6 +287,42 @@ export interface PortfolioReoptimizeResponse {
   risk_delta: Record<string, number>;
 }
 
+// ---- /backtest/run -------------------------------------------------------
+
+export type BacktestStrategy = "equal_weight" | "inverse_volatility";
+
+export interface BacktestStats {
+  n_obs: number;
+  total_return: number | null;
+  cagr: number | null;
+  volatility: number | null;
+  sharpe: number | null;
+  sortino: number | null;
+  max_drawdown: number | null;
+  calmar: number | null;
+  hit_ratio: number | null;
+}
+
+export interface BacktestEquityPoint {
+  date: string;
+  strategy: number;
+  baseline: number | null;
+}
+
+export interface BacktestResponse {
+  method: string;
+  strategy: string;
+  source: string;
+  train_size: number;
+  test_size: number;
+  n_folds: number;
+  date_start: string;
+  date_end: string;
+  stats: BacktestStats;
+  baseline_stats: BacktestStats;
+  equity_curve: BacktestEquityPoint[];
+}
+
 // ---- transport -----------------------------------------------------------
 
 export class ApiError extends Error {
