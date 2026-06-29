@@ -323,6 +323,24 @@ export interface BacktestResponse {
   equity_curve: BacktestEquityPoint[];
 }
 
+// ---- /backtest/ensemble (async job) -------------------------------------
+
+export interface EnsembleJobStartResponse {
+  job_id: string;
+  status: string;
+}
+
+export type BacktestJobStatus = "running" | "done" | "error";
+
+export interface BacktestJobResponse {
+  job_id: string;
+  status: BacktestJobStatus;
+  progress_done: number;
+  progress_total: number;
+  result: BacktestResponse | null;
+  error: string | null;
+}
+
 // ---- transport -----------------------------------------------------------
 
 export class ApiError extends Error {
@@ -563,5 +581,22 @@ export const api = {
       ),
     );
   },
+
+  // NOTE: stateful endpoints — must NOT go through `cached()`.
+  startEnsembleBacktest: (
+    profile: Profile,
+    currency: Currency,
+    trainSize: number,
+    testSize: number,
+  ) => {
+    const body = { profile, currency, train_size: trainSize, test_size: testSize };
+    return request<EnsembleJobStartResponse>(
+      "/backtest/ensemble",
+      { method: "POST", body: JSON.stringify(body) },
+    );
+  },
+
+  getBacktestJob: (jobId: string) =>
+    request<BacktestJobResponse>(`/backtest/jobs/${encodeURIComponent(jobId)}`),
 };
 
