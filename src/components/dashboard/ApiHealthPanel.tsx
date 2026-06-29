@@ -193,7 +193,7 @@ export function ApiHealthPanel() {
                 className="ml-2 rounded-sm border border-destructive/30 bg-destructive/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-destructive"
                 title="Il /health raggiunto non espone ancora lite/n_models_active: il backend non è redeployato con la modalità light o la variabile non è attiva."
               >
-                MODO NON DICHIARATO
+                BACKEND SENZA LITE
               </span>
             )
           )}
