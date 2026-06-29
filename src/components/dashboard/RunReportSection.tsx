@@ -73,7 +73,8 @@ export function RunReportSection({ profile, currency }: { profile: Profile; curr
             {state.status === "loading" ? "Esecuzione…" : "Esegui"}
           </button>
           <span className="text-xs text-muted-foreground">
-            Profilo e valuta si cambiano dall'header. Gira ~41 modelli: alcuni secondi.
+            Profilo e valuta si cambiano dall'header. Il numero di modelli attivi viene dichiarato
+            dal motore nella risposta.
           </span>
         </div>
       </Card>
@@ -85,7 +86,7 @@ export function RunReportSection({ profile, currency }: { profile: Profile; curr
         </Card>
       )}
       {state.status === "loading" && (
-        <LoadingBlock label="Running the full pipeline (41 models, walk-forward)…" />
+        <LoadingBlock label="Esecuzione pipeline: attendo il numero di modelli attivi dal motore…" />
       )}
       {state.status === "error" && <ErrorBlock message={state.error} onRetry={run} />}
       {state.status === "success" && <Report data={state.data} />}

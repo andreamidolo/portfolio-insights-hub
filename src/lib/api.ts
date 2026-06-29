@@ -25,6 +25,9 @@ export type RiskFamily = "return_based" | "tail" | "drawdown_based";
 export interface HealthResponse {
   status: "ok";
   version: string;
+  lite?: boolean;
+  n_models_active?: number;
+  n_models_full?: number;
 }
 
 // ---- /regimes ------------------------------------------------------------

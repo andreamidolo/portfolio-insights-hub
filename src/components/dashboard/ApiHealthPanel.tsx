@@ -2,7 +2,7 @@
 // latenza + stato. Utile quando i badge restano "OFFLINE" per capire se è un
 // cold start di Render (timeout > 30s) o un endpoint davvero rotto.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { API_BASE_URL } from "@/lib/api";
 
@@ -74,11 +74,14 @@ async function ping(check: Check): Promise<Result> {
       try {
         const data = (await res.clone().json()) as {
           lite?: boolean;
+          n_models_active?: number;
+          n_models_full?: number;
           models?: unknown[];
           selected?: unknown[];
         };
         if (typeof data?.lite === "boolean") lite = data.lite;
-        if (Array.isArray(data?.models)) nModels = data.models.length;
+        if (typeof data?.n_models_active === "number") nModels = data.n_models_active;
+        else if (Array.isArray(data?.models)) nModels = data.models.length;
         else if (Array.isArray(data?.selected)) nModels = data.selected.length;
       } catch {
         /* non-JSON response, ignore */
@@ -117,6 +120,16 @@ export function ApiHealthPanel() {
   const [results, setResults] = useState<Result[]>([]);
   const [startedAt, setStartedAt] = useState<string | null>(null);
 
+  useEffect(() => {
+    let cancelled = false;
+    ping(CHECKS[0]).then((r) => {
+      if (!cancelled) setResults([r]);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   async function runTests() {
     setRunning(true);
     setResults([]);
@@ -140,7 +153,9 @@ export function ApiHealthPanel() {
   const engineMode: "lite" | "full" | "unknown" = liteFlags.length === 0
     ? "unknown"
     : liteFlags.some((r) => r.lite) ? "lite" : "full";
-  const modelsCount = results.find((r) => r.path.startsWith("/optimization/models"))?.nModels;
+  const modelsCount =
+    results.find((r) => r.path === "/health")?.nModels ??
+    results.find((r) => r.path.startsWith("/optimization/models"))?.nModels;
 
   return (
     <div className="rounded-md border border-border bg-card p-4">
@@ -154,7 +169,7 @@ export function ApiHealthPanel() {
               Verifica latenza e stato degli endpoint
             </div>
           </div>
-          {engineMode !== "unknown" && (
+          {engineMode !== "unknown" ? (
             <span
               className={
                 "ml-2 rounded-sm px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide " +
@@ -172,6 +187,15 @@ export function ApiHealthPanel() {
               {engineMode === "lite" ? "LITE" : "FULL"}
               {typeof modelsCount === "number" && <> · {modelsCount} mod.</>}
             </span>
+          ) : (
+            results.some((r) => r.path === "/health" && r.ok) && (
+              <span
+                className="ml-2 rounded-sm border border-destructive/30 bg-destructive/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-destructive"
+                title="Il /health raggiunto non espone ancora lite/n_models_active: il backend non è redeployato con la modalità light o la variabile non è attiva."
+              >
+                BACKEND SENZA LITE
+              </span>
+            )
           )}
         </div>
 
