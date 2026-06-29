@@ -6,6 +6,7 @@ import { API_BASE_URL, type Currency, type DataSource, type Profile } from "@/li
 import { ApiHealthPanel } from "@/components/dashboard/ApiHealthPanel";
 import { DataImportSection } from "@/components/dashboard/DataImportSection";
 import { BacktestSection } from "@/components/dashboard/PlaceholderSections";
+import { ModelsBenchmarkSection } from "@/components/dashboard/ModelsBenchmarkSection";
 import { OptimizationSection } from "@/components/dashboard/OptimizationSection";
 import { RiskSection } from "@/components/dashboard/RiskSection";
 import { RunReportSection } from "@/components/dashboard/RunReportSection";
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/")({
 });
 
 // The six sections mirror the engine flow: input → 4 stages → output.
-type SectionId = "data" | "signals" | "optimization" | "backtest" | "risk" | "run";
+type SectionId = "data" | "signals" | "optimization" | "backtest" | "risk" | "models" | "run";
 
 interface NavItem {
   id: SectionId;
@@ -41,6 +42,7 @@ const NAV: NavItem[] = [
   { id: "optimization", label: "Ottimizzazione", step: "Stadio 2", live: true },
   { id: "backtest", label: "Backtest", step: "Stadio 3", live: false },
   { id: "risk", label: "Rischio", step: "Stadio 4", live: true },
+  { id: "models", label: "Modelli & Benchmark", step: "Config", live: true },
   { id: "run", label: "Esegui / Report", step: "Output", live: true },
 ];
 
@@ -83,6 +85,9 @@ function DashboardPage() {
           )}
           {section === "backtest" && <BacktestSection />}
           {section === "risk" && <RiskSection profile={profile} currency={currency} />}
+          {section === "models" && (
+            <ModelsBenchmarkSection profile={profile} currency={currency} />
+          )}
           {section === "run" && <RunReportSection profile={profile} currency={currency} />}
         </main>
       </div>
