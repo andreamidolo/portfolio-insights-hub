@@ -581,5 +581,22 @@ export const api = {
       ),
     );
   },
+
+  // NOTE: stateful endpoints — must NOT go through `cached()`.
+  startEnsembleBacktest: (
+    profile: Profile,
+    currency: Currency,
+    trainSize: number,
+    testSize: number,
+  ) => {
+    const body = { profile, currency, train_size: trainSize, test_size: testSize };
+    return request<EnsembleJobStartResponse>(
+      "/backtest/ensemble",
+      { method: "POST", body: JSON.stringify(body) },
+    );
+  },
+
+  getBacktestJob: (jobId: string) =>
+    request<BacktestJobResponse>(`/backtest/jobs/${encodeURIComponent(jobId)}`),
 };
 
