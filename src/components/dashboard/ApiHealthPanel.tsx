@@ -24,6 +24,8 @@ interface Result {
   status: number | null;
   ms: number;
   note: string;
+  lite?: boolean;
+  nModels?: number;
 }
 
 const CHECKS: Check[] = [
@@ -66,6 +68,22 @@ async function ping(check: Check): Promise<Result> {
       signal: controller.signal,
     });
     const ms = Math.round(performance.now() - t0);
+    let lite: boolean | undefined;
+    let nModels: number | undefined;
+    if (res.ok) {
+      try {
+        const data = (await res.clone().json()) as {
+          lite?: boolean;
+          models?: unknown[];
+          selected?: unknown[];
+        };
+        if (typeof data?.lite === "boolean") lite = data.lite;
+        if (Array.isArray(data?.models)) nModels = data.models.length;
+        else if (Array.isArray(data?.selected)) nModels = data.selected.length;
+      } catch {
+        /* non-JSON response, ignore */
+      }
+    }
     return {
       label: check.label,
       path: check.path,
@@ -74,6 +92,8 @@ async function ping(check: Check): Promise<Result> {
       status: res.status,
       ms,
       note: res.ok ? "OK" : `HTTP ${res.status}`,
+      lite,
+      nModels,
     };
   } catch (err) {
     const ms = Math.round(performance.now() - t0);
@@ -114,18 +134,47 @@ export function ApiHealthPanel() {
     (a, b) => CHECKS.findIndex((c) => c.path === a.path) - CHECKS.findIndex((c) => c.path === b.path),
   );
   const okCount = results.filter((r) => r.ok).length;
+  // Modalità motore: l'API restituisce `lite: true` sulle risposte pesanti quando
+  // gira con AA_ENGINE_LITE=1 (ensemble ridotto ~6 modelli vs 41 completi).
+  const liteFlags = results.filter((r) => typeof r.lite === "boolean");
+  const engineMode: "lite" | "full" | "unknown" = liteFlags.length === 0
+    ? "unknown"
+    : liteFlags.some((r) => r.lite) ? "lite" : "full";
+  const modelsCount = results.find((r) => r.path.startsWith("/optimization/models"))?.nModels;
 
   return (
     <div className="rounded-md border border-border bg-card p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Diagnostica motore
+        <div className="flex items-center gap-2">
+          <div>
+            <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Diagnostica motore
+            </div>
+            <div className="mt-0.5 text-sm text-foreground">
+              Verifica latenza e stato degli endpoint
+            </div>
           </div>
-          <div className="mt-0.5 text-sm text-foreground">
-            Verifica latenza e stato degli endpoint
-          </div>
+          {engineMode !== "unknown" && (
+            <span
+              className={
+                "ml-2 rounded-sm px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide " +
+                (engineMode === "lite"
+                  ? "bg-secondary text-foreground border border-border"
+                  : "bg-success/15 text-success")
+
+              }
+              title={
+                engineMode === "lite"
+                  ? "AA_ENGINE_LITE=1 — ensemble ridotto (~6 modelli) per hosting Free"
+                  : "Motore completo — 41 modelli"
+              }
+            >
+              {engineMode === "lite" ? "LITE" : "FULL"}
+              {typeof modelsCount === "number" && <> · {modelsCount} mod.</>}
+            </span>
+          )}
         </div>
+
         <button
           type="button"
           onClick={runTests}
