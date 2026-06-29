@@ -323,6 +323,24 @@ export interface BacktestResponse {
   equity_curve: BacktestEquityPoint[];
 }
 
+// ---- /backtest/ensemble (async job) -------------------------------------
+
+export interface EnsembleJobStartResponse {
+  job_id: string;
+  status: string;
+}
+
+export type BacktestJobStatus = "running" | "done" | "error";
+
+export interface BacktestJobResponse {
+  job_id: string;
+  status: BacktestJobStatus;
+  progress_done: number;
+  progress_total: number;
+  result: BacktestResponse | null;
+  error: string | null;
+}
+
 // ---- transport -----------------------------------------------------------
 
 export class ApiError extends Error {
