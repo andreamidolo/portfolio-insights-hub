@@ -24,6 +24,9 @@ RegimeLabel = Literal["bull", "bear"]
 class HealthResponse(BaseModel):
     status: Literal["ok"] = "ok"
     version: str
+    lite: bool = False
+    n_models_active: int
+    n_models_full: int
 
 
 # --------------------------------------------------------------------------- #

@@ -74,11 +74,14 @@ async function ping(check: Check): Promise<Result> {
       try {
         const data = (await res.clone().json()) as {
           lite?: boolean;
+          n_models_active?: number;
+          n_models_full?: number;
           models?: unknown[];
           selected?: unknown[];
         };
         if (typeof data?.lite === "boolean") lite = data.lite;
-        if (Array.isArray(data?.models)) nModels = data.models.length;
+        if (typeof data?.n_models_active === "number") nModels = data.n_models_active;
+        else if (Array.isArray(data?.models)) nModels = data.models.length;
         else if (Array.isArray(data?.selected)) nModels = data.selected.length;
       } catch {
         /* non-JSON response, ignore */
@@ -140,7 +143,9 @@ export function ApiHealthPanel() {
   const engineMode: "lite" | "full" | "unknown" = liteFlags.length === 0
     ? "unknown"
     : liteFlags.some((r) => r.lite) ? "lite" : "full";
-  const modelsCount = results.find((r) => r.path.startsWith("/optimization/models"))?.nModels;
+  const modelsCount =
+    results.find((r) => r.path === "/health")?.nModels ??
+    results.find((r) => r.path.startsWith("/optimization/models"))?.nModels;
 
   return (
     <div className="rounded-md border border-border bg-card p-4">

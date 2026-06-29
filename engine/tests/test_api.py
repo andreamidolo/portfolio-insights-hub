@@ -23,6 +23,10 @@ def test_health():
     body = r.json()
     assert body["status"] == "ok"
     assert isinstance(body["version"], str) and body["version"]
+    assert isinstance(body["lite"], bool)
+    assert isinstance(body["n_models_active"], int)
+    assert isinstance(body["n_models_full"], int)
+    assert body["n_models_active"] <= body["n_models_full"]
 
 
 def test_regimes_shape():

@@ -88,7 +88,14 @@ def create_app() -> FastAPI:
 
     @app.get(f"{API_PREFIX}/health", response_model=HealthResponse, tags=["meta"])
     def health() -> HealthResponse:
-        return HealthResponse(version=_VERSION)
+        from aa_engine.optimization import DEFAULT_MODELS, active_models, lite_enabled
+
+        return HealthResponse(
+            version=_VERSION,
+            lite=lite_enabled(),
+            n_models_active=len(active_models()),
+            n_models_full=len(DEFAULT_MODELS),
+        )
 
     @app.get(f"{API_PREFIX}/profiles", response_model=ProfilesConfigResponse, tags=["meta"])
     def profiles() -> ProfilesConfigResponse:

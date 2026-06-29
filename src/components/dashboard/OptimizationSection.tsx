@@ -1,5 +1,5 @@
 // Stage 2 — Ottimizzazione. The most inspectable section: GET /optimization/models.
-// Shows the final allocation, all ~41 models with their proposed weights and
+// Shows the final allocation and the active models with their proposed weights and
 // walk-forward score, the 4 chosen ones highlighted, and the 1/N baseline.
 
 import { useMemo, useState } from "react";
@@ -44,13 +44,13 @@ export function OptimizationSection({
       <SectionHeader
         step="Stadio 2"
         title="Ottimizzazione"
-        subtitle="Apri il cofano: i 41 modelli girano in parallelo, vengono valutati out-of-sample (walk-forward) e i 4 migliori sono mediati. Qui vedi ogni modello, il suo score e i pesi che propone."
+        subtitle="Apri il cofano: il motore dichiara quanti modelli sono attivi, li valuta out-of-sample (walk-forward) e media i migliori. Qui vedi ogni modello, il suo score e i pesi che propone."
         status={statusOf(state)}
       />
       <AsyncView
         state={state}
         onRetry={run}
-        loadingLabel="Running 41 models (walk-forward)… this takes a moment."
+        loadingLabel="Esecuzione modelli attivi (walk-forward): attendo il conteggio reale dal motore…"
       >
         {(data) => <OptimizationBody data={data} />}
       </AsyncView>
@@ -127,7 +127,7 @@ function OptimizationBody({ data }: { data: OptimizationModelsResponse }) {
         </Card>
       </div>
 
-      {/* the 41 models table */}
+      {/* active models table */}
       <ModelsTable models={data.models} tickers={tickers} />
     </div>
   );
