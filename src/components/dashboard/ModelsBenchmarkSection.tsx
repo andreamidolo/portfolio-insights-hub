@@ -137,6 +137,25 @@ function Content({
   const indexMap = data.index_map?.[currency] ?? {};
   const acs = data.asset_classes ?? [];
 
+  const rows = useMemo(
+    () =>
+      acs.map((ac) => {
+        const t = model?.target?.[ac] ?? 0;
+        const b = model?.bands?.[ac] ?? { min: 0, max: 0 };
+        const bt = benchmark.grid?.target?.[ac] ?? 0;
+        return {
+          ac,
+          label: labelOf(ac),
+          target: t,
+          min: b.min,
+          max: b.max,
+          bmTarget: bt,
+          delta: t - bt,
+        };
+      }),
+    [acs, model, benchmark.grid],
+  );
+
   if (!model) {
     return (
       <Card className="border-destructive/40 p-6">
@@ -151,25 +170,6 @@ function Content({
       </Card>
     );
   }
-
-  const rows = useMemo(
-    () =>
-      acs.map((ac) => {
-        const t = model.target?.[ac] ?? 0;
-        const b = model.bands?.[ac] ?? { min: 0, max: 0 };
-        const bt = benchmark.grid?.target?.[ac] ?? 0;
-        return {
-          ac,
-          label: labelOf(ac),
-          target: t,
-          min: b.min,
-          max: b.max,
-          bmTarget: bt,
-          delta: t - bt,
-        };
-      }),
-    [acs, model, benchmark.grid],
-  );
 
   return (
     <div className="space-y-5">
