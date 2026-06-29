@@ -552,5 +552,16 @@ export const api = {
       ),
     );
   },
+
+  runBacktest: (strategy: BacktestStrategy, trainSize: number, testSize: number) => {
+    const body = { strategy, train_size: trainSize, test_size: testSize };
+    return cached("/backtest/run", body, () =>
+      request<BacktestResponse>(
+        "/backtest/run",
+        { method: "POST", body: JSON.stringify(body) },
+        HEAVY_OPTS,
+      ),
+    );
+  },
 };
 
