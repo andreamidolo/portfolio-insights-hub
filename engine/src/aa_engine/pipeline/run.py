@@ -20,7 +20,7 @@ import numpy as np
 
 from aa_engine.backtest.performance import performance_summary
 from aa_engine.data import Regime
-from aa_engine.optimization import OptimizationEnsemble, default_ensemble
+from aa_engine.optimization import OptimizationEnsemble, default_ensemble, lite_enabled
 from aa_engine.optimization.sample import ASSET_CLASS_MAP, sample_returns
 from aa_engine.profiles import benchmark_weights, constraints_for, load_profiles
 from aa_engine.risk import compute_measure
@@ -59,11 +59,13 @@ class AllocationResult:
     risk: dict[str, float]                        # StdDev, VaR, CVaR, MaxDD, Calmar…
     excluded_models: dict[str, str] = field(default_factory=dict)
     benchmark: dict = field(default_factory=dict)  # confronto col benchmark del profilo
+    lite: bool = False                             # modalità hosting leggera (ensemble ridotto)
 
     def to_payload(self) -> dict:
         """Dict JSON-serializzabile (per l'API e il salvataggio)."""
         return {
             "profile": self.profile, "currency": self.currency, "as_of": self.as_of,
+            "lite": self.lite,
             "n_models_active": self.n_models_active,
             "regimes": self.regimes, "signals": self.signals,
             "selected": self.selected, "discarded": self.discarded,
@@ -274,6 +276,7 @@ def run_allocation(
         risk=risk,
         excluded_models=result.excluded,
         benchmark=benchmark,
+        lite=lite_enabled() and ensemble is None,
     )
 
 
@@ -382,6 +385,7 @@ def compute_optimization_models(
 
     return {
         "profile": profile, "currency": currency, "as_of": ctx.as_of,
+        "lite": lite_enabled() and ensemble is None,
         "scorer": result.scorer, "n_best": result.n_best,
         "n_models_active": result.n_active,
         "selected_models": list(result.selected),

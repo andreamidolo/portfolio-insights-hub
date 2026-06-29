@@ -161,6 +161,7 @@ class AllocationResponse(BaseModel):
     profile: Profile
     currency: Currency
     as_of: str
+    lite: bool = False                # ensemble ridotto (modalità hosting leggera)
     n_models_active: int
     regimes: dict[str, RegimeLabel]
     signals: list[SignalRow]
@@ -203,6 +204,7 @@ class OptimizationModelsResponse(BaseModel):
     profile: Profile
     currency: Currency
     as_of: str
+    lite: bool = False                # ensemble ridotto (modalità hosting leggera)
     scorer: str                       # es. "calmar"
     n_best: int
     n_models_active: int
@@ -330,6 +332,7 @@ class PortfolioReoptimizeResponse(BaseModel):
     source: Literal["user", "sample"]
     profile: Profile
     currency: Currency
+    lite: bool = False
     as_of: str
     covered_weight: float
     missing_prices: list[str] = []

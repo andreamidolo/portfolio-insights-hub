@@ -76,6 +76,20 @@ export function Card({ children, className = "" }: { children: ReactNode; classN
   return <div className={"rounded-md border border-border bg-card " + className}>{children}</div>;
 }
 
+// Honest banner when the engine runs the reduced "hosting-lite" ensemble.
+export function LiteNote({ nModels }: { nModels?: number }) {
+  return (
+    <Card className="border-accent/30 bg-accent/5 p-3 text-sm text-foreground">
+      <span className="font-semibold">Modalità hosting leggera.</span>{" "}
+      <span className="text-muted-foreground">
+        Per girare veloce su un server piccolo, l'ensemble è ridotto
+        {nModels ? ` a ${nModels} modelli rappresentativi` : ""} invece dei 41 completi. In locale
+        (o su un piano più potente) gira l'ensemble intero.
+      </span>
+    </Card>
+  );
+}
+
 // Editorial "eyebrow" label — uppercase, wide tracking (the brand signature).
 export function Eyebrow({ children, className = "" }: { children: ReactNode; className?: string }) {
   return <div className={"ds-eyebrow text-muted-foreground " + className}>{children}</div>;

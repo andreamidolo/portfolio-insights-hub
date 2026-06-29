@@ -16,7 +16,7 @@ import { useAsync } from "@/lib/use-async";
 
 import { AllocationDonut } from "./charts";
 import { fmtNum, fmtPct, statusOf } from "./format";
-import { AsyncView, Card, Eyebrow, SectionHeader, WeightBar } from "./ui";
+import { AsyncView, Card, Eyebrow, LiteNote, SectionHeader, WeightBar } from "./ui";
 
 const FAMILY_LABEL: Record<ModelFamily, string> = {
   classics: "Classics",
@@ -62,6 +62,7 @@ function OptimizationBody({ data }: { data: OptimizationModelsResponse }) {
   const tickers = data.selected;
   return (
     <div className="space-y-6">
+      {data.lite && <LiteNote nModels={data.n_models_active} />}
       {/* final allocation + how it is built */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="p-4">

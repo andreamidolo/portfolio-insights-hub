@@ -18,7 +18,7 @@ from __future__ import annotations
 import pandas as pd
 
 from aa_engine.data import Regime
-from aa_engine.optimization import default_ensemble
+from aa_engine.optimization import default_ensemble, lite_enabled
 from aa_engine.profiles import constraints_for, load_profiles
 from aa_engine.pipeline.run import (
     _proxy_regimes,
@@ -174,6 +174,7 @@ def reoptimize(
         "source": source,
         "profile": profile,
         "currency": currency,
+        "lite": lite_enabled() and ensemble is None,
         "as_of": returns.index[-1].date().isoformat(),
         "covered_weight": covered,
         "missing_prices": missing,
