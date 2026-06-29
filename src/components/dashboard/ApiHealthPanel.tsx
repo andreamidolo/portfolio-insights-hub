@@ -159,8 +159,9 @@ export function ApiHealthPanel() {
               className={
                 "ml-2 rounded-sm px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide " +
                 (engineMode === "lite"
-                  ? "bg-warning/15 text-warning"
+                  ? "bg-secondary text-foreground border border-border"
                   : "bg-success/15 text-success")
+
               }
               title={
                 engineMode === "lite"
