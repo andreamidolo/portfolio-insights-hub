@@ -4,8 +4,8 @@ import { useState } from "react";
 import { API_BASE_URL, type Currency, type DataSource, type Profile } from "@/lib/api";
 
 import { ApiHealthPanel } from "@/components/dashboard/ApiHealthPanel";
+import { BacktestSection } from "@/components/dashboard/BacktestSection";
 import { DataImportSection } from "@/components/dashboard/DataImportSection";
-import { BacktestSection } from "@/components/dashboard/PlaceholderSections";
 import { ModelsBenchmarkSection } from "@/components/dashboard/ModelsBenchmarkSection";
 import { OptimizationSection } from "@/components/dashboard/OptimizationSection";
 import { RiskSection } from "@/components/dashboard/RiskSection";
