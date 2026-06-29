@@ -34,14 +34,14 @@ def _small():
 
 @pytest.fixture(scope="module")
 def result():
-    return run_allocation("balanced", "EUR", ensemble=_small())
+    return run_allocation("moderate", "EUR", ensemble=_small())
 
 
 # --------------------------------------------------------------------------- #
 # Flusso unico
 # --------------------------------------------------------------------------- #
 def test_allocation_result_complete(result):
-    assert result.profile == "balanced" and result.currency == "EUR"
+    assert result.profile == "moderate" and result.currency == "EUR"
     assert result.n_models_active > 0
     assert set(result.regimes) and all(v in ("bull", "bear") for v in result.regimes.values())
     # ogni strumento dell'universo ha una riga segnali
@@ -77,12 +77,12 @@ def test_invalid_profile_raises():
 # --------------------------------------------------------------------------- #
 def test_profile_risk_ordering():
     vols = {}
-    for prof in ["moderate", "balanced", "aggressive"]:
+    for prof in ["low", "moderate", "high"]:
         r = run_allocation(prof, "EUR", ensemble=_small())
         ret = sample_returns()[r.selected]
         w = pd.Series(r.final_weights).reindex(ret.columns).fillna(0.0)
         vols[prof] = compute_measure(ret, w, "MV")
-    assert vols["moderate"] <= vols["balanced"] + 1e-6 <= vols["aggressive"] + 2e-6
+    assert vols["low"] <= vols["moderate"] + 1e-6 <= vols["high"] + 2e-6
 
 
 # --------------------------------------------------------------------------- #
@@ -109,9 +109,9 @@ def test_cli_equals_api(monkeypatch):
 
     monkeypatch.setattr(run_mod, "default_ensemble", lambda n_best=4: _small())
 
-    cli = run_allocation("balanced", "EUR")          # usa il default (ora patchato)
+    cli = run_allocation("moderate", "EUR")          # usa il default (ora patchato)
     api = TestClient(app).post(
-        "/api/v1/allocation/run", json={"profile": "balanced", "currency": "EUR"}
+        "/api/v1/allocation/run", json={"profile": "moderate", "currency": "EUR"}
     ).json()
     assert api["final_weights"] == cli.final_weights
     assert api["selected_models"] == cli.selected_models
@@ -137,7 +137,7 @@ def test_signals_window():
 
 
 def test_optimization_models_window():
-    r = compute_optimization_models("balanced", "EUR", ensemble=_small())
+    r = compute_optimization_models("moderate", "EUR", ensemble=_small())
     assert r["scorer"] and r["n_models_active"] == len(r["models"])
     # i modelli "selected" coincidono con selected_models
     sel = [m["name"] for m in r["models"] if m["selected"]]
@@ -172,7 +172,7 @@ def test_lite_mode_reduces_models(monkeypatch):
     assert opt.lite_enabled() is True
     assert len(opt.active_models()) == len(opt.LITE_MODELS) < len(opt.DEFAULT_MODELS)
 
-    res = run_allocation("balanced", "EUR")  # usa il default (ora ridotto)
+    res = run_allocation("moderate", "EUR")  # usa il default (ora ridotto)
     assert res.lite is True
     assert res.n_models_active == len(opt.LITE_MODELS)
     assert sum(res.final_weights.values()) == pytest.approx(1.0, abs=1e-3)
@@ -186,8 +186,8 @@ def test_optimization_models_endpoint(monkeypatch):
     from aa_engine.api.main import app
 
     monkeypatch.setattr(run_mod, "default_ensemble", lambda n_best=4: _small())
-    r = TestClient(app).get("/api/v1/optimization/models", params={"profile": "balanced"})
+    r = TestClient(app).get("/api/v1/optimization/models", params={"profile": "moderate"})
     assert r.status_code == 200
     body = r.json()
-    assert body["profile"] == "balanced"
+    assert body["profile"] == "moderate"
     assert body["models"] and "baseline_equal_weight" in body

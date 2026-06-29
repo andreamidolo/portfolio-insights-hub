@@ -194,9 +194,7 @@ function BenchmarkCompare({
     <Card className="overflow-hidden">
       <div className="flex items-center justify-between border-b border-border px-4 py-2">
         <Eyebrow>Confronto col benchmark — {bm.label}</Eyebrow>
-        {bm.placeholder && (
-          <span className="text-[10px] text-accent">placeholder — valori da sostituire (LFG)</span>
-        )}
+        {bm.placeholder && <span className="text-[10px] text-accent">placeholder — valori</span>}
       </div>
       <table className="w-full border-collapse text-sm">
         <thead>

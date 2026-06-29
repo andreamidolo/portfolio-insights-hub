@@ -38,18 +38,18 @@ const CHECKS: Check[] = [
     path: "/risk/panel",
     method: "POST",
     kind: "heavy",
-    body: { profile: "balanced", currency: "EUR", alpha: 0.05, mar: 0, regime_conditional: true },
+    body: { profile: "moderate", currency: "EUR", alpha: 0.05, mar: 0, regime_conditional: true },
   },
   {
     label: "Allocation run",
     path: "/allocation/run",
     method: "POST",
     kind: "heavy",
-    body: { profile: "balanced", currency: "EUR", as_of: null },
+    body: { profile: "moderate", currency: "EUR", as_of: null },
   },
   {
     label: "Optimization models",
-    path: "/optimization/models?profile=balanced&currency=EUR",
+    path: "/optimization/models?profile=moderate&currency=EUR",
     method: "GET",
     kind: "heavy",
   },
@@ -135,24 +135,20 @@ export function ApiHealthPanel() {
     setResults([]);
     setStartedAt(new Date().toLocaleTimeString());
     // Esegui in parallelo: aggiorna man mano che ogni check risponde.
-    await Promise.all(
-      CHECKS.map((c) =>
-        ping(c).then((r) => setResults((prev) => [...prev, r])),
-      ),
-    );
+    await Promise.all(CHECKS.map((c) => ping(c).then((r) => setResults((prev) => [...prev, r]))));
     setRunning(false);
   }
 
   const sorted = [...results].sort(
-    (a, b) => CHECKS.findIndex((c) => c.path === a.path) - CHECKS.findIndex((c) => c.path === b.path),
+    (a, b) =>
+      CHECKS.findIndex((c) => c.path === a.path) - CHECKS.findIndex((c) => c.path === b.path),
   );
   const okCount = results.filter((r) => r.ok).length;
   // Modalità motore: l'API restituisce `lite: true` sulle risposte pesanti quando
   // gira con AA_ENGINE_LITE=1 (ensemble ridotto ~6 modelli vs 41 completi).
   const liteFlags = results.filter((r) => typeof r.lite === "boolean");
-  const engineMode: "lite" | "full" | "unknown" = liteFlags.length === 0
-    ? "unknown"
-    : liteFlags.some((r) => r.lite) ? "lite" : "full";
+  const engineMode: "lite" | "full" | "unknown" =
+    liteFlags.length === 0 ? "unknown" : liteFlags.some((r) => r.lite) ? "lite" : "full";
   const modelsCount =
     results.find((r) => r.path === "/health")?.nModels ??
     results.find((r) => r.path.startsWith("/optimization/models"))?.nModels;
@@ -176,7 +172,6 @@ export function ApiHealthPanel() {
                 (engineMode === "lite"
                   ? "bg-secondary text-foreground border border-border"
                   : "bg-success/15 text-success")
-
               }
               title={
                 engineMode === "lite"

@@ -184,7 +184,7 @@ class _Context:
 
 
 def _build_context(
-    profile: str = "balanced",
+    profile: str = "moderate",
     currency: str = "EUR",
     as_of: str | None = None,
     *,
@@ -231,7 +231,7 @@ def _build_context(
 
 
 def run_allocation(
-    profile: str = "balanced",
+    profile: str = "moderate",
     currency: str = "EUR",
     as_of: str | None = None,
     *,
@@ -248,7 +248,7 @@ def run_allocation(
     # 4. OTTIMIZZAZIONE: ~38 modelli → 4 migliori → media, con le views BL.
     #    I vincoli sono le BANDE min-max del profilo (config esterna, data-driven).
     ens = ensemble or default_ensemble(n_best=4)
-    constraints = constraints_for(profile, ctx.acmap)
+    constraints = constraints_for(profile, currency, ctx.acmap)
     sel_views = {t: v for t, v in ctx.views.items() if t in ctx.selected}
     with _quiet():
         result = ens.run(ctx.returns[ctx.selected], views=sel_views, constraints=constraints)
@@ -289,11 +289,8 @@ def _benchmark_block(profile: str, ctx: _Context) -> dict:
     """
     cfg = load_profiles()
     prof = cfg.profile(profile)
-    bm = cfg.benchmarks.get(prof.benchmark)
-    if bm is None:
-        return {}
     sel_acmap = {t: ctx.acmap[t] for t in ctx.selected}
-    bw = benchmark_weights(profile, sel_acmap, config=cfg)
+    bw = benchmark_weights(profile, ctx.currency, sel_acmap, config=cfg)
     if not bw:
         return {}
     bw_series = pd.Series(bw).reindex(ctx.selected).fillna(0.0)
@@ -302,7 +299,7 @@ def _benchmark_block(profile: str, ctx: _Context) -> dict:
         bm_ac[ctx.acmap[t]] = round(bm_ac.get(ctx.acmap[t], 0.0) + float(w), 4)
     return {
         "id": prof.benchmark,
-        "label": bm.label,
+        "label": cfg.benchmark_label(profile),
         "placeholder": cfg.placeholder,
         "weights": {t: round(float(w), 4) for t, w in bw.items()},
         "asset_class_weights": bm_ac,
@@ -320,7 +317,7 @@ def compute_signals(as_of: str | None = None) -> dict:
     rischio (che entra solo nei vincoli dell'ottimizzazione). Espone
     ``GET /api/v1/signals``.
     """
-    ctx = _build_context("balanced", "EUR", as_of)
+    ctx = _build_context("moderate", "EUR", as_of)
     return {
         "as_of": ctx.as_of,
         "svm_enabled": False,
@@ -338,7 +335,7 @@ def _finite_or_none(x: float) -> float | None:
 
 
 def compute_optimization_models(
-    profile: str = "balanced",
+    profile: str = "moderate",
     currency: str = "EUR",
     as_of: str | None = None,
     *,
@@ -353,7 +350,7 @@ def compute_optimization_models(
     """
     ctx = _build_context(profile, currency, as_of)
     ens = ensemble or default_ensemble(n_best=4)
-    constraints = constraints_for(profile, ctx.acmap)
+    constraints = constraints_for(profile, currency, ctx.acmap)
     sel_views = {t: v for t, v in ctx.views.items() if t in ctx.selected}
     with _quiet():
         result = ens.run(ctx.returns[ctx.selected], views=sel_views, constraints=constraints)
@@ -413,7 +410,7 @@ def _main() -> None:
     from .report import render_markdown
 
     parser = argparse.ArgumentParser(description="AA engine — pipeline di allocazione (Fase 4).")
-    parser.add_argument("--profile", default="balanced", choices=load_profiles().profile_ids)
+    parser.add_argument("--profile", default="moderate", choices=load_profiles().profile_ids)
     parser.add_argument("--currency", default="EUR", choices=["EUR", "USD", "CHF"])
     parser.add_argument("--as-of", default=None)
     parser.add_argument("--out", default=None, help="percorso del report markdown (default: report_<profile>.md)")

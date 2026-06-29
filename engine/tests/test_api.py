@@ -41,10 +41,10 @@ def test_regimes_shape():
 
 
 def test_portfolio_weights_sum_to_one():
-    r = client.get(f"{BASE}/portfolio", params={"profile": "balanced", "currency": "EUR"})
+    r = client.get(f"{BASE}/portfolio", params={"profile": "moderate", "currency": "EUR"})
     assert r.status_code == 200
     body = r.json()
-    assert body["profile"] == "balanced"
+    assert body["profile"] == "moderate"
     total = sum(h["weight"] for h in body["holdings"])
     assert total == pytest.approx(1.0, abs=1e-3)
     assert sum(body["asset_class_weights"].values()) == pytest.approx(1.0, abs=1e-3)
@@ -54,7 +54,7 @@ def test_portfolio_weights_sum_to_one():
 def test_risk_panel_contract():
     r = client.post(
         f"{BASE}/risk/panel",
-        json={"profile": "balanced", "currency": "EUR", "alpha": 0.05, "regime_conditional": True},
+        json={"profile": "moderate", "currency": "EUR", "alpha": 0.05, "regime_conditional": True},
     )
     assert r.status_code == 200
     body = r.json()
@@ -74,7 +74,7 @@ def test_risk_panel_contract():
 
 
 def test_regime_conditional_changes_panel():
-    payload = {"profile": "balanced", "currency": "EUR"}
+    payload = {"profile": "moderate", "currency": "EUR"}
     full = client.post(f"{BASE}/risk/panel", json={**payload, "regime_conditional": False}).json()
     cond = client.post(f"{BASE}/risk/panel", json={**payload, "regime_conditional": True}).json()
     mv_full = next(m["value"] for m in full["metrics"] if m["code"] == "MV")
@@ -85,12 +85,12 @@ def test_regime_conditional_changes_panel():
 def test_contributions_sum_to_total_mv():
     panel = client.post(
         f"{BASE}/risk/panel",
-        json={"profile": "aggressive", "regime_conditional": False},
+        json={"profile": "high", "regime_conditional": False},
     ).json()
     mv_total = next(m["value"] for m in panel["metrics"] if m["code"] == "MV")
     contrib = client.get(
         f"{BASE}/risk/contributions",
-        params={"profile": "aggressive", "measure": "MV"},
+        params={"profile": "high", "measure": "MV"},
     ).json()
     s = sum(c["risk_contribution"] for c in contrib["contributions"])
     # somma dei contributi ≈ rischio totale (proprietà di Euler), entrambi full-history
@@ -110,6 +110,6 @@ def test_invalid_profile_rejected():
 
 def test_panel_flags_approximate_metrics():
     """Le metriche approssimate (RLVaR/RLDaR/TG) sono segnalate al client."""
-    body = client.post(f"{BASE}/risk/panel", json={"profile": "balanced"}).json()
+    body = client.post(f"{BASE}/risk/panel", json={"profile": "moderate"}).json()
     approx = {m["code"] for m in body["metrics"] if m.get("approx")}
     assert approx == {"RLVaR", "RLDaR", "TG"}

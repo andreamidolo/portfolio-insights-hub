@@ -5,9 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * LFG Holding design system — brand "lfg-zest" (Wealth & Fund Management).
+ * Design system — brand "wealth" (Wealth & Fund Management).
  *
- * Multi-brand by construction: raw brand tokens (--lfgz-*) feed the semantic
+ * Multi-brand by construction: raw brand tokens (--brand-*) feed the semantic
  * aliases (--primary, --surface-card, --text-body, …), and the UI is authored
  * ONLY against the semantic aliases — never a raw brand colour. Swapping the
  * brand layer (via data-brand) would re-skin everything without touching code.
@@ -68,67 +68,67 @@
 }
 
 :root,
-[data-brand="lfg-zest"] {
+[data-brand="wealth"] {
   --radius: 0.375rem;
 
-  /* ---- raw brand tokens (lfg-zest) ---------------------------------- */
-  --lfgz-burgundy: #83021a; /* PRIMARY — il rosso dominante           */
-  --lfgz-burgundy-700: #6e0a18;
-  --lfgz-maroon: #590112;
-  --lfgz-red-accent: #9e2a36;
-  --lfgz-rose: #cfa8ad;
-  --lfgz-sand: #d5c29a; /* oro-sabbia, accento data-viz           */
-  --lfgz-sand-200: #e9ddc9;
-  --lfgz-taupe: #9a8463;
-  --lfgz-cream: #f9f4ee;
-  --lfgz-ink: #231f20;
-  --lfgz-charcoal: #1e2225;
-  --lfgz-slate: #848788;
-  --lfgz-line: #e5e2de;
-  --lfgz-paper: #ffffff;
-  --lfgz-navy: #002060; /* data-viz support                       */
-  --lfgz-teal: #004a58; /* data-viz support / positivo            */
+  /* ---- raw brand tokens (wealth) ---------------------------------- */
+  --brand-burgundy: #83021a; /* PRIMARY — il rosso dominante           */
+  --brand-burgundy-700: #6e0a18;
+  --brand-maroon: #590112;
+  --brand-red-accent: #9e2a36;
+  --brand-rose: #cfa8ad;
+  --brand-sand: #d5c29a; /* oro-sabbia, accento data-viz           */
+  --brand-sand-200: #e9ddc9;
+  --brand-taupe: #9a8463;
+  --brand-cream: #f9f4ee;
+  --brand-ink: #231f20;
+  --brand-charcoal: #1e2225;
+  --brand-slate: #848788;
+  --brand-line: #e5e2de;
+  --brand-paper: #ffffff;
+  --brand-navy: #002060; /* data-viz support                       */
+  --brand-teal: #004a58; /* data-viz support / positivo            */
 
   /* ---- semantic aliases (author against THESE) ---------------------- */
   --background: #faf7f2; /* cream airy page              */
-  --foreground: var(--lfgz-ink);
-  --card: var(--lfgz-paper);
-  --card-foreground: var(--lfgz-ink);
-  --popover: var(--lfgz-paper);
-  --popover-foreground: var(--lfgz-ink);
-  --primary: var(--lfgz-burgundy);
+  --foreground: var(--brand-ink);
+  --card: var(--brand-paper);
+  --card-foreground: var(--brand-ink);
+  --popover: var(--brand-paper);
+  --popover-foreground: var(--brand-ink);
+  --primary: var(--brand-burgundy);
   --primary-foreground: #fdf8f3;
   --secondary: #f1eade; /* faint sand surface          */
-  --secondary-foreground: var(--lfgz-ink);
+  --secondary-foreground: var(--brand-ink);
   --muted: #f4efe8;
-  --muted-foreground: var(--lfgz-slate);
-  --accent: var(--lfgz-taupe); /* readable as text + fill     */
+  --muted-foreground: var(--brand-slate);
+  --accent: var(--brand-taupe); /* readable as text + fill     */
   --accent-foreground: #fdf8f3;
-  --destructive: var(--lfgz-red-accent);
+  --destructive: var(--brand-red-accent);
   --destructive-foreground: #fdf8f3;
-  --success: var(--lfgz-teal); /* positivo / bull, on-brand   */
+  --success: var(--brand-teal); /* positivo / bull, on-brand   */
   --success-foreground: #fdf8f3;
-  --border: var(--lfgz-line);
-  --input: var(--lfgz-line);
-  --ring: var(--lfgz-burgundy);
+  --border: var(--brand-line);
+  --input: var(--brand-line);
+  --ring: var(--brand-burgundy);
   /* chart palette — burgundy primary, sand/gold + teal/navy support     */
-  --chart-1: var(--lfgz-burgundy);
-  --chart-2: var(--lfgz-sand);
-  --chart-3: var(--lfgz-teal);
-  --chart-4: var(--lfgz-navy);
-  --chart-5: var(--lfgz-taupe);
-  --sidebar: var(--lfgz-paper);
-  --sidebar-foreground: var(--lfgz-ink);
-  --sidebar-primary: var(--lfgz-burgundy);
+  --chart-1: var(--brand-burgundy);
+  --chart-2: var(--brand-sand);
+  --chart-3: var(--brand-teal);
+  --chart-4: var(--brand-navy);
+  --chart-5: var(--brand-taupe);
+  --sidebar: var(--brand-paper);
+  --sidebar-foreground: var(--brand-ink);
+  --sidebar-primary: var(--brand-burgundy);
   --sidebar-primary-foreground: #fdf8f3;
   --sidebar-accent: #f1eade;
-  --sidebar-accent-foreground: var(--lfgz-ink);
-  --sidebar-border: var(--lfgz-line);
-  --sidebar-ring: var(--lfgz-burgundy);
+  --sidebar-accent-foreground: var(--brand-ink);
+  --sidebar-border: var(--brand-line);
+  --sidebar-ring: var(--brand-burgundy);
 }
 
 .dark {
-  /* Dark variant of lfg-zest: charcoal surfaces, rose-lightened burgundy. */
+  /* Dark variant of wealth: charcoal surfaces, rose-lightened burgundy. */
   --background: #1a1718;
   --foreground: #f3ece4;
   --card: #231f20;
@@ -141,7 +141,7 @@
   --secondary-foreground: #f3ece4;
   --muted: #2c2728;
   --muted-foreground: #b3ada4;
-  --accent: var(--lfgz-sand);
+  --accent: var(--brand-sand);
   --accent-foreground: #1a1718;
   --destructive: #c14a59;
   --destructive-foreground: #1a1718;
@@ -151,10 +151,10 @@
   --input: rgb(255 255 255 / 15%);
   --ring: #c14a59;
   --chart-1: #c14a59;
-  --chart-2: var(--lfgz-sand);
+  --chart-2: var(--brand-sand);
   --chart-3: #3a8a96;
   --chart-4: #6b7fb0;
-  --chart-5: var(--lfgz-taupe);
+  --chart-5: var(--brand-taupe);
   --sidebar: #231f20;
   --sidebar-foreground: #f3ece4;
   --sidebar-primary: #c14a59;

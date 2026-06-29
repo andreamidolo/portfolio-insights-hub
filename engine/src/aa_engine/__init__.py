@@ -1,4 +1,4 @@
-"""aa_engine — Motore interno di asset allocation quantitativa (LFG).
+"""aa_engine — Motore interno di asset allocation quantitativa .
 
 Architettura a quattro stadi:
     1. signals       — segnali e security selection

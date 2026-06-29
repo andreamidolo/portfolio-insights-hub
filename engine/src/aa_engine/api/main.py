@@ -47,7 +47,7 @@ except Exception:  # pragma: no cover
 
 API_PREFIX = "/api/v1"
 
-Profile = Literal["conservative", "moderate", "balanced", "aggressive"]
+Profile = Literal["low", "moderate", "medium", "high"]
 Currency = Literal["EUR", "USD", "CHF"]
 
 
@@ -100,25 +100,43 @@ def create_app() -> FastAPI:
     @app.get(f"{API_PREFIX}/profiles", response_model=ProfilesConfigResponse, tags=["meta"])
     def profiles() -> ProfilesConfigResponse:
         # Profili = DATI configurabili (config/risk_profiles.json): la UI legge da qui
-        # le 4 linee, le bande min-max per asset class, i benchmark e le valute.
-        from aa_engine.profiles import GROUPS, load_profiles
+        # le 4 linee, le bande min-max per asset class × valuta, i benchmark e gli indici.
+        from aa_engine.profiles import load_profiles
 
         cfg = load_profiles()
+
+        def _grid(entry: dict) -> dict:
+            return {
+                "target": entry["target"],
+                "bands": {g: {"min": b.min, "max": b.max} for g, b in entry["bands"].items()},
+            }
+
+        models = {
+            pid: {cur: _grid(entry) for cur, entry in by_cur.items()}
+            for pid, by_cur in cfg.models.items()
+        }
+        benchmarks = {
+            bid: {
+                ("label" if cur == "label" else cur): (
+                    val if cur == "label" else _grid(val)
+                )
+                for cur, val in by_cur.items()
+            }
+            for bid, by_cur in cfg.benchmarks.items()
+        }
         return ProfilesConfigResponse(
             placeholder=cfg.placeholder,
-            asset_classes=list(GROUPS),
+            source=cfg.source,
+            asset_classes=list(cfg.asset_classes),
             currencies=list(cfg.currencies),
+            default_currency=cfg.default_currency,
             profiles=[
-                {
-                    "id": p.id, "label": p.label, "benchmark": p.benchmark,
-                    "bands": {g: {"min": b.min, "max": b.max} for g, b in p.bands.items()},
-                }
+                {"id": p.id, "label": p.label, "benchmark": p.benchmark}
                 for p in cfg.profiles.values()
             ],
-            benchmarks=[
-                {"id": bid, "label": b.label, "composition": b.composition}
-                for bid, b in cfg.benchmarks.items()
-            ],
+            models=models,
+            benchmarks=benchmarks,
+            index_map=cfg.index_map,
         )
 
     @app.get(f"{API_PREFIX}/regimes", response_model=RegimesResponse, tags=["risk"])
@@ -129,7 +147,7 @@ def create_app() -> FastAPI:
 
     @app.get(f"{API_PREFIX}/portfolio", response_model=PortfolioResponse, tags=["portfolio"])
     def portfolio(
-        profile: Profile = Query(default="balanced"),
+        profile: Profile = Query(default="moderate"),
         currency: Currency = Query(default="EUR"),
     ) -> PortfolioResponse:
         return PortfolioResponse(**sample.get_portfolio(profile, currency))
@@ -147,7 +165,7 @@ def create_app() -> FastAPI:
         tags=["risk"],
     )
     def risk_contributions(
-        profile: Profile = Query(default="balanced"),
+        profile: Profile = Query(default="moderate"),
         currency: Currency = Query(default="EUR"),
         measure: str = Query(default="MV"),
     ) -> JSONResponse | ContributionsResponse:
@@ -186,7 +204,7 @@ def create_app() -> FastAPI:
         tags=["optimization"],
     )
     def optimization_models(
-        profile: Profile = Query(default="balanced"),
+        profile: Profile = Query(default="moderate"),
         currency: Currency = Query(default="EUR"),
         as_of: str | None = Query(default=None),
     ) -> OptimizationModelsResponse:

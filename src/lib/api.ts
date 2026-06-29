@@ -15,7 +15,7 @@ export const API_BASE_URL: string =
 
 // ---- Shared contract enums ----------------------------------------------
 
-export type Profile = "conservative" | "moderate" | "balanced" | "aggressive";
+export type Profile = "low" | "moderate" | "medium" | "high";
 export type Currency = "EUR" | "USD" | "CHF";
 export type Regime = "bull" | "bear";
 export type RiskFamily = "return_based" | "tail" | "drawdown_based";
@@ -132,19 +132,28 @@ export interface ProfileBand {
   max: number;
 }
 
+export interface ModelGrid {
+  target: Record<string, number>;
+  bands: Record<string, ProfileBand>;
+}
+
 export interface ProfileItem {
   id: Profile;
   label: string;
   benchmark: string;
-  bands: Record<string, ProfileBand>;
 }
 
 export interface ProfilesConfigResponse {
   placeholder: boolean;
+  source: string;
   asset_classes: string[];
   currencies: Currency[];
+  default_currency: Currency;
   profiles: ProfileItem[];
-  benchmarks: { id: string; label: string; composition: Record<string, number> }[];
+  // models[profile][currency] = {target, bands}; benchmarks[bm_id][currency] = {target, bands}
+  models: Record<string, Record<string, ModelGrid>>;
+  benchmarks: Record<string, Record<string, unknown>>;
+  index_map: Record<string, Record<string, string>>;
 }
 
 // ---- /signals ------------------------------------------------------------

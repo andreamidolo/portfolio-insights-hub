@@ -77,17 +77,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "LFG — Allocation Engine" },
+      { title: "Allocation Engine" },
       { name: "description", content: "Internal quantitative asset allocation dashboard." },
-      { name: "author", content: "LFG Holding" },
-      { property: "og:title", content: "LFG — Allocation Engine" },
+      { name: "author", content: "the firm" },
+      { property: "og:title", content: "Allocation Engine" },
       { property: "og:description", content: "Internal quantitative asset allocation dashboard." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "LFG — Allocation Engine" },
+      { name: "twitter:title", content: "Allocation Engine" },
       { name: "twitter:description", content: "Internal quantitative asset allocation dashboard." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c73de346-3171-4d5b-9e6c-21a1395432c0/id-preview-cc4ee9c1--904cde44-9488-47e5-8601-bd5defc0c4ed.lovable.app-1782674105768.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c73de346-3171-4d5b-9e6c-21a1395432c0/id-preview-cc4ee9c1--904cde44-9488-47e5-8601-bd5defc0c4ed.lovable.app-1782674105768.png" },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c73de346-3171-4d5b-9e6c-21a1395432c0/id-preview-cc4ee9c1--904cde44-9488-47e5-8601-bd5defc0c4ed.lovable.app-1782674105768.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c73de346-3171-4d5b-9e6c-21a1395432c0/id-preview-cc4ee9c1--904cde44-9488-47e5-8601-bd5defc0c4ed.lovable.app-1782674105768.png",
+      },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -107,7 +115,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" data-brand="lfg-zest">
+    <html lang="en" data-brand="wealth">
       <head>
         <HeadContent />
       </head>

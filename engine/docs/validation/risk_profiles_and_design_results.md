@@ -1,8 +1,8 @@
-# Validazione — Profili configurabili (4 linee) + design system LFG
+# Validazione — Profili configurabili (4 linee) + design system
 
 Iterazione combinata: (A) profili di rischio configurabili a 4 linee con bande,
-benchmark e 3 valute (spec docs/14); (B) applicazione del design system LFG
-`lfg-zest` alla dashboard (spec docs/15).
+benchmark e 3 valute (spec docs/14); (B) applicazione del design system
+`wealth` alla dashboard (spec docs/15).
 
 ---
 
@@ -11,7 +11,7 @@ benchmark e 3 valute (spec docs/14); (B) applicazione del design system LFG
 I profili sono **DATI, non codice**: vivono in `config/risk_profiles.json`
 (4 linee × bande min-max su 5 asset class + benchmark + valute), lette dal motore
 a ogni esecuzione (`aa_engine/profiles.py`). I numeri sono **placeholder marcati**
-(`_placeholder: true`), da sostituire con le griglie reali di LFG via import/UI.
+(`_placeholder: true`), da sostituire con le griglie reali del cliente via import/UI.
 
 ### 5 check di sanità (spec §6)
 
@@ -36,17 +36,17 @@ a ogni esecuzione (`aa_engine/profiles.py`). I numeri sono **placeholder marcati
 
 ---
 
-## B. Design system LFG (`lfg-zest`) sulla dashboard
+## B. Design system (`wealth`) sulla dashboard
 
-Design system vendorizzato in `/design-system` (riferimento; immagini demo LFA
+Design system vendorizzato in `/design-system` (riferimento; immagini demo del brand di riferimento
 rimosse per non gonfiare la repo — vedi `design-system/USAGE.md`).
 
 ### 5 check di sanità (spec §5)
 
 | # | Check | Esito | PASS |
 |---|-------|-------|------|
-| 1 | La dashboard "sembra LFG" (burgundy/sand, Raleway, editoriale)? | sì — token `lfg-zest` mappati sugli alias semantici in `src/styles.css`, font Raleway, `data-brand="lfg-zest"` | ✅ |
-| 2 | I grafici usano la palette del brand (burgundy/gold), non colori a caso? | sì — `recharts` con `lfg-theme.ts` (burgundy/sand/teal/navy), niente arcobaleni | ✅ |
+| 1 | La dashboard "on-brand" (burgundy/sand, Raleway, editoriale)? | sì — token `wealth` mappati sugli alias semantici in `src/styles.css`, font Raleway, `data-brand="wealth"` | ✅ |
+| 2 | I grafici usano la palette del brand (burgundy/gold), non colori a caso? | sì — `recharts` con `brand-theme.ts` (burgundy/sand/teal/navy), niente arcobaleni | ✅ |
 | 3 | Le tabelle sono editoriali (hairline, header UPPERCASE, numeri allineati)? | sì — `MetricsTable`, tabella segnali, universo/mandato, 41 modelli | ✅ |
 | 4 | La tabella dei 41 modelli è ordinabile coi 4 scelti evidenziati? | sì — header ordinabili (modello/famiglia/score), righe scelte in burgundy con ★ | ✅ |
 | 5 | Le StatCard mostrano le metriche chiave coerenti col brand? | sì — `StatCard` (numerale thin) per Cumulative/Sharpe/MaxDD/Volatility | ✅ |
@@ -63,7 +63,7 @@ rimosse per non gonfiare la repo — vedi `design-system/USAGE.md`).
 ### Onestà visiva (regola d'oro mantenuta)
 
 LIVE / OFFLINE / IN ARRIVO restano espliciti; nessun mock travestito da dato
-reale. Il brand non è mescolato (solo `lfg-zest`). Niente colore grezzo fuori dai
+reale. Il brand non è mescolato (solo `wealth`). Niente colore grezzo fuori dai
 token. I numeri dei profili e dei benchmark sono dichiarati placeholder.
 
 ### Verifica build

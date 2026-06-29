@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "aa_engine"
 version = "0.1.0"
-description = "Motore interno di asset allocation quantitativa (LFG)"
+description = "Motore interno di asset allocation quantitativa "
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Proprietary" }
-authors = [{ name = "LFG Asset Allocation Team" }]
+authors = [{ name = "Internal" }]
 
 dependencies = [
     "numpy>=1.26",

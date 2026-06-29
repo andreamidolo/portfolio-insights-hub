@@ -3,7 +3,7 @@
 Fonte di verità: ``docs/05_api_contract.md``. Convenzioni:
     - valori percentuali come **frazioni decimali** (0.1378 = 13.78%);
     - date come stringa ISO ``YYYY-MM-DD``;
-    - regime ∈ {"bull", "bear"}; profilo ∈ {"moderate","balanced","aggressive"};
+    - regime ∈ {"bull", "bear"}; profilo ∈ {"low","moderate","medium","high"};
     - valuta ∈ {"EUR","USD"}.
 """
 
@@ -13,7 +13,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Profile = Literal["conservative", "moderate", "balanced", "aggressive"]
+Profile = Literal["low", "moderate", "medium", "high"]
 Currency = Literal["EUR", "USD", "CHF"]
 RegimeLabel = Literal["bull", "bear"]
 
@@ -67,7 +67,7 @@ class PortfolioResponse(BaseModel):
 # /risk/panel
 # --------------------------------------------------------------------------- #
 class RiskPanelRequest(BaseModel):
-    profile: Profile = "balanced"
+    profile: Profile = "moderate"
     currency: Currency = "EUR"
     alpha: float = Field(0.05, gt=0, lt=1)
     mar: float = 0.0
@@ -132,7 +132,7 @@ class ErrorResponse(BaseModel):
 # /allocation/run  (Fase 4 — il "bottone")
 # --------------------------------------------------------------------------- #
 class AllocationRunRequest(BaseModel):
-    profile: Profile = "balanced"
+    profile: Profile = "moderate"
     currency: Currency = "EUR"
     as_of: str | None = None
 
@@ -290,7 +290,7 @@ class PortfolioAnalyzeResponse(BaseModel):
 
 class PortfolioReoptimizeRequest(BaseModel):
     holdings: list[HoldingInput]
-    profile: Profile = "balanced"
+    profile: Profile = "moderate"
     currency: Currency = "EUR"
 
 
@@ -310,25 +310,28 @@ class BandItem(BaseModel):
     max: float
 
 
+class ModelGrid(BaseModel):
+    target: dict[str, float]          # gruppo → peso target (somma ~1)
+    bands: dict[str, BandItem]        # gruppo → banda min/max
+
+
 class ProfileItem(BaseModel):
     id: str
     label: str
-    bands: dict[str, BandItem]        # gruppo → banda (5 asset class)
     benchmark: str
 
 
-class BenchmarkItem(BaseModel):
-    id: str
-    label: str
-    composition: dict[str, float]
-
-
 class ProfilesConfigResponse(BaseModel):
-    placeholder: bool                 # True = valori di esempio, da sostituire (LFG)
+    placeholder: bool                 # True = valori d'esempio; False = dati reali
+    source: str
     asset_classes: list[str]
     currencies: list[str]
+    default_currency: str
     profiles: list[ProfileItem]
-    benchmarks: list[BenchmarkItem]
+    # models[profile][currency] = {target, bands}; benchmarks[bm_id][currency] = {target, bands}
+    models: dict[str, dict[str, ModelGrid]]
+    benchmarks: dict[str, dict]
+    index_map: dict[str, dict[str, str]] = {}
 
 
 class PortfolioReoptimizeResponse(BaseModel):

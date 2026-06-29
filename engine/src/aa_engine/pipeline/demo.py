@@ -2,7 +2,7 @@
 
     python -m aa_engine.pipeline.demo
 
-Genera il report per il profilo *balanced* (ensemble completo) e verifica i 4
+Genera il report per il profilo *moderate* (ensemble completo) e verifica i 4
 check. I check 3-4 usano un ensemble ridotto per non moltiplicare i run lenti.
 """
 
@@ -39,12 +39,12 @@ def _small_ensemble() -> OptimizationEnsemble:
 
 def main() -> None:
     console.rule("[bold]Fase 4 — il bottone: pipeline end-to-end (~1-2 min)")
-    res = run_allocation("balanced", "EUR")          # CLI path, ensemble completo
+    res = run_allocation("moderate", "EUR")          # CLI path, ensemble completo
 
-    Path("report_balanced.md").write_text(render_markdown(res))
-    Path("report_balanced.html").write_text(render_html(res))
+    Path("report_moderate.md").write_text(render_markdown(res))
+    Path("report_moderate.html").write_text(render_html(res))
     console.print(render_markdown(res))
-    console.print("[green]Report salvati: report_balanced.md / .html[/green]\n")
+    console.print("[green]Report salvati: report_moderate.md / .html[/green]\n")
 
     _sanity_checks(res)
 
@@ -73,7 +73,7 @@ def _sanity_checks(res_full) -> None:
 
     # [3] cambiando profilo (4 linee), rischio crescente (ensemble ridotto)
     vols = {}
-    order = ["conservative", "moderate", "balanced", "aggressive"]
+    order = ["low", "moderate", "medium", "high"]
     for prof in order:
         r = run_allocation(prof, "EUR", ensemble=_small_ensemble())
         ret = sample_returns()[r.selected]
@@ -90,7 +90,7 @@ def _sanity_checks(res_full) -> None:
     # [4] CLI e API producono lo STESSO risultato (stesso flusso)
     from fastapi.testclient import TestClient
     from aa_engine.api.main import app
-    api = TestClient(app).post("/api/v1/allocation/run", json={"profile": "balanced", "currency": "EUR"}).json()
+    api = TestClient(app).post("/api/v1/allocation/run", json={"profile": "moderate", "currency": "EUR"}).json()
     c4 = api["final_weights"] == res_full.final_weights and api["selected_models"] == res_full.selected_models
     console.print(f"[4] CLI == API (stesso run_allocation): {_pf(c4)}")
 

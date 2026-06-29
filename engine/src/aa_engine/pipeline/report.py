@@ -77,7 +77,7 @@ def render_markdown(res: AllocationResult) -> str:
     bm = res.benchmark or {}
     if bm.get("risk"):
         br = bm["risk"]
-        tag = " _(placeholder — valori da sostituire con quelli LFG)_" if bm.get("placeholder") else ""
+        tag = " _(placeholder — valori da sostituire con quelli del cliente)_" if bm.get("placeholder") else ""
         L += [f"## Confronto col benchmark — {bm.get('label', bm.get('id', ''))}{tag}", "",
               "| Metrica | Allocazione | Benchmark |", "|---|---|---|",
               f"| Volatilità (StdDev) | {_pct(r['std_dev'])} | {_pct(br['std_dev'])} |",

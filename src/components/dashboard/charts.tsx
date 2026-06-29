@@ -1,4 +1,4 @@
-// On-brand data-viz (recharts) for the dashboard — lfg-zest palette, parsimonious
+// On-brand data-viz (recharts) for the dashboard — wealth palette, parsimonious
 // colour, neutral grids/axes, no rainbows (design spec §4). Rendered only inside
 // client-side success states, so SSR never measures an empty container.
 
@@ -15,9 +15,9 @@ import {
   YAxis,
 } from "recharts";
 
-import { CHART_SEQUENCE, LFG, NEGATIVE, POSITIVE, chartColor } from "@/lib/lfg-theme";
+import { CHART_SEQUENCE, BRAND, NEGATIVE, POSITIVE, chartColor } from "@/lib/brand-theme";
 
-const axisStyle = { fontSize: 11, fill: LFG.slate } as const;
+const axisStyle = { fontSize: 11, fill: BRAND.slate } as const;
 const pctTick = (v: number) => `${Math.round(v * 100)}%`;
 
 function TooltipBox({
@@ -70,7 +70,7 @@ export function AllocationDonut({
             innerRadius="55%"
             outerRadius="82%"
             paddingAngle={1.5}
-            stroke={LFG.paper}
+            stroke={BRAND.paper}
             strokeWidth={1.5}
           >
             {rows.map((_, i) => (
@@ -83,7 +83,7 @@ export function AllocationDonut({
             align="right"
             layout="vertical"
             iconType="square"
-            wrapperStyle={{ fontSize: 11, color: LFG.ink }}
+            wrapperStyle={{ fontSize: 11, color: BRAND.ink }}
           />
         </PieChart>
       </ResponsiveContainer>
@@ -95,7 +95,7 @@ export function AllocationDonut({
 export function HBars({
   data,
   height = 220,
-  color = LFG.burgundy,
+  color = BRAND.burgundy,
 }: {
   data: { name: string; value: number }[];
   height?: number;
@@ -105,9 +105,9 @@ export function HBars({
     <div style={{ width: "100%", height }}>
       <ResponsiveContainer>
         <BarChart data={data} layout="vertical" margin={{ left: 8, right: 16, top: 4, bottom: 4 }}>
-          <XAxis type="number" tickFormatter={pctTick} tick={axisStyle} stroke={LFG.line} />
-          <YAxis type="category" dataKey="name" width={92} tick={axisStyle} stroke={LFG.line} />
-          <Tooltip cursor={{ fill: LFG.cream }} content={<TooltipBox />} />
+          <XAxis type="number" tickFormatter={pctTick} tick={axisStyle} stroke={BRAND.line} />
+          <YAxis type="category" dataKey="name" width={92} tick={axisStyle} stroke={BRAND.line} />
+          <Tooltip cursor={{ fill: BRAND.cream }} content={<TooltipBox />} />
           <Bar dataKey="value" fill={color} radius={[0, 2, 2, 0]} barSize={14} />
         </BarChart>
       </ResponsiveContainer>
@@ -127,21 +127,21 @@ export function CurrentVsProposed({
     <div style={{ width: "100%", height }}>
       <ResponsiveContainer>
         <BarChart data={data} layout="vertical" margin={{ left: 8, right: 16, top: 4, bottom: 4 }}>
-          <XAxis type="number" tickFormatter={pctTick} tick={axisStyle} stroke={LFG.line} />
-          <YAxis type="category" dataKey="name" width={92} tick={axisStyle} stroke={LFG.line} />
-          <Tooltip cursor={{ fill: LFG.cream }} content={<TooltipBox />} />
-          <Legend iconType="square" wrapperStyle={{ fontSize: 11, color: LFG.ink }} />
+          <XAxis type="number" tickFormatter={pctTick} tick={axisStyle} stroke={BRAND.line} />
+          <YAxis type="category" dataKey="name" width={92} tick={axisStyle} stroke={BRAND.line} />
+          <Tooltip cursor={{ fill: BRAND.cream }} content={<TooltipBox />} />
+          <Legend iconType="square" wrapperStyle={{ fontSize: 11, color: BRAND.ink }} />
           <Bar
             dataKey="current"
             name="Attuale"
-            fill={LFG.taupe}
+            fill={BRAND.taupe}
             radius={[0, 2, 2, 0]}
             barSize={9}
           />
           <Bar
             dataKey="proposed"
             name="Proposta"
-            fill={LFG.burgundy}
+            fill={BRAND.burgundy}
             radius={[0, 2, 2, 0]}
             barSize={9}
           />
@@ -163,9 +163,9 @@ export function DeltaBars({
     <div style={{ width: "100%", height }}>
       <ResponsiveContainer>
         <BarChart data={data} layout="vertical" margin={{ left: 8, right: 16, top: 4, bottom: 4 }}>
-          <XAxis type="number" tickFormatter={pctTick} tick={axisStyle} stroke={LFG.line} />
-          <YAxis type="category" dataKey="name" width={92} tick={axisStyle} stroke={LFG.line} />
-          <Tooltip cursor={{ fill: LFG.cream }} content={<TooltipBox />} />
+          <XAxis type="number" tickFormatter={pctTick} tick={axisStyle} stroke={BRAND.line} />
+          <YAxis type="category" dataKey="name" width={92} tick={axisStyle} stroke={BRAND.line} />
+          <Tooltip cursor={{ fill: BRAND.cream }} content={<TooltipBox />} />
           <Bar dataKey="value" radius={[0, 2, 2, 0]} barSize={12}>
             {data.map((d, i) => (
               <Cell key={i} fill={d.value >= 0 ? POSITIVE : NEGATIVE} />

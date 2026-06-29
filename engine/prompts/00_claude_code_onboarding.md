@@ -8,7 +8,7 @@ repo `portfolio-insights-hub`.
 ```
 Stai lavorando sulla repo portfolio-insights-hub. È una repo UNICA che conterrà
 sia il MOTORE Python sia il FRONT-END React/Vite di un tool interno di asset
-allocation quantitativa per una società di gestione patrimoniale (LFG).
+allocation quantitativa per una società di gestione patrimoniale .
 
 STATO DELLA REPO:
 - È praticamente vergine: Lovable ha generato uno scaffold front-end React/Vite
