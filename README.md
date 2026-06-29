@@ -171,6 +171,17 @@ Poi in Lovable `VITE_API_BASE_URL = https://xxxx.trycloudflare.com/api/v1` e rib
 > vanno bene; `/allocation/run` e `/optimization/models` girano 41 modelli e sono
 > pesanti — per quelli conviene il piano **Starter**.
 
+### Modalità hosting leggera (`AA_ENGINE_LITE`)
+
+Per far rispondere in pochi secondi anche le funzioni pesanti (Esegui,
+Ottimizzazione, Ri-ottimizza) su un server piccolo (es. Render Free, 0.1 CPU),
+imposta la variabile d'ambiente **`AA_ENGINE_LITE=1`**: il motore gira un
+**ensemble ridotto** (~6 modelli veloci e diversi per famiglia) invece dei 41.
+La dashboard lo **dichiara** con un avviso "modalità hosting leggera" (regola
+d'oro: niente finzioni). In locale, senza la variabile, restano i 41 modelli
+completi. È già impostata in `render.yaml`; sul servizio Render creato a mano,
+aggiungila in **Environment**.
+
 ---
 
 ## Documentazione (in `engine/docs/`, leggere in quest'ordine)

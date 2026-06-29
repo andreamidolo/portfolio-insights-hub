@@ -164,6 +164,20 @@ def test_signals_endpoint():
     assert len(body["signals"]) == len(list(sample_returns().columns))
 
 
+def test_lite_mode_reduces_models(monkeypatch):
+    # AA_ENGINE_LITE riduce l'ensemble (hosting con poca CPU) — il flusso resta lo stesso.
+    import aa_engine.optimization as opt
+
+    monkeypatch.setenv("AA_ENGINE_LITE", "1")
+    assert opt.lite_enabled() is True
+    assert len(opt.active_models()) == len(opt.LITE_MODELS) < len(opt.DEFAULT_MODELS)
+
+    res = run_allocation("balanced", "EUR")  # usa il default (ora ridotto)
+    assert res.lite is True
+    assert res.n_models_active == len(opt.LITE_MODELS)
+    assert sum(res.final_weights.values()) == pytest.approx(1.0, abs=1e-3)
+
+
 def test_optimization_models_endpoint(monkeypatch):
     pytest.importorskip("fastapi")
     from fastapi.testclient import TestClient

@@ -88,10 +88,34 @@ DEFAULT_MODELS: tuple[type[OptModel], ...] = (
     _CLASSICS + _BAYESIAN + _AI + _ONLINE + _ROBUST + _BASELINE
 )
 
+#: Sottoinsieme "leggero" per hosting con poca CPU (es. Render Free): pochi
+#: modelli VELOCI e diversi per famiglia (classic mean-var, risk-parity,
+#: clustering AI, bayesian/views, baseline). Evita i modelli lenti (resampling
+#: Michaud, EVaR/EDaR). Attivato via env ``AA_ENGINE_LITE`` — la UI lo dichiara.
+LITE_MODELS: tuple[type[OptModel], ...] = (
+    MinVolatility, MaxSharpe, RiskParity, HRP, BlackLitterman, EqualWeight,
+)
+
+
+def lite_enabled() -> bool:
+    """True se l'ensemble ridotto è attivo (env ``AA_ENGINE_LITE`` truthy)."""
+    import os
+
+    return os.getenv("AA_ENGINE_LITE", "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def active_models() -> tuple[type[OptModel], ...]:
+    """Modelli attivi: ridotti in modalità lite, altrimenti i ~41 completi."""
+    return LITE_MODELS if lite_enabled() else DEFAULT_MODELS
+
 
 def default_ensemble(n_best: int = 4) -> OptimizationEnsemble:
-    """Ensemble "vero": ~38 modelli curati (4 famiglie) + baseline 1/N."""
-    return OptimizationEnsemble([m() for m in DEFAULT_MODELS], n_best=n_best)
+    """Ensemble di default: ~41 modelli, o il set ridotto se ``AA_ENGINE_LITE``.
+
+    In modalità lite ``n_best`` è limitato al numero di modelli disponibili.
+    """
+    models = active_models()
+    return OptimizationEnsemble([m() for m in models], n_best=min(n_best, len(models)))
 
 
 __all__ = [
@@ -114,5 +138,5 @@ __all__ = [
     "DeepLearningOpt", "DeepRLOpt",
     # ensemble
     "OptimizationEnsemble", "EnsembleResult", "Scorer", "SharpeScorer", "CalmarScorer",
-    "DEFAULT_MODELS", "default_ensemble",
+    "DEFAULT_MODELS", "LITE_MODELS", "default_ensemble", "active_models", "lite_enabled",
 ]

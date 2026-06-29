@@ -108,6 +108,7 @@ export interface AllocationResponse {
   profile: Profile;
   currency: Currency;
   as_of: string;
+  lite?: boolean; // hosting-lite mode: reduced ensemble (fewer models, fast)
   n_models_active: number;
   regimes: Record<string, Regime>;
   signals: SignalRow[];
@@ -178,6 +179,7 @@ export interface OptimizationModelsResponse {
   profile: Profile;
   currency: Currency;
   as_of: string;
+  lite?: boolean; // hosting-lite mode: reduced ensemble (fewer models, fast)
   scorer: string;
   n_best: number;
   n_models_active: number;
@@ -299,11 +301,7 @@ const HEAVY_OPTS: RequestOptions = {
   retryDelayMs: 2_000,
 };
 
-async function request<T>(
-  path: string,
-  init?: RequestInit,
-  opts: RequestOptions = {},
-): Promise<T> {
+async function request<T>(path: string, init?: RequestInit, opts: RequestOptions = {}): Promise<T> {
   const timeoutMs = opts.timeoutMs ?? LIGHT_TIMEOUT_MS;
   const maxRetries = opts.retries ?? 0;
   const retryDelayMs = opts.retryDelayMs ?? 2_000;

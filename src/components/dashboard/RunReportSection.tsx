@@ -15,6 +15,7 @@ import {
   Card,
   ErrorBlock,
   Eyebrow,
+  LiteNote,
   LoadingBlock,
   RegimeChips,
   SectionHeader,
@@ -95,6 +96,7 @@ export function RunReportSection({ profile, currency }: { profile: Profile; curr
 function Report({ data }: { data: AllocationResponse }) {
   return (
     <div className="space-y-5">
+      {data.lite && <LiteNote nModels={data.n_models_active} />}
       {/* executive summary */}
       <Card className="p-4">
         <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">

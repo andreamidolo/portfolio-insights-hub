@@ -20,6 +20,11 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: "3.11.9"
+      # Modalità hosting LEGGERA: ensemble ridotto (~6 modelli veloci) così
+      # /allocation/run e /optimization/models rispondono in pochi secondi anche
+      # con poca CPU. In locale (senza questa var) restano i 41 modelli completi.
+      - key: AA_ENGINE_LITE
+        value: "1"
       # Origini autorizzate per il browser (CORS). Imposta il valore nel pannello
       # Render con l'URL della preview Lovable, es:
       #   https://904cde44-9488-47e5-8601-bd5defc0c4ed.lovable.app
