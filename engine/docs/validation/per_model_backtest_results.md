@@ -77,32 +77,45 @@ SPY / TLT / GLD / DBC, 2006–2026; train rolling 756, test 252.
 | BlackLitterman | 52.9% | 0.70 | 0.24 | 27.0% |
 | HRP | 47.1% | 0.73 | 0.27 | 24.0% |
 
-### B.2 — Full 41 modelli — 18 fold completi (aggregato)
+### B.2 — Full 41 modelli — 17 fold (artefatto `per_model_backtest_real_full.csv/.json`)
 
 | Aggregato | Ensemble (41) | 1/N |
 |---|---|---|
-| CAGR | **8.12%** | 6.47% |
-| Sharpe | **0.860** | 0.705 |
-| Sortino | **1.22** | 0.99 |
+| CAGR | **8.63%** | 6.70% |
+| Sharpe | **0.922** | 0.731 |
+| Sortino | **1.32** | 1.03 |
 | Max Drawdown | **17.6%** | 22.6% |
-| Calmar | **0.463** | 0.287 |
+| Calmar | **0.491** | 0.297 |
 
-**Full > Lite > 1/N** (Calmar reale: 0.463 > 0.365 > 0.287). Il set completo migliora sulla
+**Full > Lite > 1/N** (Calmar reale: 0.491 > 0.38 > 0.297). Il set completo migliora sulla
 lite — i risk-measure e i robust (esclusi dalla lite per costo) aggiungono protezione nei
-drawdown. L'ensemble batte 1/N (Calmar) in **13 fold su 18**.
+drawdown.
 
-Frequenza di selezione (full, 18 fold) — **nessun modello domina**:
+Per-modello (estratto, ordinato per frequenza di selezione; `score` = Calmar OOS interno
+dello scorer; le altre colonne = performance OOS **standalone** dei pesi proposti):
 
-| Volte nei top-4 | Modelli |
-|---|---|
-| 6 / 18 | MaxRatioCVaR, MinWR, ParametricPolicy |
-| 4 / 18 | RobustEllipsoidal |
-| 3 / 18 | MinEDaR, MinMDD, MinCDaR, RewardToRiskTiming, MaxSharpe, MinEVaR, MinCVaR |
-| 1–2 / 18 | coda di ~18 modelli (HERC, NCO, HRP, online, ecc.) |
+| Modello | Lite | sel. freq | score | Sharpe | Calmar | MaxDD |
+|---|:--:|---|---|---|---|---|
+| ParametricPolicy | — | 35.3% | 0.81 | 0.85 | 0.51 | 17.6% |
+| MinWR | — | 35.3% | 1.05 | 0.70 | 0.32 | 19.2% |
+| MaxRatioCVaR | — | 29.4% | 0.85 | 0.83 | 0.39 | 20.4% |
+| RobustEllipsoidal | — | 23.5% | 0.63 | 0.70 | 0.32 | 21.6% |
+| MaxSharpe | ✅ | 17.6% | 0.81 | 0.85 | 0.42 | 19.2% |
+| MinCVaR / MinEVaR / MinCDaR / MinEDaR / MinMDD | — | 17.6% | ~0.9 | ~0.8 | 0.23–0.37 | ~21% |
+| … coda (online, bayesian, robust) | — | ≤12% | — | — | — | — |
 
-> La selezione distribuita su tutte le famiglie conferma la tesi: i **nomi** nei top-4
-> ruotano fra modelli quasi-equivalenti, ma l'**allocazione** resta stabile. Si tiene un
-> ensemble proprio perché quale modello "vince" dipende dal regime del fold.
+**Nota controintuitiva.** Nel set completo i 4 modelli "lite" risk-based — `MinVolatility`,
+`RiskParity`, `EqualWeight`, `BlackLitterman` — finiscono allo **0% di selezione**: quando
+competono tutti i 41, i risk-measure e i robust ne occupano i posti nei top-4. La lite si
+appoggia a quei 6 solo perché sono i pochi veloci; non perché siano i migliori scorer.
+
+Frequenza di selezione — **nessun modello domina** (il più frequente entra 6/17 = 35%):
+selezione distribuita su risk-measures, robust, online, bayesian, clustering. I **nomi** nei
+top-4 ruotano fra modelli quasi-equivalenti, ma l'**allocazione** resta stabile — si tiene un
+ensemble proprio perché quale modello "vince" dipende dal regime del fold.
+
+> Tabella completa di tutti i 41 modelli: `per_model_backtest_real_full.csv`. I numeri
+> dipendono da soli 4 asset (universo dei dati gratuiti); si allargheranno con Bloomberg.
 >
 > La tabella per-modello *standalone completa* sui 41 modelli reali si rigenera con
 > `python -m aa_engine.backtest.per_model --data real --out per_model_real_full`.
