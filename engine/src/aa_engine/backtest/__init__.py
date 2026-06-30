@@ -29,6 +29,11 @@ from .runner import cpcv_backtest, walk_forward_backtest
 from .splitters import CombinatorialPurgedCV, WalkForwardSplitter
 from . import strategies
 
+# NB: ``per_model`` NON è importato qui di proposito: dipende da
+# ``aa_engine.optimization`` che a sua volta importa questo package
+# (``ensemble`` usa ``WalkForwardSplitter``) → import circolare. Si importa
+# come sottomodulo: ``from aa_engine.backtest.per_model import run_per_model_backtest``.
+
 __all__ = [
     # performance
     "PerformanceStats", "performance_summary",
