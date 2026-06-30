@@ -1,0 +1,879 @@
+{
+  "_meta": {
+    "purpose": "Fatti di implementazione + comportamento OOS per la sezione 'Nel nostro motore' delle schede dei modelli.",
+    "generated_for": "aa_engine.optimization",
+    "generated_by_session": "estrazione da sorgente; nessuna run del backtest eseguita (vedi common.backtest_run e common.notes)",
+    "honesty_rule": "Dove un dato non esiste/non e' calcolato/non e' verificabile in questa sessione -> null + nota. Nessun numero inventato.",
+    "n_models_listed": 43,
+    "n_models_active": 41,
+    "n_models_stub": 2
+  },
+  "common": {
+    "lookback_days": 756,
+    "lookback_source": "LOOKBACK_DAYS in pipeline/run.py (= api/sample.py N_DAYS = 756, ~36 mesi di giorni lavorativi). I per-fold del backtest ensemble usano train_size=756 di default.",
+    "ensemble": {
+      "n_best": 4,
+      "scorer": "Calmar",
+      "scorer_detail": "CalmarScorer (name='calmar') = CAGR/MaxDD su risultato OOS; default in OptimizationEnsemble.run. Alternativa disponibile: SharpeScorer. Selezione = top-n_best per score, poi MEDIA SEMPLICE dei pesi.",
+      "selector_module": "aa_engine.optimization.ensemble.OptimizationEnsemble",
+      "evaluation": "walk-forward out-of-sample per-modello (WalkForwardSplitter di default: train=max(60,n//2), test=max(21,n//6)); modelli con pesi non finiti / somma != 1 / negativi (long-only) vengono ESCLUSI e loggati, non bloccano l'ensemble.",
+      "default_n_best": 4
+    },
+    "lite_mode_members": ["MinVolatility", "MaxSharpe", "RiskParity", "HRP", "BlackLitterman", "EqualWeight"],
+    "lite_mode_source": "LITE_MODELS in optimization/__init__.py; attivato dall'env AA_ENGINE_LITE (truthy: 1/true/yes/on). In lite n_best e' limitato al numero di modelli disponibili (min(n_best, len(models))).",
+    "constraints_source": "config/risk_profiles.json (bande min/max per gruppo, per profilo+valuta, dai range Excel Benchmark.xlsx + Model.xlsx) tradotte in PortfolioConstraints via profiles.constraints_for(): asset_class_caps = band.max, asset_class_floors = band.min (>0 e presenti), piu' un cap per-strumento w_max=0.40 (_DEFAULT_W_MAX). I 5 gruppi: equity, fixed_income, alternatives, commodities, cash.",
+    "constraints_note": "Esiste anche un secondo set di vincoli piu' semplice, PortfolioConstraints.for_profile (profili moderate/balanced/aggressive con equity come RANGE e w_max=0.40), usato in demo/test; la pipeline di produzione (compute_ensemble_backtest, run_allocation) usa pero' constraints_for() dalle bande di risk_profiles.json (profili low/moderate/medium/high x EUR/USD/CHF).",
+    "riskfolio_version": "pin >=7.2,<7.3 in engine/pyproject.toml (risolto a 7.2.1 nelle validazioni). Il pin <7.3 e' per il bug HERC in 7.3.0 (KNOWN_ISSUES KI-1).",
+    "riskfolio_runtime_status": "NON installato nell'ambiente di questa sessione (import riskfolio -> ModuleNotFoundError): i modelli che girano via rf.Portfolio/rf.HCPortfolio non sono eseguibili qui.",
+    "covariance_estimator": "make_portfolio() (rf.Portfolio) usa method_mu='hist', method_cov='ledoit' (Ledoit-Wolf, sempre definita positiva). I modelli HC (HRP/HERC/NCO) passano method_cov='ledoit', codependence='pearson'.",
+    "backtest_run": {
+      "data": null,
+      "data_detail": "Nessuna run eseguita in questa sessione. L'ambiente non ha Riskfolio-Lib installato, non c'e' un file di prezzi reali (nessun prices_real.csv; lo STORE in-memoria e' vuoto e non persiste ai riavvii) e non c'e' un motore in esecuzione (ne' Mac mini ne' API). Default del motore in assenza di upload: STORE.active_returns() ricade sul backbone SINTETICO aa_engine.optimization.sample (8 strumenti proxy: EQ_DM, EQ_EM, HY, BOND, ALT, GOLD, COMMOD, CASH) -> sarebbe data='sample'.",
+      "date_range": null,
+      "method": "walk-forward (WalkForwardSplitter). NB: compute_ensemble_backtest usa SOLO walk-forward; il Combinatorial Purged CV (CombinatorialPurgedCV, con purging+embargo) e' implementato in backtest/splitters.py ma NON e' cablato nel backtest dell'ensemble.",
+      "n_folds": null,
+      "n_folds_note": "Dipende dalla lunghezza dei dati: floor((n - train_size)/test_size). Su backbone sample di default (~900 giorni) con train=756/test=126 sarebbe 1 solo fold. Non eseguito qui.",
+      "run_command": "API: POST /api/v1/backtest/ensemble {profile,currency,train_size,test_size} -> polling GET /api/v1/backtest/jobs/{id} finche' status='done'. Diretto: aa_engine.pipeline.run.compute_ensemble_backtest(profile='medium', currency='USD', train_size=756, test_size=126). Per-modello (score/selezione, stdout): python -m aa_engine.optimization.demo.",
+      "run_date": null,
+      "executed": false
+    },
+    "oos_availability": "I numeri OOS PER-MODELLO (calmar/sharpe/turnover/selection_freq_top4/beats_equalweight per ciascun modello) NON sono prodotti ne' persistiti dal motore: compute_ensemble_backtest restituisce solo metriche AGGREGATE ensemble-vs-1/N. La frequenza con cui ogni modello entra nei top-4 per fold (res.selected) non viene registrata in nessun artefatto. Quindi tutti i campi oos.* sono null. Per ottenerli servirebbe codice ad-hoc che instrumenti OptimizationEnsemble.run su ogni fold, su dati reali, su un motore in esecuzione (non disponibile qui).",
+    "oos_documented_aggregate": "Solo come contesto QUALITATIVO (validazioni congelate, backbone SINTETICO, NON un track record): docs/validation/models_expansion_results.md riporta ensemble vs 1/N OOS Calmar 0.79 vs -0.34 (Sharpe 0.94 vs -0.47) con ~41 modelli, 0/41 esclusi; docs/validation/phase3_results.md (set ridotto 9 modelli) Calmar 1.07 vs 0.74, Sharpe 1.09 vs 1.10. Questi NON sono metriche per-modello e non vanno attribuiti ai singoli modelli.",
+    "risk_panel_linear_bridge_note": "La marcatura 'linear-bridge'/approssimazione (flag approx nel payload API, RiskMetricItem.approx) riguarda il RISK PANEL (risk/measures.py: RLVaR/RLDaR via bridge lineare EVaR+k*(WR-EVaR); TG via tail-GMD), NON i 41 modelli di ottimizzazione: nessun OptModel usa rm RLVaR/RLDaR/TG. Riportato qui per evitare di attribuirlo ai modelli.",
+    "notes": "TUTTO il blocco 'engine' e 'caveats_declared' e' estratto dai sorgenti (optimization/*.py, docs/KNOWN_ISSUES.md, api/schemas.py) ed e' affidabile. TUTTO il blocco 'oos' e' null: il motore non e' eseguibile in questa sessione (no Riskfolio-Lib, no prezzi reali, no API/Mac mini) E il motore non calcola/persiste metriche OOS per-modello (solo aggregate). Convenzione engine.backend usata qui: 'riskfolio' = la soluzione finale gira via rf.Portfolio/rf.HCPortfolio SENZA matematica proprietaria sugli input (classics + clustering HC); 'custom' = codice proprietario che produce input/pesi anche se l'ultimo solve e' riskfolio (bayesian, robust, online); 'heuristic' = forma chiusa senza solver (timing + baseline 1/N). Per bayesian/robust il rm/obj indicato e' quello del solve finale rf.Portfolio. Lista = 43 voci (41 attivi + 2 stub Deep); il conteggio '41' del progetto e' i soli attivi (DEFAULT_MODELS)."
+  },
+  "models": {
+    "MinVolatility": {
+      "name": "MinVolatility",
+      "family": "classics",
+      "in_lite": true,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/classic.py",
+        "rm": "MV",
+        "obj": "MinRisk",
+        "key_params": { "kelly": null, "method_mu": "hist", "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Mean-Variance a minima varianza via rf.Portfolio.optimization(model='Classic'). In LITE_MODELS. Osservato in un top-4 documentato (phase3, backbone sintetico) — non una metrica."
+    },
+    "MaxSharpe": {
+      "name": "MaxSharpe",
+      "family": "classics",
+      "in_lite": true,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/classic.py",
+        "rm": "MV",
+        "obj": "Sharpe",
+        "key_params": { "kelly": null, "method_mu": "hist", "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Mean-Variance a massimo Sharpe via rf.Portfolio. In LITE_MODELS. Osservato in un top-4 documentato (phase3, backbone sintetico)."
+    },
+    "RiskParity": {
+      "name": "RiskParity",
+      "family": "classics",
+      "in_lite": true,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/classic.py",
+        "rm": "MV",
+        "obj": null,
+        "key_params": { "method": "rp_optimization", "b": null, "rf": 0, "hist": true, "method_mu": "hist", "method_cov": "ledoit" }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Contributi al rischio uguali via rf.Portfolio.rp_optimization (b=None -> budget di rischio uniforme). In LITE_MODELS. Non e' obj-driven (rp_optimization, non optimization)."
+    },
+    "MinCVaR": {
+      "name": "MinCVaR",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/classic.py",
+        "rm": "CVaR",
+        "obj": "MinRisk",
+        "key_params": { "alpha": "default riskfolio (0.05) — non passato esplicitamente", "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "alpha non e' impostato nel codice -> resta il default di riskfolio (port.alpha=0.05)."
+    },
+    "MinCDaR": {
+      "name": "MinCDaR",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/classic.py",
+        "rm": "CDaR",
+        "obj": "MinRisk",
+        "key_params": { "alpha": "default riskfolio (0.05) — non passato esplicitamente", "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Conditional Drawdown at Risk. alpha = default riskfolio (0.05). Osservato in top-4 documentati (phase3 e models_expansion, backbone sintetico)."
+    },
+    "MinMAD": {
+      "name": "MinMAD",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "MAD",
+        "obj": "MinRisk",
+        "key_params": { "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Minima Mean Absolute Deviation."
+    },
+    "MinSemiDev": {
+      "name": "MinSemiDev",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "MSV",
+        "obj": "MinRisk",
+        "key_params": { "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Minima Semi-Deviation (downside). rm code riskfolio 'MSV'."
+    },
+    "MinFLPM": {
+      "name": "MinFLPM",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "FLPM",
+        "obj": "MinRisk",
+        "key_params": { "kelly": null, "mar_min_acceptable_return": "default riskfolio", "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Minimo First Lower Partial Moment (Omega-oriented)."
+    },
+    "MinSLPM": {
+      "name": "MinSLPM",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "SLPM",
+        "obj": "MinRisk",
+        "key_params": { "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Minimo Second Lower Partial Moment (Sortino-oriented)."
+    },
+    "MinEVaR": {
+      "name": "MinEVaR",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "EVaR",
+        "obj": "MinRisk",
+        "key_params": { "alpha": "default riskfolio (0.05) — non passato esplicitamente", "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Minimo Entropic VaR. Modello PESANTE (escluso esplicitamente da LITE_MODELS nel commento del codice). alpha = default riskfolio (0.05)."
+    },
+    "MinWR": {
+      "name": "MinWR",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "WR",
+        "obj": "MinRisk",
+        "key_params": { "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Minima Worst Realization (minimax). Osservato in un top-4 documentato (models_expansion, backbone sintetico)."
+    },
+    "MinGMD": {
+      "name": "MinGMD",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "GMD",
+        "obj": "MinRisk",
+        "key_params": { "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Minima Gini Mean Difference."
+    },
+    "MinMDD": {
+      "name": "MinMDD",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "MDD",
+        "obj": "MinRisk",
+        "key_params": { "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Minimo Max Drawdown (variante Markowitz 2019). Osservato in un top-4 documentato (models_expansion, backbone sintetico)."
+    },
+    "MinADD": {
+      "name": "MinADD",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "ADD",
+        "obj": "MinRisk",
+        "key_params": { "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Minimo Average Drawdown."
+    },
+    "MinEDaR": {
+      "name": "MinEDaR",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "EDaR",
+        "obj": "MinRisk",
+        "key_params": { "alpha": "default riskfolio (0.05) — non passato esplicitamente", "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Minimo Entropic Drawdown at Risk. Modello PESANTE (escluso da LITE nel commento). alpha = default riskfolio (0.05). Osservato in un top-4 documentato (models_expansion, backbone sintetico)."
+    },
+    "MinUlcer": {
+      "name": "MinUlcer",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "UCI",
+        "obj": "MinRisk",
+        "key_params": { "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Minimo Ulcer Index. rm code riskfolio 'UCI'."
+    },
+    "MaxSortino": {
+      "name": "MaxSortino",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "SLPM",
+        "obj": "Sharpe",
+        "key_params": { "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Massimo Sortino = max ratio rendimento/downside (obj='Sharpe' su rm='SLPM')."
+    },
+    "MaxRatioCVaR": {
+      "name": "MaxRatioCVaR",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "CVaR",
+        "obj": "Sharpe",
+        "key_params": { "alpha": "default riskfolio (0.05) — non passato esplicitamente", "kelly": null, "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Massimo ratio rendimento/CVaR (obj='Sharpe' su rm='CVaR'). alpha = default riskfolio (0.05)."
+    },
+    "Kelly": {
+      "name": "Kelly",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/risk_measures.py",
+        "rm": "MV",
+        "obj": "Sharpe",
+        "key_params": { "kelly": "approx", "method_cov": "ledoit", "rf": 0, "l": 0, "hist": true }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring: 'criterio di Kelly (crescita log-ottimale, APPROSSIMAZIONE quadratica)' — usa kelly='approx' di riskfolio, non l'esatto."
+      ],
+      "notes": "Kelly via rf.Portfolio con kelly='approx'."
+    },
+    "VolatilityTiming": {
+      "name": "VolatilityTiming",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "heuristic",
+        "module": "optimization/timing.py",
+        "rm": null,
+        "obj": null,
+        "key_params": { "rule": "w ∝ 1/sigma", "sigma": "std(ddof=1) sui rendimenti (regime-filtrati)", "cap_enforcement": "enforce_caps (clip per-asset + scaling iterativo classi)" }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Forma chiusa, niente solver. Pesi inversamente proporzionali alla volatilita'."
+    },
+    "RewardToRiskTiming": {
+      "name": "RewardToRiskTiming",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "heuristic",
+        "module": "optimization/timing.py",
+        "rm": null,
+        "obj": null,
+        "key_params": { "rule": "w ∝ max(mu/sigma, 0)", "mu": "mean dei rendimenti", "sigma": "std(ddof=1)", "cap_enforcement": "enforce_caps" }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Forma chiusa. Pesi proporzionali al reward-to-risk per strumento."
+    },
+    "ParametricPolicy": {
+      "name": "ParametricPolicy",
+      "family": "classics",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "heuristic",
+        "module": "optimization/timing.py",
+        "rm": null,
+        "obj": null,
+        "key_params": { "theta": 0.5, "lookback": 126, "rule": "w_i ∝ 1/N + theta * z(momentum_i) / N (momentum = prod(1+r) sulla coda lookback, z cross-sezionale)", "cap_enforcement": "enforce_caps" }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring: 'Parametric Portfolio Policy (Brandt-Santa Clara-Valkanov), versione BASE'."
+      ],
+      "notes": "Forma chiusa. Parte da equal-weight e inclina sul momentum standardizzato. Parametri come istanziati dai default __init__ (theta=0.5, lookback=126)."
+    },
+    "BlackLitterman": {
+      "name": "BlackLitterman",
+      "family": "bayesian",
+      "in_lite": true,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/bayesian.py",
+        "rm": "MV",
+        "obj": "Sharpe",
+        "key_params": {
+          "delta": 2.5,
+          "tau": 0.05,
+          "views_source": "parametro 'views' = dict {ticker: rendimento_atteso_giornaliero} (views ASSOLUTE). E' IL PONTE verso i segnali (Stadio 1) ma NEL BACKTEST/PIPELINE viene passato views=None -> posterior = equilibrio di mercato (Pi). Il ponte ai forecast non e' cablato in compute_ensemble_backtest.",
+          "prior": "equilibrio di mercato con pesi equal-weight (w_eq = 1/N), Pi = delta * Sigma @ w_eq",
+          "omega_views_cov": "diag(diag(P @ tau*Sigma @ P^T)) — incertezza delle view proporzionale a tau*Sigma",
+          "final_solve": "rf.Portfolio.optimization(model='Classic', rm='MV', obj='Sharpe') sui rendimenti posterior"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "In LITE_MODELS. Posterior BL in forma chiusa + max-Sharpe via riskfolio. Senza views il modello coincide con l'equilibrio."
+    },
+    "BayesStein": {
+      "name": "BayesStein",
+      "family": "bayesian",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/bayesian.py",
+        "rm": "MV",
+        "obj": "Sharpe",
+        "key_params": {
+          "method": "Jorion 1986 shrinkage della media verso il min-variance portfolio (grand mean mu0)",
+          "phi": "(N+2) / ((N+2) + T*(mu-mu0)' Sigma^-1 (mu-mu0)) — intensita' di shrink calcolata, non fissata",
+          "sigma_inverse": "pinv (pseudo-inversa)",
+          "final_solve": "rf.Portfolio.optimization(rm='MV', obj='Sharpe') su mu_bs"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [],
+      "notes": "Shrinkage Bayes-Stein della media + max-Sharpe via riskfolio. Nessun iperparametro libero (phi derivato dai dati)."
+    },
+    "MeucciEP": {
+      "name": "MeucciEP",
+      "family": "bayesian",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/bayesian.py",
+        "rm": "MV",
+        "obj": "Sharpe",
+        "key_params": {
+          "shrink": 0.5,
+          "view": "rendimento medio di mercato ridotto: target = shrink * mean(market) (view conservativa)",
+          "method": "Entropy Pooling (Meucci) — tilting esponenziale p_i ∝ exp(lambda*m_i), lambda risolto con brentq per matchare la view; momenti p-pesati -> max-Sharpe",
+          "final_solve": "rf.Portfolio.optimization(rm='MV', obj='Sharpe') su mu/cov posterior"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring: 'versione BASE documentata ... NON e' la versione completa (views multiple, vincoli su covarianza): e' una variante ragionevole e documentata, da raffinare'.",
+        "TODO[opt] nel codice: generalizzare a views multiple (medie, vol, correlazioni)."
+      ],
+      "notes": "Nome classe MeucciEntropyPooling, attributo name='MeucciEP'. Single-view conservativa sul mercato."
+    },
+    "HRP": {
+      "name": "HRP",
+      "family": "ai",
+      "in_lite": true,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/clustering.py",
+        "rm": "MV",
+        "obj": "MinRisk",
+        "key_params": {
+          "hc_class": "rf.HCPortfolio",
+          "model": "HRP",
+          "codependence": "pearson",
+          "linkage": "default riskfolio (non impostato; default HCPortfolio = 'single')",
+          "method_cov": "ledoit",
+          "cluster_cut": "default riskfolio (non impostato)",
+          "cap_enforcement": "enforce_caps a posteriori (gli allocatori gerarchici non impongono cap lineari)"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring: allocatore euristico — NON risolve un programma convesso con vincoli lineari; i cap di asset class sono imposti a posteriori con enforce_caps."
+      ],
+      "notes": "Hierarchical Risk Parity (Lopez de Prado): nessuna inversione di covarianza. In LITE_MODELS."
+    },
+    "HERC": {
+      "name": "HERC",
+      "family": "ai",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/clustering.py",
+        "rm": "MV",
+        "obj": "MinRisk",
+        "key_params": {
+          "hc_class": "rf.HCPortfolio",
+          "model": "HERC",
+          "codependence": "pearson",
+          "linkage": "default riskfolio (default HCPortfolio = 'single')",
+          "method_cov": "ledoit",
+          "cap_enforcement": "enforce_caps a posteriori"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "KNOWN_ISSUES KI-1: Riskfolio-Lib pinnato >=7.2,<7.3 PROPRIO per HERC — la 7.3.0 ha un bug nella hierarchical recursive bisection (passa 'linkage' a _hierarchical_recursive_bisection -> TypeError). HRP/NCO non colpiti. Pin risolto a 7.2.1 dove HERC funziona.",
+        "Docstring (ereditata): allocatore euristico, cap imposti a posteriori con enforce_caps."
+      ],
+      "notes": "Hierarchical Equal Risk Contribution. E' il modello che vincola la versione di riskfolio."
+    },
+    "NCO": {
+      "name": "NCO",
+      "family": "ai",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "riskfolio",
+        "module": "optimization/clustering.py",
+        "rm": "MV",
+        "obj": "MinRisk",
+        "key_params": {
+          "hc_class": "rf.HCPortfolio",
+          "model": "NCO",
+          "codependence": "pearson",
+          "linkage": "default riskfolio (default HCPortfolio = 'single')",
+          "method_cov": "ledoit",
+          "cap_enforcement": "enforce_caps a posteriori"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring (ereditata): allocatore euristico, cap imposti a posteriori con enforce_caps."
+      ],
+      "notes": "Nested Clustered Optimization (Meucci/Lopez de Prado). Osservato in un top-4 documentato (phase3, backbone sintetico)."
+    },
+    "ExpGradient": {
+      "name": "ExpGradient",
+      "family": "online",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/online.py",
+        "rm": null,
+        "obj": null,
+        "key_params": {
+          "eta": 0.05,
+          "update": "b_i ∝ b_i * exp(eta * x_i / (b·x)) sui price relatives x_t=1+r_t",
+          "simplex_projection": "rinormalizzazione (somma 1) ad ogni step; output finale via enforce_caps",
+          "category": "momentum"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring modulo: implementazioni BASE (Li & Hoi, Online Portfolio Selection, 2016), non le varianti complete.",
+        "Nota validazione: la libreria 'universal-portfolios' non si e' installata; i modelli OLPS sono implementazioni proprie a regola."
+      ],
+      "notes": "Nome classe ExponentialGradient, name='ExpGradient' (Helmbold et al. 1998)."
+    },
+    "FollowTheLeader": {
+      "name": "FollowTheLeader",
+      "family": "online",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/online.py",
+        "rm": null,
+        "obj": null,
+        "key_params": {
+          "rule": "pesi ∝ ricchezza cumulata per asset (prod x_t), poi proiezione sul simplex (_simplex_proj, Duchi et al. 2008)",
+          "category": "momentum"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring: 'versione base del best-CRP in hindsight'.",
+        "Docstring modulo: implementazioni BASE (Li & Hoi 2016)."
+      ],
+      "notes": "Nessun iperparametro. Proiezione euclidea sul simplex."
+    },
+    "FTRL": {
+      "name": "FTRL",
+      "family": "online",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/online.py",
+        "rm": null,
+        "obj": null,
+        "key_params": {
+          "lam": 0.3,
+          "rule": "(1-lam)*FTL + lam*uniforme — FTL regolarizzato verso 1/N",
+          "category": "momentum"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring modulo: implementazioni BASE (Li & Hoi 2016)."
+      ],
+      "notes": "Nome classe FollowTheRegularizedLeader, name='FTRL'. lam=0.3 (default __init__)."
+    },
+    "PAMR": {
+      "name": "PAMR",
+      "family": "online",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/online.py",
+        "rm": null,
+        "obj": null,
+        "key_params": {
+          "eps": 0.5,
+          "update": "Passive-Aggressive mean reversion: tau = max(0, (b·x_hat - eps)/||x_hat - x_bar||^2); b = simplex_proj(b - tau*(x_hat - x_bar))",
+          "prediction": "x_hat = ultimo price relative osservato X[t-1]",
+          "category": "mean-reversion"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring modulo: implementazioni BASE (Li & Hoi 2016)."
+      ],
+      "notes": "Passive Aggressive Mean Reversion (Li et al. 2012). eps=0.5 (default classe)."
+    },
+    "OLMAR": {
+      "name": "OLMAR",
+      "family": "online",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/online.py",
+        "rm": null,
+        "obj": null,
+        "key_params": {
+          "window": 5,
+          "eps": 0.5,
+          "prediction": "media mobile dei prezzi / prezzo corrente (approssimata da media cumulata inversa sulla finestra)",
+          "category": "mean-reversion"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring: previsione 'media mobile dei prezzi / prezzo corrente ≈ media cumulata inversa' — approssimazione dichiarata.",
+        "Docstring modulo: implementazioni BASE (Li & Hoi 2016)."
+      ],
+      "notes": "Online Moving Average Reversion (Li & Hoi 2012). window=5, eps=0.5 (default __init__)."
+    },
+    "RMR": {
+      "name": "RMR",
+      "family": "online",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/online.py",
+        "rm": null,
+        "obj": null,
+        "key_params": {
+          "window": 5,
+          "eps": 0.5,
+          "prediction": "mediana dei price relatives invertiti sulla finestra (variante robusta di OLMAR)",
+          "category": "mean-reversion"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring: 'usa la mediana invece della media (qui APPROSSIMATA accorciando la finestra)' — non la median-reversion robusta completa.",
+        "Docstring modulo: implementazioni BASE (Li & Hoi 2016)."
+      ],
+      "notes": "Robust Median Reversion (Huang et al. 2013). Sottoclasse di OLMAR. window=5, eps=0.5."
+    },
+    "Anticor": {
+      "name": "Anticor",
+      "family": "online",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/online.py",
+        "rm": null,
+        "obj": null,
+        "key_params": {
+          "window": 10,
+          "rule": "trasferisce peso fra asset in base alla correlazione incrociata fra due finestre log consecutive (Borodin et al. 2004)",
+          "category": "mean-reversion"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring modulo: implementazioni BASE (Li & Hoi 2016)."
+      ],
+      "notes": "Anti-Correlation. window=10 (default __init__)."
+    },
+    "CORN": {
+      "name": "CORN",
+      "family": "online",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/online.py",
+        "rm": null,
+        "obj": null,
+        "key_params": {
+          "window": 5,
+          "rho": 0.2,
+          "rule": "Correlation-driven Nonparametric: trova finestre storiche con correlazione > rho con quella recente, best-CRP su quei giorni",
+          "category": "pattern-matching"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring: 'versione base con BCRP APPROSSIMATO dalla ricchezza cumulata'.",
+        "Docstring modulo: implementazioni BASE (Li & Hoi 2016)."
+      ],
+      "notes": "CORN (Li et al. 2011). window=5, rho=0.2 (default __init__)."
+    },
+    "MichaudResampling": {
+      "name": "MichaudResampling",
+      "family": "robust",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/robust.py",
+        "rm": "MV",
+        "obj": "Sharpe",
+        "key_params": {
+          "n_boot": 10,
+          "seed": 12345,
+          "method": "bootstrap dei rendimenti (resampling con reinserimento), max-Sharpe rf.Portfolio su ogni campione, MEDIA dei pesi; campioni degeneri scartati con fallback equal-weight se used==0",
+          "cap_enforcement": "enforce_caps sulla media"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring modulo: 'Dove l'esatto e' oneroso, varianti ragionevoli e DOCUMENTATE'.",
+        "Modello LENTO: indicato come escluso da LITE per costo (commento in optimization/__init__: 'Evita i modelli lenti (resampling Michaud, EVaR/EDaR)')."
+      ],
+      "notes": "Resampled Efficiency (Michaud). n_boot=10, seed=12345 (default __init__) -> deterministico."
+    },
+    "TalmudBlend": {
+      "name": "TalmudBlend",
+      "family": "robust",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/robust.py",
+        "rm": "MV",
+        "obj": "MinRisk",
+        "key_params": {
+          "alpha": 0.5,
+          "rule": "blend alpha*1/N + (1-alpha)*min-variance (DeMiguel et al.); alpha = quota su 1/N",
+          "cap_enforcement": "enforce_caps sul blend"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring modulo: varianti ragionevoli e documentate dove l'esatto e' oneroso."
+      ],
+      "notes": "'Markowitz meets the Talmud': blend 50/50 (alpha=0.5 default) fra 1/N e min-variance. min-variance via rf.Portfolio (rm='MV', obj='MinRisk')."
+    },
+    "Goldilocks": {
+      "name": "Goldilocks",
+      "family": "robust",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/robust.py",
+        "rm": "MV",
+        "obj": "MinRisk",
+        "key_params": {
+          "ridge": 0.2,
+          "rule": "min-variance regolarizzata: cov_reg = (1-ridge)*cov + ridge*diag(cov), poi rf.Portfolio rm='MV' obj='MinRisk'",
+          "cov_base": "port.cov (Ledoit-Wolf) ulteriormente ristretta verso la diagonale"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring modulo: varianti ragionevoli e documentate."
+      ],
+      "notes": "'Markowitz meets Goldilocks': shrink della covarianza verso la diagonale. ridge=0.2 (default __init__)."
+    },
+    "RobustEllipsoidal": {
+      "name": "RobustEllipsoidal",
+      "family": "robust",
+      "in_lite": false,
+      "status": "active",
+      "engine": {
+        "backend": "custom",
+        "module": "optimization/robust.py",
+        "rm": "MV",
+        "obj": "Sharpe",
+        "key_params": {
+          "kappa": 1.0,
+          "rule": "uncertainty set ellissoidale sulla media: mu_robust = mu - kappa*sqrt(diag(Sigma)/T), poi rf.Portfolio rm='MV' obj='Sharpe'",
+          "uncertainty_radius": "kappa (1.0)"
+        }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "Docstring modulo: varianti ragionevoli e documentate."
+      ],
+      "notes": "Robust mean-variance con penalita' della media al suo errore standard (caso peggiore). kappa=1.0 (default __init__)."
+    },
+    "EqualWeight": {
+      "name": "EqualWeight",
+      "family": "baseline",
+      "in_lite": true,
+      "status": "active",
+      "engine": {
+        "backend": "heuristic",
+        "module": "optimization/classic.py",
+        "rm": null,
+        "obj": null,
+        "key_params": { "rule": "1/N — pesi uguali, nessuna ottimizzazione" }
+      },
+      "oos": { "calmar": null, "sharpe": null, "ann_return": null, "ann_vol": null, "max_drawdown": null, "turnover": null, "selection_freq_top4": null, "beats_equalweight": null },
+      "caveats_declared": [
+        "E' il benchmark di riferimento (1/N): 'beats_equalweight' non si applica a se stesso."
+      ],
+      "notes": "Baseline 1/N (sanity benchmark). In LITE_MODELS. E' anche lo strumento di confronto OOS dell'intero ensemble (vedi common.oos_documented_aggregate)."
+    },
+    "DeepLearningOpt": {
+      "name": "DeepLearningOpt",
+      "family": "deep",
+      "in_lite": false,
+      "status": "stub_disabled",
+      "engine": {
+        "backend": null,
+        "module": "optimization/deep.py",
+        "rm": null,
+        "obj": null,
+        "key_params": null
+      },
+      "oos": null,
+      "caveats_declared": [
+        "STUB non implementato: fit_weights solleva NotImplementedError.",
+        "Docstring: 'rinviato ai dati Bloomberg (feature ricche + training dedicato)'. NON entra nell'ensemble di default (non in DEFAULT_MODELS)."
+      ],
+      "notes": "Allocazione via deep learning (autoencoder+MLP sui fattori). Segnaposto architetturale."
+    },
+    "DeepRLOpt": {
+      "name": "DeepRLOpt",
+      "family": "deep",
+      "in_lite": false,
+      "status": "stub_disabled",
+      "engine": {
+        "backend": null,
+        "module": "optimization/deep.py",
+        "rm": null,
+        "obj": null,
+        "key_params": null
+      },
+      "oos": null,
+      "caveats_declared": [
+        "STUB non implementato: fit_weights solleva NotImplementedError.",
+        "Docstring: richiede ambiente di simulazione, reward shaping e validazione robusta; rinviato ai dati Bloomberg. NON in DEFAULT_MODELS."
+      ],
+      "notes": "Allocazione via deep reinforcement learning (policy su stato di mercato). Segnaposto architetturale."
+    }
+  }
+}
