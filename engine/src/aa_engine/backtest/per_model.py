@@ -214,10 +214,19 @@ def run_per_model_backtest(
 # CLI — esegue su dati reali (se disponibili) o sul backbone sintetico
 # --------------------------------------------------------------------------- #
 def _real_prices_returns() -> tuple[pd.DataFrame, dict[str, str], str] | None:
-    """Carica i prezzi reali Yahoo da research/options-regime/data_local, se presenti."""
+    """Base dati reali per il backtest.
+
+    Preferisce l'universo **Bloomberg** (``data/market/prices.csv``, 35 strumenti,
+    2006–2026); se assente ricade sui prezzi Yahoo di ricerca (SPY/TLT/GLD/DBC).
+    """
+    from aa_engine.data import market_data
+
+    base = market_data.load_base_returns()
+    if base is not None:
+        return base
+
     here = Path(__file__).resolve()
-    root = here.parents[3]  # …/engine
-    csv = root / "research" / "options-regime" / "data_local" / "prices.csv"
+    csv = here.parents[3] / "research" / "options-regime" / "data_local" / "prices.csv"
     if not csv.exists():
         return None
     px = pd.read_csv(csv, index_col=0, parse_dates=True).sort_index()
