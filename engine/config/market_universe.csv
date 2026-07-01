@@ -1,0 +1,54 @@
+symbol,bbg_ticker,name,isin,currency,asset_class,sub_class,role,group
+SPY,SPY US Equity,SPDR S&P 500 ETF Trust,US78462F1030,USD,Equity_DM,US,investibile,equity
+QQQ,QQQ US Equity,Invesco QQQ Trust Series I,US46090E1038,USD,Equity_DM,US,investibile,equity
+IWM,IWM US Equity,iShares Russell 2000 ETF,US4642876555,USD,Equity_DM,US,investibile,equity
+VONG,VONG US Equity,Vanguard Russell 1000 Growth ETF,US92206C6802,USD,Equity_DM,US,investibile,equity
+VONV,VONV US Equity,Vanguard Russell 1000 Value ETF,US92206C7149,USD,Equity_DM,US,investibile,equity
+SPMV,SPMV LN Equity,iShares Edge S&P 500 Minimum Volatility UCITS,IE00B6SPMN59,EUR,Equity_DM,US,investibile,equity
+CSINDU,CSINDU SW Equity,iShares Dow Jones Industrial Average UCITS,IE00B53L4350,USD,Equity_DM,US,investibile,equity
+EWC,EWC US Equity,iShares MSCI Canada ETF,US4642865095,USD,Equity_DM,US,investibile,equity
+XDAX,XDAX GY Equity,Xtrackers DAX UCITS ETF,LU0274211480,EUR,Equity_DM,Europe,investibile,equity
+CSMIB,CSMIB IM Equity,iShares FTSE MIB UCITS ETF,IE00B53L4X51,EUR,Equity_DM,Europe,investibile,equity
+X40,X40 FP Equity,Xtrackers CAC 40 UCITS ETF,LU0322250985,EUR,Equity_DM,Europe,investibile,equity
+IAEX,IAEX NA Equity,iShares AEX UCITS ETF,IE00B0M62Y33,EUR,Equity_DM,Europe,investibile,equity
+SMICHA,SMICHA SW Equity,UBS ETF CH SMI,CH0017142719,CHF,Equity_DM,Europe,investibile,equity
+XDJP,XDJP GY Equity,Xtrackers Nikkei 225 UCITS ETF,LU1875395870,EUR,Equity_DM,Japan,investibile,equity
+TPXE,TPXE FP Equity,Amundi Japan TOPIX II UCITS ETF,FR0011475078,EUR,Equity_DM,Japan,investibile,equity
+EIS,EIS US Equity,iShares MSCI Israel ETF,US4642866325,USD,Equity_DM,Israel,investibile,equity
+XNIF,XNIF GY Equity,Xtrackers Nifty 50 Swap UCITS ETF,LU0292109690,EUR,Equity_EM,India,investibile,equity
+FXI,FXI US Equity,iShares China Large-Cap ETF,US4642871846,USD,Equity_EM,China,investibile,equity
+ARGT,ARGT US Equity,Global X MSCI Argentina ETF,US37950E2596,USD,Equity_EM,Argentina,investibile,equity
+URTH,URTH US Equity,iShares MSCI World ETF,US4642863926,USD,Equity_EM,World,investibile,equity
+CBU7,CBU7 LN Equity,iShares USD Treasury Bond 3-7yr UCITS,IE00B3VWN393,USD,Fixed_Income_IG,US_Treasury,investibile,fixed_income
+CBU0,CBU0 LN Equity,iShares USD Treasury Bond 7-10yr UCITS,IE00B3VWN518,USD,Fixed_Income_IG,US_Treasury,investibile,fixed_income
+LQD,LQD US Equity,iShares iBoxx USD IG Corporate Bond ETF,US4642872422,USD,Fixed_Income_IG,US_Corp,investibile,fixed_income
+ALGFRDS,ALGFRDS ID Equity,Algebris Financial Credit Fund,IE00B81TMV64,EUR,Fixed_Income_IG,Credit,investibile,fixed_income
+PIMINEA,PIMINEA ID Equity,PIMCO GIS Income Fund,IE00B80G9288,EUR,Fixed_Income_IG,Income,investibile,fixed_income
+BGH,BGH US Equity,Barings Global Short Duration HY Fund,US06760L1008,USD,Fixed_Income_HY,Global,investibile,fixed_income
+ANGL,ANGL US Equity,VanEck Fallen Angel High Yield Bond ETF,US92189F4375,USD,Fixed_Income_HY,Fallen_Angel,investibile,fixed_income
+AHYE,AHYE GY Equity,Amundi Euro High Yield Bond ESG,LU1681040496,EUR,Fixed_Income_HY,Euro_HY,investibile,fixed_income
+JMBE,JMBE LN Equity,JPMorgan Global HY Corp Bond Active UCITS,IE00BL0BLZ15,USD,Fixed_Income_HY,Global_HY,investibile,fixed_income
+SGLD,SGLD LN Equity,Invesco Physical Gold,IE00B579F325,USD,Commodity,Gold,investibile,commodities
+DBC,DBC US Equity,Invesco DB Commodity Index Tracking Fund,US46138B1035,USD,Commodity,Broad,investibile,commodities
+AIGC,AIGC LN Equity,WisdomTree Broad Commodities,GB00B15KXV33,USD,Commodity,Broad,investibile,commodities
+DBA,DBA US Equity,Invesco DB Multi-Sector Commodity Trust,US46140H1068,USD,Commodity,Multi_Sector,investibile,commodities
+XTR,XTR US Equity,Global X S&P 500 Tail Risk ETF,US37960A1079,USD,Alternative,Tail_Risk,investibile,alternatives
+CAOS,CAOS US Equity,Alpha Architect Tail Risk ETF,US02072L5167,USD,Alternative,Tail_Risk,investibile,alternatives
+BTAL,BTAL US Equity,AGF U.S. Market Neutral Anti-Beta Fund,US00110G4082,USD,Alternative,Anti_Beta,investibile,alternatives
+SPX,SPX Index,S&P 500 Index,,USD,Signal_Equity_Index,US,solo_segnale,
+NDX,NDX Index,NASDAQ 100 Index,,USD,Signal_Equity_Index,US,solo_segnale,
+DAX,DAX Index,DAX Index,,EUR,Signal_Equity_Index,Europe,solo_segnale,
+SMI,SMI Index,SMI Index,,CHF,Signal_Equity_Index,Europe,solo_segnale,
+UKX,UKX Index,FTSE 100 Index,,GBP,Signal_Equity_Index,Europe,solo_segnale,
+CAC,CAC Index,CAC 40 Index,,EUR,Signal_Equity_Index,Europe,solo_segnale,
+IBEX,IBEX Index,IBEX 35 Index,,EUR,Signal_Equity_Index,Europe,solo_segnale,
+XBTUSD,XBTUSD Curncy,Bitcoin,,USD,Signal_Equity_Index,Crypto,solo_segnale,
+DXY,DXY Index,US Dollar Index,,USD,Signal_FX_Index,Dollar,solo_segnale,
+EURUSD,EURUSD Curncy,EUR/USD,,,Signal_FX_Pair,EURUSD,solo_segnale,
+EURJPY,EURJPY Curncy,EUR/JPY,,,Signal_FX_Pair,EURJPY,solo_segnale,
+EURCHF,EURCHF Curncy,EUR/CHF,,,Signal_FX_Pair,EURCHF,solo_segnale,
+EURGBP,EURGBP Curncy,EUR/GBP,,,Signal_FX_Pair,EURGBP,solo_segnale,
+XAU,XAU Curncy,Gold Spot,,USD,Signal_Commodity,Gold,solo_segnale,
+CL1,CL1 Comdty,Crude Oil WTI,,USD,Signal_Commodity,Crude,solo_segnale,
+HG1,HG1 Comdty,Copper,,USD,Signal_Commodity,Copper,solo_segnale,
+XAG,XAG Curncy,Silver Spot,,USD,Signal_Commodity,Silver,solo_segnale,
