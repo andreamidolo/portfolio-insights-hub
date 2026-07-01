@@ -61,6 +61,25 @@ come **base dell'universo e del motore**.
 4. **17 serie "solo_segnale"** (indici equity/FX/commodity spot): elencate nell'universo ma non
    nei fogli prezzi/vol di questo export → da scaricare separatamente per il binario segnali.
 
+## Aggiornare i dati sull'host (es. Mac mini)
+
+I prezzi Bloomberg sono **gitignored**: dopo un `git pull` vanno rigenerati con l'ETL, poi
+si riavvia il motore. Comodo one-shot:
+
+```bash
+bash engine/scripts/refresh_market_data.sh /percorso/di/solo_valori.xlsx
+# poi RESTART del servizio (uvicorn/launchd/pm2/docker — vedi output dello script)
+```
+
+Verifica (deve dire `bloomberg`):
+
+```bash
+curl http://localhost:8000/api/v1/data/universe   # -> "source":"bloomberg", ticker reali
+```
+
+Se risponde `"source":"sample"` con `EQ_DM/…`: l'ETL non è stato eseguito o il motore non è
+stato riavviato (o `data/market/prices.csv` non è visibile al processo).
+
 ## Prossimo passo
 
 - Validazione **full-41** sull'universo Bloomberg (oggi verificata in lite).
