@@ -56,9 +56,21 @@ class _Store:
         return self.market is not None
 
     def active_returns(self) -> tuple[pd.DataFrame, str]:
-        """Rendimenti attivi: dati utente se caricati, altrimenti backbone campione."""
+        """Rendimenti attivi: **priorità** dati utente → base Bloomberg → backbone campione.
+
+        La base Bloomberg (``data/market/``) è il default di produzione; ricade sul
+        backbone sintetico se assente (CI/clone) o disattivata (``AA_DISABLE_MARKET_BASE``).
+        """
         if self.market is not None:
             return self.market.returns, "user"
+
+        from aa_engine.data import market_data
+
+        base = market_data.load_base_returns()
+        if base is not None:
+            returns, _acmap, _src = base
+            return returns, "bloomberg"
+
         from aa_engine.optimization.sample import sample_returns
 
         return sample_returns(), "sample"
@@ -67,9 +79,16 @@ class _Store:
 STORE = _Store()
 
 
-def acmap_for(tickers) -> dict[str, str]:
-    """Asset class per ticker: nota se è nel set campione, altrimenti 'Unknown'."""
-    return {t: ASSET_CLASS_MAP.get(t, "Unknown") for t in tickers}
+def acmap_for(tickers, default: str = "Unknown") -> dict[str, str]:
+    """Asset class per ticker: mappa Bloomberg (manifest) ∪ backbone campione.
+
+    Risolve i ticker dell'universo Bloomberg via ``config/market_universe.csv`` e
+    quelli del backbone sintetico via ``ASSET_CLASS_MAP``; fallback ``default``.
+    """
+    from aa_engine.data import market_data
+
+    bbg = market_data.asset_class_map()
+    return {t: (bbg.get(t) or ASSET_CLASS_MAP.get(t, default)) for t in tickers}
 
 
 # --------------------------------------------------------------------------- #

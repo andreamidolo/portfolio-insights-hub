@@ -11,6 +11,7 @@ Spec: docs/11_phase4_integration_spec.md.
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import io
 from dataclasses import dataclass, field
 
@@ -21,7 +22,6 @@ import numpy as np
 from aa_engine.backtest.performance import performance_summary
 from aa_engine.data import Regime
 from aa_engine.optimization import OptimizationEnsemble, default_ensemble, lite_enabled
-from aa_engine.optimization.sample import ASSET_CLASS_MAP
 from aa_engine.profiles import benchmark_weights, constraints_for, load_profiles
 from aa_engine.risk import compute_measure
 from aa_engine.signals import (
@@ -52,8 +52,6 @@ LOOKBACK_DAYS = 756
 # fingerprint dei dati attivi: caricare nuovi prezzi via /data/upload invalida
 # automaticamente la cache. In-process, bounded (FIFO).
 # --------------------------------------------------------------------------- #
-import hashlib
-
 _CACHE: "dict[tuple, object]" = {}
 _CACHE_MAX = 128
 
@@ -247,7 +245,7 @@ def _build_context(
     # memoria) se presenti, altrimenti backbone sintetico. Stesso shape
     # (date × ticker): il resto della pipeline non cambia. Import locale per
     # evitare cicli (api -> pipeline -> api).
-    from aa_engine.api.store import STORE
+    from aa_engine.api.store import STORE, acmap_for
 
     returns_all, _data_source = STORE.active_returns()
     if as_of is not None:
@@ -261,7 +259,7 @@ def _build_context(
     as_of_str = returns_all.index[-1].date().isoformat()
     universe = universe or list(returns_all.columns)
     returns_all = returns_all[universe]
-    acmap = {t: ASSET_CLASS_MAP.get(t, "Other") for t in universe}
+    acmap = acmap_for(universe, default="Other")
 
     # 1. REGIME (proxy) per asset class
     regimes = _proxy_regimes(returns_all, acmap)
@@ -301,7 +299,8 @@ def run_allocation(
     # Cache solo sul percorso "standard" (ensemble/universe di default).
     cache_key = None
     if ensemble is None and universe is None:
-        cache_key = ("alloc", profile, currency, as_of, LOOKBACK_DAYS, _data_fingerprint())
+        cache_key = ("alloc", profile, currency, as_of, LOOKBACK_DAYS,
+                     lite_enabled(), _data_fingerprint())
         hit = _CACHE.get(cache_key)
         if hit is not None:
             return hit  # type: ignore[return-value]
@@ -414,7 +413,8 @@ def compute_optimization_models(
     """
     cache_key = None
     if ensemble is None:
-        cache_key = ("optmodels", profile, currency, as_of, LOOKBACK_DAYS, _data_fingerprint())
+        cache_key = ("optmodels", profile, currency, as_of, LOOKBACK_DAYS,
+                     lite_enabled(), _data_fingerprint())
         hit = _CACHE.get(cache_key)
         if hit is not None:
             return hit  # type: ignore[return-value]
@@ -565,10 +565,12 @@ def _make_ensemble_strategy(profile: str, currency: str, pstate: dict):
     """
     import pandas as pd
 
+    from aa_engine.api.store import acmap_for
+
     ens = default_ensemble(n_best=4)
 
     def strat(train_returns: "pd.DataFrame") -> "pd.Series":
-        acmap = {t: ASSET_CLASS_MAP.get(t, "Other") for t in train_returns.columns}
+        acmap = acmap_for(train_returns.columns, default="Other")
         constraints = constraints_for(profile, currency, acmap)
         with _quiet():
             res = ens.run(train_returns, constraints=constraints)
