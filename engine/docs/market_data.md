@@ -35,9 +35,16 @@ come **base dell'universo e del motore**.
   **finestra comune** → ~**31 strumenti, ~2015→oggi (11 anni)**, covarianza pulita. Questa
   scelta evita le colonne a varianza zero da start scaglionati (che con `fillna(0)`
   escludevano HRP ogni fold). Le serie 20y complete restano in `prices.csv` (`load_returns()`).
-- **Backtest / validazione**: `aa_engine.backtest.per_model` usa questa base come dati reali
-  preferiti (fallback: prezzi Yahoo di ricerca, poi backbone sintetico). Sanity run lite
-  (6 modelli, 7 fold, 0 esclusi): ensemble Sharpe ~0.87, Calmar ~0.40, MaxDD ~13.6%.
+- **Default di produzione**: `STORE.active_returns()` usa la base Bloomberg quando nessun
+  upload è presente → **`run_allocation`, l'API e il backtest** girano sull'universo reale
+  (priorità: upload utente → Bloomberg → backbone sintetico). L'`asset_class_map` risolve i
+  ticker Bloomberg via il manifest (`acmap_for`), così i vincoli di profilo si applicano ai
+  gruppi corretti.
+- **Isolamento test**: la suite forza il backbone sintetico via `AA_DISABLE_MARKET_BASE`
+  (`tests/conftest.py`), così locale = CI a prescindere dai file in `data/market/`.
+- Sanity: `run_allocation('moderate','EUR')` sull'universo Bloomberg → 41 modelli, 28
+  strumenti, Equity 38% / FI 31% / HY 23% / Commodities 7%, StdDev 5.7% MaxDD 6.8%. Backtest
+  lite (7 fold, 0 esclusi): Sharpe ~0.87, Calmar ~0.40, MaxDD ~13.6%.
 - Mappa gruppi: asset_class del manifest → etichetta motore (`Equity`, `Fixed Income`, `HY`,
   `Commodities`, `Alternatives`) → 5 gruppi di vincolo via `profiles.GROUP_OF_ASSET_CLASS`.
 
@@ -54,8 +61,8 @@ come **base dell'universo e del motore**.
 4. **17 serie "solo_segnale"** (indici equity/FX/commodity spot): elencate nell'universo ma non
    nei fogli prezzi/vol di questo export → da scaricare separatamente per il binario segnali.
 
-## Prossimo passo (non in questa PR)
+## Prossimo passo
 
-Rendere la base Bloomberg il **default anche di `run_allocation`/API** (oggi lo è per il
-backtest): richiede di propagare l'`asset_class_map` di `market_data` nella pipeline
-(`pipeline/run.py`) e aggiornare i test che assumono il backbone sintetico.
+- Validazione **full-41** sull'universo Bloomberg (oggi verificata in lite).
+- Aggiungere un ETF **monetario** per coprire il gruppo `cash`.
+- Scaricare le **17 serie solo-segnale** e la **IV Treasury** (gap dichiarati) per il binario segnali.

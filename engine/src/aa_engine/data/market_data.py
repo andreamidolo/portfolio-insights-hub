@@ -15,6 +15,7 @@ si rigenera con ``python -m aa_engine.data.bloomberg_import <file.xlsx>``.
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -44,8 +45,17 @@ def prices_path() -> Path:
     return market_dir() / "prices.csv"
 
 
+def disabled() -> bool:
+    """True se la base Bloomberg è disattivata via env (``AA_DISABLE_MARKET_BASE``).
+
+    Usato dai test per forzare il backbone sintetico deterministico, a prescindere
+    dai file locali (che non esistono in CI).
+    """
+    return os.getenv("AA_DISABLE_MARKET_BASE", "").strip().lower() in ("1", "true", "yes", "on")
+
+
 def available() -> bool:
-    return prices_path().exists()
+    return not disabled() and prices_path().exists()
 
 
 @lru_cache(maxsize=1)
