@@ -165,6 +165,7 @@ class AllocationResponse(BaseModel):
     currency: Currency
     as_of: str
     lite: bool = False                # ensemble ridotto (modalità hosting leggera)
+    data_source: Literal["user", "sample", "bloomberg"] = "sample"
     n_models_active: int
     regimes: dict[str, RegimeLabel]
     signals: list[SignalRow]
@@ -239,7 +240,7 @@ class InstrumentInfo(BaseModel):
 
 
 class UniverseResponse(BaseModel):
-    source: Literal["user", "sample"]
+    source: Literal["user", "sample", "bloomberg"]
     filename: str | None = None
     n_instruments: int
     n_observations: int
@@ -276,7 +277,7 @@ class PortfolioAnalyzeRequest(BaseModel):
 
 
 class PortfolioAnalyzeResponse(BaseModel):
-    source: Literal["user", "sample"]
+    source: Literal["user", "sample", "bloomberg"]
     as_of: str
     n_holdings: int
     covered_weight: float             # frazione di peso effettivamente analizzata
@@ -335,7 +336,7 @@ class ProfilesConfigResponse(BaseModel):
 
 
 class PortfolioReoptimizeResponse(BaseModel):
-    source: Literal["user", "sample"]
+    source: Literal["user", "sample", "bloomberg"]
     profile: Profile
     currency: Currency
     lite: bool = False

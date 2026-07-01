@@ -100,12 +100,13 @@ class AllocationResult:
     excluded_models: dict[str, str] = field(default_factory=dict)
     benchmark: dict = field(default_factory=dict)  # confronto col benchmark del profilo
     lite: bool = False                             # modalità hosting leggera (ensemble ridotto)
+    data_source: str = "sample"                    # "user" | "bloomberg" | "sample"
 
     def to_payload(self) -> dict:
         """Dict JSON-serializzabile (per l'API e il salvataggio)."""
         return {
             "profile": self.profile, "currency": self.currency, "as_of": self.as_of,
-            "lite": self.lite,
+            "lite": self.lite, "data_source": self.data_source,
             "n_models_active": self.n_models_active,
             "regimes": self.regimes, "signals": self.signals,
             "selected": self.selected, "discarded": self.discarded,
@@ -217,6 +218,7 @@ class _Context:
     selected: list[str]
     discarded: list[str]
     signals_table: list[dict]
+    data_source: str = "sample"                   # "user" | "bloomberg" | "sample"
 
     @property
     def regime_labels(self) -> dict[str, str]:
@@ -247,7 +249,7 @@ def _build_context(
     # evitare cicli (api -> pipeline -> api).
     from aa_engine.api.store import STORE, acmap_for
 
-    returns_all, _data_source = STORE.active_returns()
+    returns_all, data_source = STORE.active_returns()
     if as_of is not None:
         returns_all = returns_all.loc[: pd.Timestamp(as_of)]
     # Cap a FINESTRA TRAILING: gli ottimizzatori (specie online/timing, costo
@@ -280,6 +282,7 @@ def _build_context(
         regimes=regimes, regime_provider=regime_provider,
         views=views, selected=selected, discarded=discarded,
         signals_table=build_signals_table(sig_outputs, summary, acmap),
+        data_source=data_source,
     )
 
 
@@ -339,6 +342,7 @@ def run_allocation(
         excluded_models=result.excluded,
         benchmark=benchmark,
         lite=lite_enabled() and ensemble is None,
+        data_source=ctx.data_source,
     )
     return _cache_put(cache_key, out) if cache_key else out  # type: ignore[return-value]
 
